@@ -4,8 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TextLocator"
+        xmlns:rubyer="clr-namespace:Rubyer;assembly=Rubyer"
         mc:Ignorable="d"
-        Title="文本搜索定位" Width="1366" Height="768" WindowStartupLocation="CenterScreen" Icon="Resource/App.ico" Loaded="Window_Loaded">
+        Title="搜索文本定位" Width="1366" Height="768" WindowStartupLocation="CenterScreen" Icon="Resource/App.ico" Loaded="Window_Loaded">
     <!-- DockPanel停靠容器 && Viewbox显示盒子 && Canvas画布 -->
     <DockPanel LastChildFill="True">
         <Viewbox Stretch="Fill">
@@ -19,7 +20,7 @@
                             <!-- 搜索 -->
                             <StackPanel Margin="20,15,0,0" Orientation="Horizontal" >
                                 <!-- 搜索框 -->
-                                <TextBox x:Name="Keywords" Width="500" Height="36" HorizontalAlignment="Left" BorderThickness="1" BorderBrush="Green">
+                                <TextBox x:Name="Keywords" Width="500" Height="36" FontSize="20" HorizontalAlignment="Left" VerticalContentAlignment="Center" BorderThickness="1" BorderBrush="Green">
                                     <TextBox.Resources>
                                         <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
                                             <VisualBrush.Visual>
@@ -55,15 +56,15 @@
                                 <StackPanel>
                                     <Grid Margin="0,6,0,0">
                                         <!-- 匹配大小写 -->
-                                        <CheckBox Content="匹配大小写" FontSize="16"/>
+                                        <CheckBox Content="匹配大小写" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center"/>
                                         <!-- 匹配全词 -->
-                                        <CheckBox Content="匹配全词" FontSize="16" Margin="150,0,0,0"/>
+                                        <CheckBox Content="匹配全词" FontSize="16" Margin="150,0,0,0" HorizontalAlignment="Left" VerticalContentAlignment="Center"/>
                                     </Grid>
                                     <Grid Margin="0,14,0,0">
                                         <!-- 匹配原始值 -->
-                                        <CheckBox Content="匹配原始值" FontSize="16"/>
+                                        <CheckBox Content="匹配原始值" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center"/>
                                         <!-- 仅文件名 -->
-                                        <CheckBox Content="仅文件名" FontSize="16" Margin="150,0,0,0"/>
+                                        <CheckBox Content="仅文件名" FontSize="16" Margin="150,0,0,0" HorizontalAlignment="Left" VerticalContentAlignment="Center"/>
                                     </Grid>
                                 </StackPanel>
                                 <!-- 分割线 -->
@@ -124,14 +125,28 @@
                         <!-- 分割线 -->
                         <GridSplitter Grid.Column="1" Width="1" HorizontalAlignment="Stretch" Background="Gray" />
                         <!-- 右边 -->
-                        <Grid Width="683" HorizontalAlignment="Right" Background="CadetBlue">
+                        <Grid Width="683" HorizontalAlignment="Right">
+                            <!-- 条件和排序 -->
+                            <Grid Height="40" VerticalAlignment="Top" Background="#F3F3F3">
+                                <!-- 打开文件 -->
+                                <Image Source="/Resource/btn_file.png" ToolTip="打开文件" HorizontalAlignment="Left" Margin="10,5,0,5"/>
+                                <!-- 打开文件夹 -->
+                                <Image Source="/Resource/btn_folder.png" ToolTip="打开文件夹" HorizontalAlignment="Left" Margin="50,5,0,5"/>
+                            </Grid>
+                            <!-- 内容预览 -->
+                            <ScrollViewer Margin="0,40,0,0">
+
+                            </ScrollViewer>
                         </Grid>
                     </Grid>
                     <!-- 分割线 -->
                     <GridSplitter Grid.Column="1" Height="1" HorizontalAlignment="Stretch" Background="Gray" />
                     <!-- 底部 -->
                     <Grid Height="25" Background="#C8C8C8">
-                        <TextBlock Text="就绪" Margin="10,0,0,0"/>
+                        <ProgressBar Width="150" Margin="10,0,0,0" HorizontalAlignment="Left"
+                                     IsIndeterminate="True"
+                                                rubyer:ProgressBarHelper.Thickness="20"/>
+                        <TextBlock Text="就绪" Margin="170,0,0,0" HorizontalAlignment="Left"/>
                     </Grid>
                 </StackPanel>
             </Canvas>

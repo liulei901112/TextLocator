@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,6 +34,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resource\App.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
@@ -169,6 +173,27 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resource\App.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\ext\ext_dps.png" />
+    <Resource Include="Resource\ext\ext_eml.png" />
+    <Resource Include="Resource\ext\ext_et.png" />
+    <Resource Include="Resource\ext\ext_excel.png" />
+    <Resource Include="Resource\ext\ext_html.png" />
+    <Resource Include="Resource\ext\ext_hwp.png" />
+    <Resource Include="Resource\ext\ext_odp.png" />
+    <Resource Include="Resource\ext\ext_ods.png" />
+    <Resource Include="Resource\ext\ext_odt.png" />
+    <Resource Include="Resource\ext\ext_pdf.png" />
+    <Resource Include="Resource\ext\ext_ppt.png" />
+    <Resource Include="Resource\ext\ext_rtf.png" />
+    <Resource Include="Resource\ext\ext_txt.png" />
+    <Resource Include="Resource\ext\ext_word.png" />
+    <Resource Include="Resource\ext\ext_wps.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\btn_file.png" />
+    <Resource Include="Resource\btn_folder.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

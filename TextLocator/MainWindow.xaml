@@ -1,0 +1,140 @@
+﻿<Window x:Class="TextLocator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TextLocator"
+        mc:Ignorable="d"
+        Title="文本搜索定位" Width="1366" Height="768" WindowStartupLocation="CenterScreen" Icon="Resource/App.ico" Loaded="Window_Loaded">
+    <!-- DockPanel停靠容器 && Viewbox显示盒子 && Canvas画布 -->
+    <DockPanel LastChildFill="True">
+        <Viewbox Stretch="Fill">
+            <Canvas Width="1366" Height="768">
+                <!-- Grid布局 -->
+                <StackPanel Width="1366" Height="768">
+                    <!-- 头部 -->
+                    <StackPanel Orientation="Horizontal" Height="140" VerticalAlignment="Top">
+                        <!-- 搜索条件区 -->
+                        <StackPanel Width="1000">
+                            <!-- 搜索 -->
+                            <StackPanel Margin="20,15,0,0" Orientation="Horizontal" >
+                                <!-- 搜索框 -->
+                                <TextBox x:Name="Keywords" Width="500" Height="36" HorizontalAlignment="Left" BorderThickness="1" BorderBrush="Green">
+                                    <TextBox.Resources>
+                                        <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
+                                            <VisualBrush.Visual>
+                                                <TextBlock Text="请输入搜索关键词" FontSize="20"/>
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                        <Style TargetType="{x:Type Border}">
+                                            <Setter Property="CornerRadius" Value="4"/>
+                                            <Setter Property="BorderBrush" Value="#c1d0dc"/>
+                                        </Style>
+                                    </TextBox.Resources>
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="Text" Value="{x:Null}">
+                                                    <Setter Property="Background" Value="{StaticResource HintText}"/>
+                                                </Trigger>
+                                                <Trigger Property="Text" Value="">
+                                                    <Setter Property="Background" Value="{StaticResource HintText}"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                                <!-- 搜索按钮 -->
+                                <Button x:Name="SearchButton" Content="搜索" Margin="10,0,0,0" Width="150" Height="35" MouseUp="SearchButton_MouseUp"/>
+                                <!-- 清空按钮 -->
+                                <Button x:Name="CleanButton" Content="清空" Margin="10,0,0,0" Width="150" Height="35" Background="Red"/>
+                            </StackPanel>
+                            <!-- 其他条件 -->
+                            <StackPanel Margin="20,10,0,0" Orientation="Horizontal" >
+                                <!-- 复选框 -->
+                                <StackPanel>
+                                    <Grid Margin="0,6,0,0">
+                                        <!-- 匹配大小写 -->
+                                        <CheckBox Content="匹配大小写" FontSize="16"/>
+                                        <!-- 匹配全词 -->
+                                        <CheckBox Content="匹配全词" FontSize="16" Margin="150,0,0,0"/>
+                                    </Grid>
+                                    <Grid Margin="0,14,0,0">
+                                        <!-- 匹配原始值 -->
+                                        <CheckBox Content="匹配原始值" FontSize="16"/>
+                                        <!-- 仅文件名 -->
+                                        <CheckBox Content="仅文件名" FontSize="16" Margin="150,0,0,0"/>
+                                    </Grid>
+                                </StackPanel>
+                                <!-- 分割线 -->
+                                <GridSplitter Margin="30,0,30,0" Grid.Column="1" Width="1" HorizontalAlignment="Stretch" Background="Gray" />
+                                <!-- 扩展信息 -->
+                                <StackPanel>
+                                    <!-- 扩展名 -->
+                                    <Grid>
+                                        <TextBlock Text="搜索区：" HorizontalAlignment="Left"/>
+                                        <ComboBox Margin="50,0,0,0" Width="100" HorizontalAlignment="Left" Height="25">
+                                            <ComboBoxItem Content="常用文档" IsSelected="True"/>
+                                        </ComboBox>
+                                        <Button Content="区域编辑器" Margin="160,0,0,0" Width="100" Height="20" HorizontalAlignment="Left" Background="Gray"/>                                        
+                                    </Grid>
+                                    <!-- 文件夹 -->
+                                    <Grid Margin="0,20,0,0" >
+                                        <TextBlock Text="文件夹：" HorizontalAlignment="Left"/>
+                                        <TextBox Text="D:\UserData\" IsReadOnly="true" Width="500" Height="20" Margin="50,0,0,0" HorizontalAlignment="Left"/>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                        <!-- 扩展区 -->
+                        <StackPanel Width="365"></StackPanel>
+                    </StackPanel>
+                    <!-- 分割线 -->
+                    <GridSplitter Grid.Column="1" Height="1" HorizontalAlignment="Stretch" Background="Gray" />
+                    <!-- 中间 -->
+                    <Grid Height="601">
+                        <!-- 左边 -->
+                        <Grid Width="683" HorizontalAlignment="Left">
+                            <!-- 条件和排序 -->
+                            <Grid Height="40" VerticalAlignment="Top" Background="#F3F3F3">
+                                <TextBlock Text="文件类型：" Margin="20,0,0,0"/>
+                                <ComboBox Margin="80,0,0,0" Width="130" HorizontalAlignment="Left" Height="25">
+                                    <ComboBoxItem Content="全部" IsSelected="True"/>
+                                    <ComboBoxItem Content="Word类型"/>
+                                    <ComboBoxItem Content="Excel类型"/>
+                                    <ComboBoxItem Content="PowerPoint类型"/>
+                                    <ComboBoxItem Content="PDF"/>
+                                    <ComboBoxItem Content="XML/HTML"/>
+                                    <ComboBoxItem Content="纯文本"/>
+                                </ComboBox>
+
+                                <!-- 排序 -->
+                                <TextBlock Text="排序：" Margin="0,0,280,0" HorizontalAlignment="Right"/>
+                                <Button Content="默认" Margin="0,0,220,0"  Width="60" Height="20" HorizontalAlignment="Right"/>
+                                <Button Content="匹配度" Margin="0,0,150,0"  Width="60" Height="20" HorizontalAlignment="Right" Background="Gray"/>
+
+                                <Button Content="时间" Margin="0,0,80,0" Width="60" Height="20" HorizontalAlignment="Right" Background="Gray"/>
+                                <Button Content="大小" Margin="0,0,10,0" Width="60" Height="20" HorizontalAlignment="Right" Background="Gray"/>
+                            </Grid>
+                            <!-- 列表 -->
+                            <ScrollViewer Margin="0,40,0,0">
+                                
+                            </ScrollViewer>
+                        </Grid>
+                        <!-- 分割线 -->
+                        <GridSplitter Grid.Column="1" Width="1" HorizontalAlignment="Stretch" Background="Gray" />
+                        <!-- 右边 -->
+                        <Grid Width="683" HorizontalAlignment="Right" Background="CadetBlue">
+                        </Grid>
+                    </Grid>
+                    <!-- 分割线 -->
+                    <GridSplitter Grid.Column="1" Height="1" HorizontalAlignment="Stretch" Background="Gray" />
+                    <!-- 底部 -->
+                    <Grid Height="25" Background="#C8C8C8">
+                        <TextBlock Text="就绪" Margin="10,0,0,0"/>
+                    </Grid>
+                </StackPanel>
+            </Canvas>
+        </Viewbox>
+    </DockPanel>
+</Window>

@@ -1,0 +1,9 @@
+﻿<Application x:Class="TextLocator.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:TextLocator"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary Source="/Resource/GenericDictionary.xaml"/>
+    </Application.Resources>
+</Application>

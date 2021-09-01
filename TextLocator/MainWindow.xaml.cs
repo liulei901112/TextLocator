@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace TextLocator
@@ -54,11 +55,14 @@ namespace TextLocator
                 Directory.CreateDirectory(_AppIndexDir);
             }
 
-            GetAllFiles("C:\\Users\\liulei\\Desktop\\新建文件夹");
+            Task.Factory.StartNew(() => {
+                GetAllFiles("C:\\Users\\liulei\\Desktop\\新建文件夹");
+            });
         }
 
         private void GetAllFiles(string rootPath)
         {
+            log.Debug("根目录：" + rootPath);
             //声明一个files包，用来存储遍历出的word文档
             List<FileInfo> files = new List<FileInfo>(); 
             if (!System.IO.Directory.Exists(rootPath))
@@ -87,7 +91,7 @@ namespace TextLocator
                 GetAllFiles(di, files); 
             }
             // 查找word文件
-            FileInfo[] file = dir.GetFiles("*.doc,*.docx"); 
+            FileInfo[] file = dir.GetFiles("*.doc?"); 
             // 遍历每个word文档
             foreach (FileInfo fi in file)
             {

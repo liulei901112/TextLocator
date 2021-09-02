@@ -22,10 +22,19 @@ namespace TextLocator.Entity
         /// <summary>
         /// 文件大小
         /// </summary>
-        public int FileSize { get; set; }
+        public long FileSize { get; set; }
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        public string CreateTime { get; set; }
         /// <summary>
         /// 文件内容
         /// </summary>
-        public string Context { get; set; }
+        public string Content { get; set; }
+        /// <summary>
+        /// 关键词
+        /// </summary>
+        private List<string> keywords = new List<string>();
+        public List<string> Keywords { get => keywords; set => keywords = value; }
     }
 }

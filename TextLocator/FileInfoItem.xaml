@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="TextLocator.FileInfoItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TextLocator"
+             mc:Ignorable="d" 
+             d:DesignHeight="110" d:DesignWidth="870">
+    <Grid Width="870" Height="110" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <!-- 图标 -->
+        <Image Source="/Resource/ext/ext_word.png" Width="60" HorizontalAlignment="Left"/>
+        <!-- 文件信息 -->
+        <Grid Margin="80,0,0,0">
+            <!-- 文件标题、大小、时间 -->
+            <Grid VerticalAlignment="Top" Margin="0,10,0,0">
+                <!-- 文件名 Click="Hyperlink_Click" -->
+                <TextBlock x:Name="FileName" Text="教 师 护 导 要 求（20210219）.doc" Foreground="#1A0DAB" TextDecorations="Underline" HorizontalAlignment="Left"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <!-- 文件大小 -->
+                    <TextBlock x:Name="FileSize" Text="1MB" Foreground="#545454" HorizontalAlignment="Right"/>
+                    <TextBlock Text="•" Foreground="#545454" HorizontalAlignment="Right" Margin="20,0,20,0"/>
+                    <!-- 文件大小 -->
+                    <TextBlock x:Name="CreateTime" Text="2021-08-31" Foreground="#545454" HorizontalAlignment="Right"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- 文件夹 -->
+            <TextBlock x:Name="FileFolder" Text="D:\桌面文档\金壕软件科技\教 师 护 导 要 求（20210219）.doc" Margin="0,30,0,0" Foreground="#006621" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+            <!-- 预览 -->
+            <RichTextBox x:Name="FileContent" Margin="-5,50,0,0" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="True">
+                <FlowDocument>
+                    <Paragraph>
+                        <Run Foreground="#545454">项目1、乙方为甲方网站的服务器进行维护和管理，包括：病毒排查和清除、网站数据的备份，网站空间的定期清理和维护，服务器帐号的管理等服务，保证网站的正常运行和网站数据的完整性以及网站服务器帐号的安全。 项目2、乙方为甲方网站的系统程序进行维护和管理，包括：程序代码的整理和优化、排除程序代码的漏洞、排除因系统错误导致的故障、保证网站系统的正常运行。</Run>
+                    </Paragraph>
+                </FlowDocument>
+            </RichTextBox>
+        </Grid>
+
+        <!-- 分割线 -->
+        <GridSplitter Grid.Column="1" Height="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
+    </Grid>
+</UserControl>

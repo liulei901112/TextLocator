@@ -138,7 +138,24 @@
     </ApplicationDefinition>
     <Compile Include="Entity\FileInfo.cs" />
     <Compile Include="Enum\FileType.cs" />
-    <Compile Include="Service\IFileService.cs" />
+    <Compile Include="Factory\FileInfoServiceFactory.cs" />
+    <Compile Include="FileInfoItem.xaml.cs">
+      <DependentUpon>FileInfoItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Service\ExcelService.cs" />
+    <Compile Include="Service\IFileInfoService.cs" />
+    <Compile Include="Service\OtherService.cs" />
+    <Compile Include="Service\PdfService.cs" />
+    <Compile Include="Service\PowerPointService.cs" />
+    <Compile Include="Service\TxtService.cs" />
+    <Compile Include="Service\WordService.cs" />
+    <Compile Include="Service\XmlService.cs" />
+    <Compile Include="Util\AppUtil.cs" />
+    <Compile Include="Util\RichTextBoxUtil.cs" />
+    <Page Include="FileInfoItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -240,5 +257,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

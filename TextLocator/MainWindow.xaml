@@ -7,6 +7,33 @@
         xmlns:rubyer="clr-namespace:Rubyer;assembly=Rubyer"
         mc:Ignorable="d"
         Title="搜索文本定位" Width="1366" Height="768" WindowStartupLocation="CenterScreen" Icon="Resource/App.ico" Loaded="Window_Loaded">
+    <Window.Resources>
+        <Style x:Key="FileInfoStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Grid Height="50" x:Name="grid">
+                            <Border Background="{Binding UserBackground}" Width="40" Height="40" CornerRadius="4" HorizontalAlignment="Left" Margin="5 0 0 0">
+                                <TextBlock Text="{Binding FileType}" FontSize="23" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Border>
+                            <Image/>
+                            <TextBlock Text="{Binding FileName}" Margin="55 7 0 0" FontSize="13"/>
+                            <TextBlock Text="{Binding Info}" Foreground="#808080" Margin="55 30 0 0"/>
+                            <TextBlock Text="{Binding Count,StringFormat={}{0}人}" Foreground="#808080" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="grid" Property="Background" Value="#fceeb9"/>
+                            </Trigger>
+                            <Trigger Property="Selector.IsSelected" Value="true">
+                                <Setter TargetName="grid" Property="Background" Value="#fae388"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <!-- DockPanel停靠容器 && Viewbox显示盒子 && Canvas画布 -->
     <DockPanel LastChildFill="True">
         <Viewbox Stretch="Fill">
@@ -46,7 +73,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                                 <!-- 搜索按钮 -->
-                                <Button x:Name="SearchButton" Content="搜索" Margin="10,0,0,0" Width="150" Height="35" MouseUp="SearchButton_MouseUp"/>
+                                <Button x:Name="SearchButton" Content="搜索" Margin="10,0,0,0" Width="150" Height="35" Click="SearchButton_Click"/>
                                 <!-- 清空按钮 -->
                                 <Button x:Name="CleanButton" Content="清空" Margin="10,0,0,0" Width="150" Height="35" Background="Red"/>
                             </StackPanel>
@@ -93,9 +120,9 @@
                     <!-- 分割线 -->
                     <GridSplitter Grid.Column="1" Height="1" HorizontalAlignment="Stretch" Background="Gray" />
                     <!-- 中间 -->
-                    <Grid Height="601">
+                    <StackPanel Orientation="Horizontal" Height="601">
                         <!-- 左边 -->
-                        <Grid Width="683" HorizontalAlignment="Left">
+                        <Grid Width="900" HorizontalAlignment="Left">
                             <!-- 条件和排序 -->
                             <Grid Height="40" VerticalAlignment="Top" Background="#F3F3F3">
                                 <TextBlock Text="文件类型：" Margin="20,0,0,0"/>
@@ -117,15 +144,87 @@
                                 <Button Content="时间" Margin="0,0,80,0" Width="60" Height="20" HorizontalAlignment="Right" Background="Gray"/>
                                 <Button Content="大小" Margin="0,0,10,0" Width="60" Height="20" HorizontalAlignment="Right" Background="Gray"/>
                             </Grid>
-                            <!-- 列表 -->
-                            <ScrollViewer Margin="0,40,0,0">
+                            <!-- 搜索结果列表 -->
+                            <ScrollViewer Margin="0,40,0,0" >
+                                <ListBox x:Name="SearchResultList" BorderThickness="1" BorderBrush="#EAEAEB" Background="Transparent">
+                                    <!--ItemContainerStyle="{StaticResource UserInfoStyle}"-->
+                                    <!--
                                 
+                                <ListBox.Style>
+                                    <Style TargetType="ListBox">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBox">
+                                                    <Border x:Name="Bd"  BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="0">
+                                                        <ScrollViewer Focusable="False">
+                                                            <ItemsPresenter />
+                                                        </ScrollViewer>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.Style>
+                                
+                                -->
+                                    <ListBoxItem>
+                                        <RichTextBox HorizontalAlignment="Left" VerticalAlignment="Top" Width="875" IsDocumentEnabled="True">
+                                            <FlowDocument>
+                                                <BlockUIContainer >
+                                                    <Grid Width="870" Height="100" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                        <!-- 图标 -->
+                                                        <Image Source="/Resource/ext/ext_word.png" Width="60" HorizontalAlignment="Left"/>
+                                                        <!-- 文件信息 -->
+                                                        <Grid Margin="80,0,0,0">
+                                                            <!-- 文件标题、大小、时间 -->
+                                                            <Grid VerticalAlignment="Top" Margin="0,10,0,0">
+                                                                <!-- 文件名 -->
+                                                                <TextBlock Text="教 师 护 导 要 求（20210219）.doc" Foreground="#1A0DAB" HorizontalAlignment="Left"/>
+                                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                                    <!-- 文件大小 -->
+                                                                    <TextBlock Text="1MB" Foreground="Gray" HorizontalAlignment="Right"/>
+                                                                    <TextBlock Text="•" Foreground="Gray" HorizontalAlignment="Right" Margin="20,0,20,0"/>
+                                                                    <!-- 文件大小 -->
+                                                                    <TextBlock Text="2021-08-31" Foreground="Gray" HorizontalAlignment="Right"/>
+                                                                </StackPanel>
+                                                            </Grid>
+
+                                                            <!-- 文件夹 -->
+                                                            <TextBlock Text="D:\桌面文档\金壕软件科技\教 师 护 导 要 求（20210219）.doc" Margin="0,30,0,0" Foreground="#006621" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                                        </Grid>
+                                                    </Grid>
+                                                </BlockUIContainer>
+                                                <!---<Paragraph>
+                                                    <Run Text="这是另一段文本"/>
+                                                </Paragraph>
+                                                <Section >
+                                                    <Paragraph>
+                                                        <Run Text="这是另一段文本2"/>
+                                                        <InlineUIContainer>
+                                                            <TextBox Text="12.00"/>
+                                                        </InlineUIContainer>
+                                                    </Paragraph>
+                                                    <Paragraph>
+                                                        <Run Text="这是另一段文本3"/>
+                                                    </Paragraph>
+                                                    <BlockUIContainer >
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="admin" Width="60" Height="30"/>
+                                                            <Button Content="添加" Width="60" Height="30" Click="Button_Click" />
+                                                        </StackPanel>
+
+                                                    </BlockUIContainer>
+                                                </Section>-->
+                                            </FlowDocument>
+                                        </RichTextBox>
+                                    </ListBoxItem>
+                                </ListBox>
                             </ScrollViewer>
                         </Grid>
                         <!-- 分割线 -->
                         <GridSplitter Grid.Column="1" Width="1" HorizontalAlignment="Stretch" Background="Gray" />
                         <!-- 右边 -->
-                        <Grid Width="683" HorizontalAlignment="Right">
+                        <Grid Width="464" HorizontalAlignment="Right">
                             <!-- 条件和排序 -->
                             <Grid Height="40" VerticalAlignment="Top" Background="#F3F3F3">
                                 <!-- 打开文件 -->
@@ -135,10 +234,10 @@
                             </Grid>
                             <!-- 内容预览 -->
                             <ScrollViewer Margin="0,40,0,0">
-
+                                <RichTextBox/>
                             </ScrollViewer>
                         </Grid>
-                    </Grid>
+                    </StackPanel>
                     <!-- 分割线 -->
                     <GridSplitter Grid.Column="1" Height="1" HorizontalAlignment="Stretch" Background="Gray" />
                     <!-- 底部 -->
@@ -146,7 +245,7 @@
                         <ProgressBar Width="150" Margin="10,0,0,0" HorizontalAlignment="Left"
                                      IsIndeterminate="True"
                                                 rubyer:ProgressBarHelper.Thickness="20"/>
-                        <TextBlock Text="就绪" Margin="170,0,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="就绪" Margin="10,0,0,0" HorizontalAlignment="Left"/>
                     </Grid>
                 </StackPanel>
             </Canvas>

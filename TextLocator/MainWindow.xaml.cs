@@ -31,11 +31,14 @@ namespace TextLocator
         /// <summary>
         /// App.ini路径：_AppDir\\_AppName\\Index\\
         /// </summary>
-        private static readonly string _AppIndexDir = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "index");
+        private static readonly string _AppIndexDir = System.IO.Path.Combine(_AppDir, "index");
         /// <summary>
-        /// Analyzer analyzer = new Lucene.Net.Analysis.Cn.ChineseAnalyzer();
+        /// 分词器
+        /// new Lucene.Net.Analysis.Cn.ChineseAnalyzer();
+        /// new Lucene.Net.Analysis.Standard.StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);// 用standardAnalyzer分词器
         /// </summary>
-        private static readonly Lucene.Net.Analysis.Analyzer _AppIndexAnalyzer = new Lucene.Net.Analysis.Standard.StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);// 用standardAnalyzer分词器
+        private static readonly Lucene.Net.Analysis.Analyzer _AppIndexAnalyzer = new Lucene.Net.Analysis.PanGuAnalyzer();
+
 
 
         public MainWindow()
@@ -50,26 +53,21 @@ namespace TextLocator
         /// <param name="e"></param>
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (!Directory.Exists(_AppIndexDir))
-            {
-                Directory.CreateDirectory(_AppIndexDir);
-            }
-
             Task.Factory.StartNew(() => {
-                GetAllFiles("C:\\Users\\liulei\\Desktop\\新建文件夹");
+                GetAllFiles("D:\\桌面文档");
             });
         }
 
+        /// <summary>
+        /// 获取全部文件
+        /// </summary>
+        /// <param name="rootPath"></param>
         private void GetAllFiles(string rootPath)
         {
             log.Debug("根目录：" + rootPath);
-            //声明一个files包，用来存储遍历出的word文档
+            // 声明一个files包，用来存储遍历出的word文档
             List<FileInfo> files = new List<FileInfo>(); 
-            if (!System.IO.Directory.Exists(rootPath))
-            {
-                Message.Show("指定的目录不存在");
-                return;
-            }
+            // 获取全部文件列表
             GetAllFiles(rootPath, files);
             // 创建索引方法
             CreateIndex(files); 
@@ -95,9 +93,9 @@ namespace TextLocator
             // 遍历每个word文档
             foreach (FileInfo fi in file)
             {
-                string filename = fi.Name;
+                /*string filename = fi.Name;
                 string filePath = fi.FullName;
-                object filepath = filePath;
+                object filepath = filePath;*/
                 files.Add(fi);
             }
         }
@@ -114,44 +112,26 @@ namespace TextLocator
             {
                 isCreate = true;
             }
-            // FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上
-            //Lucene.Net.Index.IndexWriter writer = new Lucene.Net.Index.IndexWriter(Lucene.Net.Store.FSDirectory.Open(_AppIndexDir), _AppIndexAnalyzer, isCreate, Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
+
+            // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
+            Lucene.Net.Index.IndexWriter writer = new Lucene.Net.Index.IndexWriter(Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(_AppIndexDir)), _AppIndexAnalyzer, isCreate, Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
+
+            // 遍历读取文件，并创建索引
             for (int i = 0; i < files.Count(); i++)
             {
-                /*//读取word文档内容
-                Microsoft.Office.Interop.Word.ApplicationClass wordapp = new Microsoft.Office.Interop.Word.ApplicationClass();
-                string filename = files[i].Name;
-                object file = files[i].DirectoryName + "\\" + filename;
-                object isreadonly = true;
-                object nullobj = System.Reflection.Missing.Value;
-                Microsoft.Office.Interop.Word._Document doct = wordapp.Documents.Open(ref file, ref nullobj, ref isreadonly, ref nullobj, ref nullobj, ref nullobj, ref nullobj, ref nullobj, ref nullobj, ref nullobj, ref nullobj, ref nullobj, ref nullobj, ref nullobj, ref nullobj, ref nullobj);
-                //doct.ActiveWindow.Selection.WholeStory();
-                //doct.ActiveWindow.Selection.Copy();
-                //IDataObject data = Clipboard.GetDataObject();
-                ////读出的内容赋给content变量
-                //string content = data.GetData(DataFormats.Text).ToString();
-                string content = doct.Content.Text;
-                FileInfo fi = new FileInfo(file.ToString());
+                FileInfo fi = files[i];
+
+                // 文件名
+                string fileName = fi.Name;
+                string filePath = fi.DirectoryName + "\\" + fileName;                
                 string createTime = fi.CreationTime.ToString();
-                string filemark = files[i].DirectoryName + createTime;
-                // 关闭word
-                object missingValue = Type.Missing;
-                object miss = System.Reflection.Missing.Value;
-                object saveChanges = Microsoft.Office.Interop.Word.WdSaveOptions.wdDoNotSaveChanges;
-                doct.Close(ref saveChanges, ref missingValue, ref missingValue);
-                wordapp.Quit(ref saveChanges, ref miss, ref miss);
-                //  StreamReader reader = new StreamReader(fileInfo.FullName);读取txt文件的方法，如读word会出现乱码，不适用于word的读取
-                Lucene.Net.Documents.Document doc = new Lucene.Net.Documents.Document();*/
-                string filename = files[i].Name;
-                object file = files[i].DirectoryName + "\\" + filename;
-                FileInfo fi = new FileInfo(file.ToString());
-                string createTime = fi.CreationTime.ToString();
-                string filemark = files[i].DirectoryName + createTime;
-                log.Debug(file);
+                string fileMark = fi.DirectoryName + createTime;
+                //long fileSize = fi.Length;
+                log.Debug(filePath);
 
                 string content = "";
 
-                using (var document = new Document(new FileStream(file.ToString(), FileMode.Open)))
+                using (var document = new Document(new FileStream(filePath, FileMode.Open)))
                 {
                     // 提取每个段落的文本 
                     var sb = new StringBuilder();
@@ -167,27 +147,29 @@ namespace TextLocator
 
                 Console.WriteLine(content);
 
-                /*Lucene.Net.Documents.Document doc = new Lucene.Net.Documents.Document();
+                Lucene.Net.Documents.Document doc = new Lucene.Net.Documents.Document();
                 // 当索引文件中含有与filemark相等的field值时，会先删除再添加，以防出现重复
-                writer.DeleteDocuments(new Lucene.Net.Index.Term("filemark", filemark));
+                writer.DeleteDocuments(new Lucene.Net.Index.Term("FileMark", fileMark));
                 // 不分词建索引
-                doc.Add(new Lucene.Net.Documents.Field("filemark", filemark, Lucene.Net.Documents.Field.Store.YES, Lucene.Net.Documents.Field.Index.NOT_ANALYZED));
+                doc.Add(new Lucene.Net.Documents.Field("FileMark", fileMark, Lucene.Net.Documents.Field.Store.YES, Lucene.Net.Documents.Field.Index.NOT_ANALYZED));
+                // doc.Add(new Lucene.Net.Documents.Field("FileSize", fileSize, Lucene.Net.Documents.Field.Store.YES, Lucene.Net.Documents.Field.Index.NOT_ANALYZED));
                 // ANALYZED分词建索引
-                doc.Add(new Lucene.Net.Documents.Field("FileName", filename, Lucene.Net.Documents.Field.Store.YES, Lucene.Net.Documents.Field.Index.ANALYZED));
+                doc.Add(new Lucene.Net.Documents.Field("FileName", fileName, Lucene.Net.Documents.Field.Store.YES, Lucene.Net.Documents.Field.Index.ANALYZED));
+                doc.Add(new Lucene.Net.Documents.Field("FilePath", filePath, Lucene.Net.Documents.Field.Store.YES, Lucene.Net.Documents.Field.Index.ANALYZED)); 
                 doc.Add(new Lucene.Net.Documents.Field("Content", content, Lucene.Net.Documents.Field.Store.NO, Lucene.Net.Documents.Field.Index.ANALYZED));
-                doc.Add(new Lucene.Net.Documents.Field("Path", file.ToString(), Lucene.Net.Documents.Field.Store.YES, Lucene.Net.Documents.Field.Index.ANALYZED));
+                
                 writer.AddDocument(doc);
                 // 优化索引
-                writer.Optimize(); */
+                writer.Optimize(); 
             }
-            //writer.Dispose();
+            writer.Dispose();
         }
 
         /// <summary>
         /// 检索关键字
         /// </summary>
         /// <param name="strKey">关键字包</param>
-        private void SearchKey(List<string> strKey)
+        private void Search(List<string> strKey)
         {
             int num = 10;
             if (strKey.Count != 0)
@@ -207,9 +189,10 @@ namespace TextLocator
                     //创建查询
                     Lucene.Net.Analysis.PerFieldAnalyzerWrapper wrapper = new Lucene.Net.Analysis.PerFieldAnalyzerWrapper(_AppIndexAnalyzer);
                     wrapper.AddAnalyzer("FileName", _AppIndexAnalyzer);
+                    wrapper.AddAnalyzer("FilePath", _AppIndexAnalyzer); 
                     wrapper.AddAnalyzer("Content", _AppIndexAnalyzer);
-                    wrapper.AddAnalyzer("Path", _AppIndexAnalyzer);
-                    string[] fields = { "FileName", "Content", "Path" };
+                    
+                    string[] fields = { "FileName", "FilePath", "Content" };
                     Lucene.Net.QueryParsers.QueryParser parser = new Lucene.Net.QueryParsers.MultiFieldQueryParser(Lucene.Net.Util.Version.LUCENE_30, fields, wrapper);
                     Lucene.Net.Search.BooleanQuery Bquery = new Lucene.Net.Search.BooleanQuery();
                     for (int i = 0; i < strKey.Count; i++)
@@ -228,16 +211,20 @@ namespace TextLocator
                         var hit = hits[i];
                         Lucene.Net.Documents.Document doc = searcher.Doc(hit.Doc);
                         Lucene.Net.Documents.Field fileNameField = doc.GetField("FileName");
+                        Lucene.Net.Documents.Field filePathField = doc.GetField("FilePath");
                         Lucene.Net.Documents.Field contentField = doc.GetField("Content");
-                        Lucene.Net.Documents.Field pathField = doc.GetField("Path");
-                        if (!System.IO.File.Exists(pathField.StringValue)) //判断本地是否存在该文件，存在则在检索结果栏里显示出来
+                        
+                        if (!System.IO.File.Exists(filePathField.StringValue)) //判断本地是否存在该文件，存在则在检索结果栏里显示出来
                         {
                             int docId = hit.Doc; //该文件的在索引里的文档号,Doc是该文档进入索引时Lucene的编号，默认按照顺序编的
                             reader.DeleteDocument(docId);//删除该索引
                             reader.Commit();
                             continue;
                         }
-                        log.Debug(fileNameField.StringValue + " = " + pathField.StringValue);
+                        FileInfo fi = new FileInfo(filePathField.StringValue);
+                        
+
+                        log.Debug(fileNameField.StringValue + " = " + filePathField.StringValue + " ， " + fi.Length + " , " + fi.CreationTime.ToString());
                         resultNum++;
                     }
                     Message.ShowSuccess("检索完成！共检索到" + resultNum + "个符合条件的结果！");
@@ -258,14 +245,15 @@ namespace TextLocator
             }
         }
 
+
         /// <summary>
         /// 搜索
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SearchButton_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
-            SearchKey(new List<string>() { this.Keywords.Text });
+            Search(new List<string>() { this.Keywords.Text });
         }
     }
 }

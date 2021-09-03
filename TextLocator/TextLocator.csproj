@@ -136,22 +136,29 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Constant\AppConst.cs" />
     <Compile Include="Entity\FileInfo.cs" />
-    <Compile Include="Enum\FileType.cs" />
+    <Compile Include="Enums\EnumExtension.cs" />
+    <Compile Include="Enums\FileType.cs" />
     <Compile Include="Factory\FileInfoServiceFactory.cs" />
     <Compile Include="FileInfoItem.xaml.cs">
       <DependentUpon>FileInfoItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Index\LucenceIndex.cs" />
-    <Compile Include="Service\ExcelService.cs" />
+    <Compile Include="Index\LuceneIndexCore.cs" />
+    <Compile Include="RegionWindow.xaml.cs">
+      <DependentUpon>RegionWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Service\ExcelFileService.cs" />
     <Compile Include="Service\IFileInfoService.cs" />
-    <Compile Include="Service\OtherService.cs" />
-    <Compile Include="Service\PdfService.cs" />
-    <Compile Include="Service\PowerPointService.cs" />
-    <Compile Include="Service\TxtService.cs" />
-    <Compile Include="Service\WordService.cs" />
-    <Compile Include="Service\XmlService.cs" />
+    <Compile Include="Service\OtherFileService.cs" />
+    <Compile Include="Service\PdfFileService.cs" />
+    <Compile Include="Service\PowerPointFileService.cs" />
+    <Compile Include="Service\TxtFileService.cs" />
+    <Compile Include="Service\WordFileService.cs" />
+    <Compile Include="Service\XmlFileService.cs" />
     <Compile Include="Util\AppUtil.cs" />
+    <Compile Include="Util\FileTypeUtil.cs" />
+    <Compile Include="Util\FileUtil.cs" />
     <Compile Include="Util\RichTextBoxUtil.cs" />
     <Page Include="FileInfoItem.xaml">
       <SubType>Designer</SubType>
@@ -169,6 +176,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="RegionWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Resource\GenericDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

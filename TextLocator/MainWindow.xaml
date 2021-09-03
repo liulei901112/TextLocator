@@ -72,12 +72,12 @@
                                     <!-- 扩展名 -->
                                     <Grid>
                                         <TextBlock Text="文件类型：" HorizontalAlignment="Left"/>
-                                        <TextBox x:Name="FileTypes" ToolTip="doc,docm,docx,dps,dpt,et,ett,htm,html,hwp,jtd,jtt,mht,mhtml,opd,ods,odt,ofd,pdf,ppt,pptm,rtf,txt,wps,wpt,xls,xlsm,xlsx,xml,java,cs" Text="doc,docm,docx,dps,dpt,et,ett,htm,html,hwp,jtd,jtt,mht,mhtml,opd,ods,odt,ofd,pdf,ppt,pptm,rtf,txt,wps,wpt,xls,xlsm,xlsx,xml,java,cs" IsReadOnly="true" Width="700" Height="20" Margin="65,0,0,0" HorizontalAlignment="Left"/>
+                                        <TextBox x:Name="FileExtensions" Text="doc,docm,docx,ppt,pptm,xls,xlsm,xlsx,htm,html,pdf,txt,java,css,cs" IsReadOnly="true" Width="700" Height="20" Margin="65,0,0,0" HorizontalAlignment="Left"/>
                                     </Grid>
                                     <!-- 文件夹 -->
                                     <Grid Margin="0,10,0,0" >
                                         <TextBlock Text="文件夹：" HorizontalAlignment="Left" Margin="12,0,0,0"/>
-                                        <TextBox x:Name="Folders" Text="D:\UserData\" IsReadOnly="true" Width="700" Height="20" Margin="65,0,0,0" HorizontalAlignment="Left"/>
+                                        <TextBox x:Name="Regions" Text="D:\UserData\" IsReadOnly="true" Width="700" Height="20" Margin="65,0,0,0" HorizontalAlignment="Left" MouseDoubleClick="Regions_MouseDoubleClick"/>
                                     </Grid>
                                 </StackPanel>
                             </StackPanel>
@@ -85,9 +85,9 @@
                         <!-- 扩展区 -->
                         <StackPanel Width="365">
                             <!-- 搜索按钮 -->
-                            <Button x:Name="OptimizeButton" Content="优化" ToolTip="增量更新索引，并删除不存在的文件索引" Margin="0,20,0,0" Width="150" Height="35" Background="DarkOrange"/>
+                            <Button x:Name="OptimizeButton" Content="优化" ToolTip="增量更新索引，并删除不存在的文件索引" Margin="0,20,0,0" Width="150" Height="35" Background="DarkOrange" Click="OptimizeButton_Click"/>
                             <!-- 清空按钮 -->
-                            <Button x:Name="ReconstructionButton" Content="重建" ToolTip="索引删除重建"  Margin="0,20,0,0" Width="150" Height="35" Background="DarkRed"/>
+                            <Button x:Name="RebuildButton" Content="重建" ToolTip="索引删除重建"  Margin="0,20,0,0" Width="150" Height="35" Background="DarkRed" Click="RebuildButton_Click"/>
                         </StackPanel>
                     </StackPanel>
                     <!-- 分割线 -->
@@ -99,7 +99,7 @@
                             <!-- 条件和排序 -->
                             <Grid Height="40" VerticalAlignment="Top" Background="#F3F3F3">
                                 <TextBlock Text="文件类型：" Margin="20,0,0,0"/>
-                                <ComboBox Margin="80,0,0,0" Width="130" HorizontalAlignment="Left" Height="25">
+                                <ComboBox x:Name="FileTypeFilter" Margin="80,0,0,0" Width="130" HorizontalAlignment="Left" Height="25">
                                     <ComboBoxItem Content="全部" IsSelected="True"/>
                                     <ComboBoxItem Content="Word类型"/>
                                     <ComboBoxItem Content="Excel类型"/>
@@ -281,7 +281,7 @@
                         <!-- <ProgressBar Width="150" Margin="10,0,0,0" HorizontalAlignment="Left"
                                      IsIndeterminate="True"
                                                 rubyer:ProgressBarHelper.Thickness="20"/> -->
-                        <TextBlock Text="就绪" Margin="10,0,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock x:Name="WorkStatus" Text="就绪" Margin="10,0,0,0" HorizontalAlignment="Left"/>
                     </Grid>
                 </StackPanel>
             </Canvas>

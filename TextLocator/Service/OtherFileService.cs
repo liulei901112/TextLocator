@@ -9,18 +9,13 @@ using System.Threading.Tasks;
 namespace TextLocator.Service
 {
     /// <summary>
-    /// Xml服务
+    /// 其他类型文件服务
     /// </summary>
-    public class XmlService : IFileInfoService
+    public class OtherFileService : IFileInfoService
     {
         public string GetFileContent(string filePath)
         {
-            throw new NotImplementedException();
-        }
-
-        public Document GetIndexDocument(FileInfo fileInfo)
-        {
-            throw new NotImplementedException();
+            return filePath;
         }
     }
 }

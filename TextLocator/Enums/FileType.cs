@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
-namespace TextLocator.Enum
+namespace TextLocator.Enums
 {
     /// <summary>
     /// 文件类型
@@ -36,7 +31,7 @@ namespace TextLocator.Enum
         /// XML和html
         /// </summary>
         [Description("htm,html,mht,mhtml")]
-        HTML和XML类型,
+        HTML或XML类型,
         /// <summary>
         /// 纯文本
         /// </summary>

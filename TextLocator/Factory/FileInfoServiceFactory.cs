@@ -1,7 +1,7 @@
 ﻿using log4net;
 using System;
 using System.Collections.Generic;
-using TextLocator.Enum;
+using TextLocator.Enums;
 using TextLocator.Service;
 
 namespace TextLocator.Factory

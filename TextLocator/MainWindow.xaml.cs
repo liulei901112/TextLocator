@@ -1,19 +1,17 @@
 ﻿using log4net;
 using Rubyer;
-using Spire.Doc;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
-using TextLocator.Enum;
+using TextLocator.Consts;
+using TextLocator.Enums;
 using TextLocator.Factory;
+using TextLocator.Index;
 using TextLocator.Util;
 
 namespace TextLocator
@@ -25,34 +23,16 @@ namespace TextLocator
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        /// <summary>
-        /// 应用目录
-        /// </summary>
-        private static readonly string _AppDir = AppDomain.CurrentDomain.BaseDirectory;
-        /// <summary>
-        /// App.ini路径：_AppDir\\_AppName\\Index\\
-        /// </summary>
-        private static readonly string _AppIndexDir = System.IO.Path.Combine(_AppDir, "index");
-        /// <summary>
-        /// 分词器
-        /// new Lucene.Net.Analysis.Cn.ChineseAnalyzer();
-        /// new Lucene.Net.Analysis.Standard.StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);// 用standardAnalyzer分词器
-        /// </summary>
-        private static readonly Lucene.Net.Analysis.Analyzer _AppIndexAnalyzer = new Lucene.Net.Analysis.PanGuAnalyzer();
 
         /// <summary>
-        /// 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
-        /// 磁盘路径：Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(_AppIndexDir))
-        /// 内存：new Lucene.Net.Store.RAMDirectory()
+        /// 索引构建中
         /// </summary>
-        private static readonly Lucene.Net.Store.RAMDirectory _IndexDirctory = new Lucene.Net.Store.RAMDirectory();
+        private static volatile bool build = false;
 
         /// <summary>
         /// 索引文件夹列表
         /// </summary>
         private List<string> _IndexFolders = new List<string>();
-
-
 
         public MainWindow()
         {
@@ -66,33 +46,41 @@ namespace TextLocator
         /// <param name="e"></param>
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            /*Task.Factory.StartNew(() =>
+            // 初始化元素数据
+            InitializeElementData();
+
+            // 清理事件
+            CleanSearchResult();
+
+            // 检查索引是否存在
+            CheckIndexExist();
+        }
+
+        /// <summary>
+        /// 初始化文件类型下拉框
+        /// </summary>
+        private void InitializeElementData()
+        {
+            // 文件类型筛选下拉框数据初始化
+            this.FileTypeFilter.Items.Clear();
+            this.FileTypeFilter.Items.Add("全部");
+            // 获取文件类型枚举，遍历并加入下拉列表
+            foreach(string fileTypeName in FileTypeUtil.GetFileTypes())
             {
-                GetAllFiles("D:\\桌面文档");
-            });
+                this.FileTypeFilter.Items.Add(fileTypeName);
+            }
+            // 默认选中全部
+            this.FileTypeFilter.Text = "全部";
 
-            Random random = new Random();
-            this.SearchResultList.Items.Clear();
-            for (int i = 0; i < 50; i++)
-            {
-                this.SearchResultList.Items.Add(new FileInfoItem(new Entity.FileInfo()
-                {
-                    FileName = "fileName" + i,
-                    FilePath = "D:\\桌面文档\\金壕软件科技\\教 师 护 导 要 求（20210219）.doc",
-                    FileSize = random.Next(10, 10000),
-                    Content = "项目1、乙方为甲方网站的服务器进行维护和管理，包括：病毒排查和清除、网站数据的备份，网站空间的定期清理和维护，服务器帐号的管理等服务，保证网站的正常运行和网站数据的完整性以及网站服务器帐号的安全。 项目2、乙方为甲方网站的系统程序进行维护和管理，包括：程序代码的整理和优化、排除程序代码的漏洞、排除因系统错误导致的故障、保证网站系统的正常运行。",
-                    CreateTime = DateTime.Now.ToString("yyyy-MM-dd")
-                }));
-            }*/
-
-
+            // 初始化显示被索引的文件夹列表
             _IndexFolders.Add(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             _IndexFolders.Add(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
             string customFolders = AppUtil.ReadIni("Folders", "FolderPaths", "");
             if (!string.IsNullOrEmpty(customFolders))
             {
                 string[] customFolderArray = customFolders.Split(',');
-                foreach (string folderPath in customFolderArray) {
+                foreach (string folderPath in customFolderArray)
+                {
                     _IndexFolders.Add(folderPath);
                 }
             }
@@ -100,115 +88,71 @@ namespace TextLocator
             _IndexFolders.Add("E:\\幼小衔接启蒙资料");
             _IndexFolders.Add("E:\\USB殷丹");
             string foldersText = "";
-            foreach(string folder in _IndexFolders)
+            foreach (string folder in _IndexFolders)
             {
                 foldersText += folder + ", ";
             }
-            this.Folders.Text = foldersText.Substring(0, foldersText.Length - 2);
-            this.Folders.ToolTip = this.Folders.Text;
+            this.Regions.Text = foldersText.Substring(0, foldersText.Length - 2);
+            this.Regions.ToolTip = this.Regions.Text;
 
-            // 清理事件
-            Clean();
+
+            // 初始化支持文件后缀列表
+            this.FileExtensions.Text = AppConst.FILE_EXTENSIONS;
+            this.FileExtensions.ToolTip = this.FileExtensions.Text;
+        }
+
+        /// <summary>
+        /// 检查索引是否存在
+        /// </summary>
+        /// <returns></returns>
+        private bool CheckIndexExist()
+        {
+            bool exists = Directory.Exists(AppConst.APP_INDEX_DIR);
+            if (!exists)
+            {
+                Message.ShowWarning("", "首次使用该软件，需先设置需要索引的文件夹。并点击右侧重建按钮进行初始化");
+            }
+            return exists;
+        }
+
+        /// <summary>
+        /// 构建索引
+        /// </summary>
+        /// <param name="rebuild">重建，默认是优化</param>
+        private void BuildIndex(bool rebuild = false)
+        {
+            if (build)
+            {
+                Message.ShowWarning("索引构建中，请稍等。");
+                return;
+            }
+            build = true;
 
             Task.Factory.StartNew(() =>
             {
+                DateTime beginMark = DateTime.Now;
                 foreach (string s in _IndexFolders)
                 {
-                    GetAllFiles(s);
-                }                
-            });
-        }
-
-        /// <summary>
-        /// 获取全部文件
-        /// </summary>
-        /// <param name="rootPath"></param>
-        private void GetAllFiles(string rootPath)
-        {
-            log.Debug("根目录：" + rootPath);
-            // 声明一个files包，用来存储遍历出的word文档
-            List<FileInfo> files = new List<FileInfo>();
-            // 获取全部文件列表
-            GetAllFiles(rootPath, files);
-            // 创建索引方法
-            CreateIndex(files);
-        }
-
-        /// <summary>
-        /// 获取指定根目录下的子目录及其文档
-        /// </summary>
-        /// <param name="rootPath">根目录路径</param>
-        /// <param name="files">word文档存储包</param>
-        private void GetAllFiles(string rootPath, List<FileInfo> files)
-        {
-            DirectoryInfo dir = new DirectoryInfo(rootPath);
-            // 得到所有子目录
-            try
-            {
-                string[] dirs = System.IO.Directory.GetDirectories(rootPath);
-                foreach (string di in dirs)
-                {
-                    // 递归调用
-                    GetAllFiles(di, files);
+                    // 获取文件信息列表
+                    List<FileInfo> files = FileUtil.GetAllFiles(s);
+                    // 创建索引方法
+                    LuceneIndexCore.CreateIndex(files, rebuild, ShowStatus);
                 }
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex.Message, ex);
-            }
-            // 查找word文件
-            FileInfo[] file = dir.GetFiles("*.doc?");
-            // 遍历每个word文档
-            foreach (FileInfo fi in file)
-            {
-                files.Add(fi);
-            }
+
+                // 显示状态
+                ShowStatus("索引执行结束，共用时：" + (DateTime.Now - beginMark).TotalSeconds + "秒");
+            });            
         }
 
         /// <summary>
-        /// 创建索引
+        /// 显示状态
         /// </summary>
-        /// <param name="files">获得的文档包</param>
-        private void CreateIndex(List<FileInfo> files)
+        /// <param name="text"></param>
+        private void ShowStatus(string text)
         {
-            bool isCreate = false;
-            //判断是创建索引还是增量索引
-            if (!Directory.Exists(_AppIndexDir))
-            {
-                isCreate = true;
-            }
-
-            // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
-            Lucene.Net.Index.IndexWriter writer = new Lucene.Net.Index.IndexWriter(_IndexDirctory, _AppIndexAnalyzer, true, Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
-
-            // 遍历读取文件，并创建索引
-            for (int i = 0; i < files.Count(); i++)
-            {
-                FileInfo fi = files[i];
-
-                // 文件类型
-                FileType fileType = FileType.Word类型;
-
-                // 获取扩展名
-                string extensionName = Path.GetFileNameWithoutExtension(fi.DirectoryName + "\\" + fi.Name);
-
-                // 获取索引文档
-                Lucene.Net.Documents.Document doc = FileInfoServiceFactory.GetFileInfoService(fileType).GetIndexDocument(fi);
-
-                // 文件标记
-                string fileMark = fi.DirectoryName + fi.CreationTime.ToString();
-
-                // 当索引文件中含有与filemark相等的field值时，会先删除再添加，以防出现重复
-                writer.DeleteDocuments(new Lucene.Net.Index.Term("FileMark", fileMark));
-                // 不分词建索引
-                doc.Add(new Lucene.Net.Documents.Field("FileMark", fileMark, Lucene.Net.Documents.Field.Store.YES, Lucene.Net.Documents.Field.Index.NOT_ANALYZED));
-                doc.Add(new Lucene.Net.Documents.Field("FileType", fileType.ToString(), Lucene.Net.Documents.Field.Store.YES, Lucene.Net.Documents.Field.Index.NOT_ANALYZED));
-
-                writer.AddDocument(doc);
-                // 优化索引
-                writer.Optimize();
-            }
-            writer.Dispose();
+            this.Dispatcher.InvokeAsync(() => {
+                this.WorkStatus.Text = text;
+            });
         }
 
         /// <summary>
@@ -217,6 +161,12 @@ namespace TextLocator
         /// <param name="keywords">关键字包</param>
         private void Search(List<string> keywords)
         {
+            if (build)
+            {
+                Message.ShowWarning("索引构建中，请稍等。");
+                return;
+            }
+
             // 清空搜索结果列表
             this.SearchResultList.Items.Clear();
 
@@ -227,19 +177,18 @@ namespace TextLocator
                 Lucene.Net.Search.IndexSearcher searcher = null;
                 try
                 {
-                    /*if (!System.IO.Directory.Exists(_AppIndexDir))
+                    if (!CheckIndexExist())
                     {
-                        MessageBox.Show("首次使用该软件检索 必须先创建索引！" + "\r\n" + "请点击右边【创建索引】按钮,选择要检索的文件夹进行创建索引。");
                         return;
-                    }*/
-                    reader = Lucene.Net.Index.IndexReader.Open(_IndexDirctory, false);
+                    }
+                    reader = Lucene.Net.Index.IndexReader.Open(AppConst.INDEX_DIRECTORY, false);
                     searcher = new Lucene.Net.Search.IndexSearcher(reader);
 
                     // 创建查询
-                    Lucene.Net.Analysis.PerFieldAnalyzerWrapper wrapper = new Lucene.Net.Analysis.PerFieldAnalyzerWrapper(_AppIndexAnalyzer);
-                    wrapper.AddAnalyzer("FileName", _AppIndexAnalyzer);
-                    wrapper.AddAnalyzer("FilePath", _AppIndexAnalyzer);
-                    wrapper.AddAnalyzer("Content", _AppIndexAnalyzer);
+                    Lucene.Net.Analysis.PerFieldAnalyzerWrapper wrapper = new Lucene.Net.Analysis.PerFieldAnalyzerWrapper(AppConst.INDEX_ANALYZER);
+                    wrapper.AddAnalyzer("FileName", AppConst.INDEX_ANALYZER);
+                    wrapper.AddAnalyzer("FilePath", AppConst.INDEX_ANALYZER);
+                    wrapper.AddAnalyzer("Content", AppConst.INDEX_ANALYZER);
 
                     string[] fields = { "FileName", "FilePath", "Content" };
                     Lucene.Net.QueryParsers.QueryParser parser = new Lucene.Net.QueryParsers.MultiFieldQueryParser(Lucene.Net.Util.Version.LUCENE_30, fields, wrapper);
@@ -389,17 +338,48 @@ namespace TextLocator
         /// <param name="e"></param>
         private void CleanButton_Click(object sender, RoutedEventArgs e)
         {
-            Clean();
+            CleanSearchResult();
         }
 
         /// <summary>
-        /// 清理事件
+        /// 清理查询结果
         /// </summary>
-        private void Clean()
+        private void CleanSearchResult()
         {
             this.SearchText.Text = "";
             this.SearchResultList.Items.Clear();
             this.PreviewFileContent.Document.Blocks.Clear();
+        }
+
+        /// <summary>
+        /// 优化按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OptimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            BuildIndex(false);
+        }
+
+        /// <summary>
+        /// 重建按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RebuildButton_Click(object sender, RoutedEventArgs e)
+        {
+            BuildIndex(true);
+        }
+
+        /// <summary>
+        /// 搜索区域
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Regions_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            RegionWindow region = new RegionWindow();
+            region.ShowDialog();
         }
     }
 }

@@ -30,7 +30,7 @@ namespace TextLocator.Enums
         /// <summary>
         /// XML和html
         /// </summary>
-        [Description("htm,html,mht,mhtml")]
+        [Description("htm,html,mht,mhtml,xml")]
         HTML或XML类型,
         /// <summary>
         /// 纯文本

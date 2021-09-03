@@ -180,7 +180,7 @@
                             <!-- 文件信息 -->
                             <Grid Margin="0,40,0,0" Height="40" VerticalAlignment="Top" Background="#F3F3F3">
                                 <!-- 图标 -->
-                                <Image x:Name="PreviewFileTypeIcon"  Source="/Resource/ext/ext_word.png" Margin="10,0,0,0" Width="40" HorizontalAlignment="Left"/>
+                                <Image x:Name="PreviewFileTypeIcon"  Source="/Resource/ext/word.png" Margin="10,0,0,0" Width="40" HorizontalAlignment="Left"/>
                                 <!-- 文件名 -->
                                 <TextBlock x:Name="PreviewFileName" Text="教 师 护 导 要 求（20210219）.doc" FontWeight="Bold" Margin="50,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                 <!-- 分割线 -->

@@ -8,7 +8,7 @@
              d:DesignHeight="110" d:DesignWidth="870">
     <Grid Width="870" Height="110" HorizontalAlignment="Left" VerticalAlignment="Top">
         <!-- 图标 -->
-        <Image Source="/Resource/ext/ext_word.png" Width="60" HorizontalAlignment="Left"/>
+        <Image x:Name="FileTypeIcon" Source="/Resource/ext/word.png" Width="60" HorizontalAlignment="Left"/>
         <!-- 文件信息 -->
         <Grid Margin="80,0,0,0">
             <!-- 文件标题、大小、时间 -->

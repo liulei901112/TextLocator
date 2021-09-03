@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,6 +25,8 @@ namespace TextLocator
     /// </summary>
     public partial class FileInfoItem : UserControl
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public FileInfoItem(Entity.FileInfo fileInfo)
         {
             InitializeComponent();
@@ -37,40 +40,51 @@ namespace TextLocator
         /// <param name="fileInfo"></param>
         public void Refresh(Entity.FileInfo fileInfo)
         {
-            this.FileName.Text = fileInfo.FileName;
-            this.FileFolder.Text = fileInfo.FilePath.Replace(fileInfo.FileName, "");
-            long fileSize = fileInfo.FileSize;
-            string fileSizeUnit = "b";
-            if (fileSize > 1024)
+            try
             {
-                fileSize = fileSize / 1024;
-                fileSizeUnit = "KB";
-            }
-            if (fileSize > 1024)
-            {
-                fileSize = fileSize / 1024;
-                fileSizeUnit = "MB";
-            }
-            if (fileSize > 1024)
-            {
-                fileSize = fileSize / 1024;
-                fileSizeUnit = "GB";
-            }
-            this.FileSize.Text = fileSize + "" + fileSizeUnit;
-            this.CreateTime.Text = fileInfo.CreateTime;
+                // 根据文件类型显示图标
+                this.FileTypeIcon.Source = FileUtil.GetFileTypeIcon(fileInfo.FileType);
 
-            this.FileContent.Document.Blocks.Clear();
-            // Paragraph 类似于 html 的 P 标签
-            Paragraph p = new Paragraph();
-            // Run 是一个 Inline 的标签
-            Run r = new Run(fileInfo.Breviary);
-            p.Inlines.Add(r);
-            this.FileContent.Document.Blocks.Add(p);
+                // 显示文件信息
+                this.FileName.Text = fileInfo.FileName;
+                this.FileFolder.Text = fileInfo.FilePath.Replace(fileInfo.FileName, "");
+                long fileSize = fileInfo.FileSize;
+                string fileSizeUnit = "b";
+                if (fileSize > 1024)
+                {
+                    fileSize = fileSize / 1024;
+                    fileSizeUnit = "KB";
+                }
+                if (fileSize > 1024)
+                {
+                    fileSize = fileSize / 1024;
+                    fileSizeUnit = "MB";
+                }
+                if (fileSize > 1024)
+                {
+                    fileSize = fileSize / 1024;
+                    fileSizeUnit = "GB";
+                }
+                this.FileSize.Text = fileSize + "" + fileSizeUnit;
+                this.CreateTime.Text = fileInfo.CreateTime;
 
-            // 关键词高亮
-            if (fileInfo.Keywords.Count > 0)
+                this.FileContent.Document.Blocks.Clear();
+                // Paragraph 类似于 html 的 P 标签
+                Paragraph p = new Paragraph();
+                // Run 是一个 Inline 的标签
+                Run r = new Run(fileInfo.Breviary);
+                p.Inlines.Add(r);
+                this.FileContent.Document.Blocks.Add(p);
+
+                // 关键词高亮
+                if (fileInfo.Keywords.Count > 0)
+                {
+                    RichTextBoxUtil.Highlighted(this.FileContent, Colors.Red, fileInfo.Keywords);
+                }
+            }
+            catch (Exception ex)
             {
-                RichTextBoxUtil.Highlighted(this.FileContent, Colors.Red, fileInfo.Keywords);
+                log.Error(ex.Message, ex);
             }
         }
     }

@@ -219,23 +219,6 @@
     <Resource Include="Resource\App.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resource\ext\ext_dps.png" />
-    <Resource Include="Resource\ext\ext_eml.png" />
-    <Resource Include="Resource\ext\ext_et.png" />
-    <Resource Include="Resource\ext\ext_excel.png" />
-    <Resource Include="Resource\ext\ext_html.png" />
-    <Resource Include="Resource\ext\ext_hwp.png" />
-    <Resource Include="Resource\ext\ext_odp.png" />
-    <Resource Include="Resource\ext\ext_ods.png" />
-    <Resource Include="Resource\ext\ext_odt.png" />
-    <Resource Include="Resource\ext\ext_pdf.png" />
-    <Resource Include="Resource\ext\ext_ppt.png" />
-    <Resource Include="Resource\ext\ext_rtf.png" />
-    <Resource Include="Resource\ext\ext_txt.png" />
-    <Resource Include="Resource\ext\ext_word.png" />
-    <Resource Include="Resource\ext\ext_wps.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resource\btn_file.png" />
     <Resource Include="Resource\btn_folder.png" />
   </ItemGroup>
@@ -269,6 +252,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resource\ext\eml.png" />
+    <Resource Include="Resource\ext\excel.png" />
+    <Resource Include="Resource\ext\html.png" />
+    <Resource Include="Resource\ext\pdf.png" />
+    <Resource Include="Resource\ext\ppt.png" />
+    <Resource Include="Resource\ext\rtf.png" />
+    <Resource Include="Resource\ext\txt.png" />
+    <Resource Include="Resource\ext\word.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

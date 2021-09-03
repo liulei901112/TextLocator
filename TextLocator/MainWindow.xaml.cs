@@ -141,6 +141,9 @@ namespace TextLocator
 
                 // 显示状态
                 ShowStatus("索引执行结束，共用时：" + (DateTime.Now - beginMark).TotalSeconds + "秒");
+
+                // 构建结束
+                build = false;
             });            
         }
 

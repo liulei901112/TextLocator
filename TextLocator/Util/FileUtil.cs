@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
+using TextLocator.Enums;
 
 namespace TextLocator.Util
 {
@@ -14,6 +16,28 @@ namespace TextLocator.Util
     public class FileUtil
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        /// <summary>
+        /// 图表集合
+        /// </summary>
+        private static readonly Dictionary<string, BitmapImage> icons = new Dictionary<string, BitmapImage>();
+
+        static FileUtil()
+        {
+            icons.Add("word", new BitmapImage(new Uri(@"/Resource/txt.png", UriKind.Relative)));
+            icons.Add("excel", new BitmapImage(new Uri(@"/Resource/excel.png", UriKind.Relative)));
+            icons.Add("ppt", new BitmapImage(new Uri(@"/Resource/rtf.png", UriKind.Relative)));
+
+            icons.Add("pdf", new BitmapImage(new Uri(@"/Resource/pdf.png", UriKind.Relative)));
+
+            icons.Add("txt", new BitmapImage(new Uri(@"/Resource/txt.png", UriKind.Relative)));
+            icons.Add("html", new BitmapImage(new Uri(@"/Resource/html.png", UriKind.Relative)));
+
+            icons.Add("eml", new BitmapImage(new Uri(@"/Resource/eml.png", UriKind.Relative)));
+            icons.Add("rtf", new BitmapImage(new Uri(@"/Resource/rtf.png", UriKind.Relative)));
+            
+            
+        }
 
         /// <summary>
         /// 获取全部文件
@@ -61,6 +85,32 @@ namespace TextLocator.Util
             {
                 files.Add(fi);
             }
+        }
+
+        /// <summary>
+        /// 根据文件类型获取图标
+        /// </summary>
+        /// <param name="fileType"></param>
+        public static BitmapImage GetFileTypeIcon(FileType fileType)
+        {
+            switch (fileType)
+            {
+                case FileType.Word类型:
+                    return icons["word"];
+                case FileType.Excel类型:
+                    return icons["excel"];
+                case FileType.PowerPoint类型:
+                    return icons["ppt"];
+                case FileType.PDF类型:
+                    return icons["pdf"];
+                case FileType.HTML或XML类型:
+                    return icons["html"];
+                case FileType.纯文本:
+                    return icons["txt"];
+                case FileType.其他类型:
+                    return icons["txt"];
+            }
+            return null;
         }
     }
 }

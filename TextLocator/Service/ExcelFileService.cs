@@ -1,11 +1,8 @@
 ﻿using log4net;
-using Lucene.Net.Documents;
+using Spire.Xls;
+using Spire.Xls.Core;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace TextLocator.Service
 {
@@ -18,7 +15,31 @@ namespace TextLocator.Service
 
         public string GetFileContent(string filePath)
         {
-            return filePath;
+            // 文件内容
+            string content = "";
+            try
+            {
+                StringBuilder builder = new StringBuilder();
+
+                Workbook workbook = new Workbook();
+                workbook.LoadFromFile(filePath);
+                for (int i = 0; i < workbook.Worksheets.Count; i++) {
+                    Worksheet sheet = workbook.Worksheets[i];
+                    for(int j = 0; j < sheet.PrstGeomShapes.Count; j++)
+                    {
+                        IPrstGeomShape shape = sheet.PrstGeomShapes[j];
+                        builder.Append(shape.Text);
+                    }
+                }
+
+                content = builder.ToString();
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message, ex);
+            }
+            log.Debug(filePath + " => " + content);
+            return content;
         }
     }
 }

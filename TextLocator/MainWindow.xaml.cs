@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using TextLocator.Consts;
@@ -73,9 +74,8 @@ namespace TextLocator
             this.FileTypeFilter.Text = "全部";
 
             // 初始化显示被索引的文件夹列表
-            _IndexFolders.Add(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-            _IndexFolders.Add(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
-            string customFolders = AppUtil.ReadIni("Folders", "FolderPaths", "");
+            string customFolders = AppUtil.ReadIni("AppConfig", "FolderPaths", 
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "," + Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
             if (!string.IsNullOrEmpty(customFolders))
             {
                 string[] customFolderArray = customFolders.Split(',');
@@ -85,8 +85,8 @@ namespace TextLocator
                 }
             }
             //_IndexFolders.Add("E:\\马士兵教育、潭州学院");
-            _IndexFolders.Add("E:\\幼小衔接启蒙资料");
-            _IndexFolders.Add("E:\\USB殷丹");
+            //_IndexFolders.Add("E:\\幼小衔接启蒙资料");
+            //_IndexFolders.Add("E:\\USB殷丹");
             string foldersText = "";
             foreach (string folder in _IndexFolders)
             {
@@ -162,7 +162,7 @@ namespace TextLocator
         /// 检索关键字
         /// </summary>
         /// <param name="keywords">关键字包</param>
-        private void Search(List<string> keywords)
+        private void Search(List<string> keywords, string fileTypeFilter)
         {
             if (build)
             {
@@ -192,6 +192,11 @@ namespace TextLocator
                     wrapper.AddAnalyzer("FileName", AppConst.INDEX_ANALYZER);
                     wrapper.AddAnalyzer("FilePath", AppConst.INDEX_ANALYZER);
                     wrapper.AddAnalyzer("Content", AppConst.INDEX_ANALYZER);
+                    // 文件类型筛选
+                    if (!string.IsNullOrEmpty(fileTypeFilter))
+                    {
+                        wrapper.AddAnalyzer("FileType", AppConst.INDEX_ANALYZER);
+                    }
 
                     string[] fields = { "FileName", "FilePath", "Content" };
                     Lucene.Net.QueryParsers.QueryParser parser = new Lucene.Net.QueryParsers.MultiFieldQueryParser(Lucene.Net.Util.Version.LUCENE_30, fields, wrapper);
@@ -293,7 +298,7 @@ namespace TextLocator
             string content = FileInfoServiceFactory.GetFileInfoService(fileInfo.FileType).GetFileContent(fileInfo.FilePath);
 
             // Paragraph 类似于 html 的 P 标签
-            System.Windows.Documents.Paragraph p = new System.Windows.Documents.Paragraph();
+            Paragraph p = new Paragraph();
             // Run 是一个 Inline 的标签
             Run r = new Run(content);
             p.Inlines.Add(r);
@@ -311,27 +316,14 @@ namespace TextLocator
         /// <param name="e"></param>
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
-            string text = this.SearchText.Text;
-            if (string.IsNullOrEmpty(text))
-            {
-                Message.Show("请输入搜索关键词");
-                return;
-            }
-            List<string> keywords = new List<string>();
-            if (text.IndexOf(" ") != -1)
-            {
-                string[] texts = text.Split(' ');
-                foreach (string txt in texts)
-                {
-                    keywords.Add(txt);
-                }
-            }
-            else
-            {
-                keywords.Add(text);
-            }
+            // 获取搜索关键词列表
+            List<string> keywords = GetTextKeywords();
 
-            Search(keywords);
+            // 关键词列表不为空时执行搜索
+            if (keywords != null && keywords.Count > 0)
+            {
+                Search(keywords, null);
+            }
         }
 
         /// <summary>
@@ -383,6 +375,55 @@ namespace TextLocator
         {
             RegionWindow region = new RegionWindow();
             region.ShowDialog();
+        }
+
+        /// <summary>
+        /// 文件类型过滤选中
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FileTypeFilter_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            string filter = (sender as ComboBox).Text;
+            if (!filter.Equals("全部"))
+            {
+                // 获取搜索关键词列表
+                List<string> keywords = GetTextKeywords();
+
+                // 关键词列表不为空时执行搜索
+                if (keywords != null && keywords.Count > 0)
+                {
+                    Search(keywords, filter);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 获取文本关键词
+        /// </summary>
+        /// <returns></returns>
+        private List<string> GetTextKeywords()
+        {
+            string text = this.SearchText.Text;
+            if (string.IsNullOrEmpty(text))
+            {
+                Message.Show("请输入搜索关键词");
+                return null;
+            }
+            List<string> keywords = new List<string>();
+            if (text.IndexOf(" ") != -1)
+            {
+                string[] texts = text.Split(' ');
+                foreach (string txt in texts)
+                {
+                    keywords.Add(txt);
+                }
+            }
+            else
+            {
+                keywords.Add(text);
+            }
+            return keywords;
         }
     }
 }

@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using TextLocator.Enums;
 
@@ -18,25 +15,23 @@ namespace TextLocator.Util
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
-        /// 图表集合
+        /// 图标集合
         /// </summary>
         private static readonly Dictionary<string, BitmapImage> icons = new Dictionary<string, BitmapImage>();
 
         static FileUtil()
         {
-            icons.Add("word", new BitmapImage(new Uri(@"/Resource/txt.png", UriKind.Relative)));
-            icons.Add("excel", new BitmapImage(new Uri(@"/Resource/excel.png", UriKind.Relative)));
-            icons.Add("ppt", new BitmapImage(new Uri(@"/Resource/rtf.png", UriKind.Relative)));
+            icons.Add("word", new BitmapImage(new Uri(@"/Resource/ext/word.png", UriKind.Relative)));
+            icons.Add("excel", new BitmapImage(new Uri(@"/Resource/ext/excel.png", UriKind.Relative)));
+            icons.Add("ppt", new BitmapImage(new Uri(@"/Resource/ext/rtf.png", UriKind.Relative)));
 
-            icons.Add("pdf", new BitmapImage(new Uri(@"/Resource/pdf.png", UriKind.Relative)));
+            icons.Add("pdf", new BitmapImage(new Uri(@"/Resource/ext/pdf.png", UriKind.Relative)));
 
-            icons.Add("txt", new BitmapImage(new Uri(@"/Resource/txt.png", UriKind.Relative)));
-            icons.Add("html", new BitmapImage(new Uri(@"/Resource/html.png", UriKind.Relative)));
+            icons.Add("txt", new BitmapImage(new Uri(@"/Resource/ext/txt.png", UriKind.Relative)));
+            icons.Add("html", new BitmapImage(new Uri(@"/Resource/ext/html.png", UriKind.Relative)));
 
-            icons.Add("eml", new BitmapImage(new Uri(@"/Resource/eml.png", UriKind.Relative)));
-            icons.Add("rtf", new BitmapImage(new Uri(@"/Resource/rtf.png", UriKind.Relative)));
-            
-            
+            icons.Add("eml", new BitmapImage(new Uri(@"/Resource/ext/eml.png", UriKind.Relative)));
+            icons.Add("rtf", new BitmapImage(new Uri(@"/Resource/ext/rtf.png", UriKind.Relative)));
         }
 
         /// <summary>

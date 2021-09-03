@@ -99,7 +99,7 @@
                             <!-- 条件和排序 -->
                             <Grid Height="40" VerticalAlignment="Top" Background="#F3F3F3">
                                 <TextBlock Text="文件类型：" Margin="20,0,0,0"/>
-                                <ComboBox x:Name="FileTypeFilter" Margin="80,0,0,0" Width="130" HorizontalAlignment="Left" Height="25">
+                                <ComboBox x:Name="FileTypeFilter" Margin="80,0,0,0" Width="130" HorizontalAlignment="Left" Height="25" SelectionChanged="FileTypeFilter_SelectionChanged">
                                     <ComboBoxItem Content="全部" IsSelected="True"/>
                                     <ComboBoxItem Content="Word类型"/>
                                     <ComboBoxItem Content="Excel类型"/>
@@ -126,7 +126,7 @@
                                 <ListBoxItem>
                                     <Grid Width="870" Height="110" HorizontalAlignment="Left" VerticalAlignment="Top">
                                         <!-- 图标 -->
-                                        <Image Source="/Resource/ext/ext_word.png" Width="60" HorizontalAlignment="Left"/>
+                                        <Image Source="/Resource/ext/word.png" Width="60" HorizontalAlignment="Left"/>
                                         <!-- 文件信息 -->
                                         <Grid Margin="80,0,0,0">
                                             <!-- 文件标题、大小、时间 -->

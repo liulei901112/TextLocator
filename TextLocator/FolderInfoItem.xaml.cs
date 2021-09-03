@@ -10,18 +10,26 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace TextLocator
 {
     /// <summary>
-    /// RegionWindow.xaml 的交互逻辑
+    /// FolderInfoItem.xaml 的交互逻辑
     /// </summary>
-    public partial class RegionWindow : Window
+    public partial class FolderInfoItem : UserControl
     {
-        public RegionWindow()
+        public FolderInfoItem(string folderPath)
         {
             InitializeComponent();
+
+            Refresh(folderPath);
+        }
+
+        private void Refresh(string folderPath)
+        {
+            this.FolderPath.Text = folderPath;
         }
     }
 }

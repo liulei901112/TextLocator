@@ -35,7 +35,7 @@ namespace TextLocator.Enums
         /// <summary>
         /// 纯文本
         /// </summary>
-        [Description("txt,css,js,java,cs")]
+        [Description("txt,css,js,java,cs,md")]
         纯文本,
         /// <summary>
         /// 其他类型

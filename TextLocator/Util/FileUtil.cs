@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
 using TextLocator.Consts;
 using TextLocator.Enums;
@@ -40,24 +42,24 @@ namespace TextLocator.Util
         /// </summary>
         /// <param name="rootPath">根目录路径</param>
         /// <returns></returns>
-        public static List<FileInfo> GetAllFiles(string rootPath)
+        public static List<string> GetAllFiles(string rootPath)
         {
             log.Debug("根目录：" + rootPath);
             // 声明一个files包，用来存储遍历出的word文档
-            List<FileInfo> files = new List<FileInfo>();
+            List<string> filePaths = new List<string>();
             // 获取全部文件列表
-            GetAllFiles(rootPath, files);
+            GetAllFiles(rootPath, filePaths);
 
             // 返回文件列表
-            return files;
+            return filePaths;
         }
 
         /// <summary>
         /// 获取指定根目录下的子目录及其文档
         /// </summary>
         /// <param name="rootPath">根目录路径</param>
-        /// <param name="files">word文档存储包</param>
-        private static void GetAllFiles(string rootPath, List<FileInfo> files)
+        /// <param name="filePaths">文档列表</param>
+        private static void GetAllFiles(string rootPath, List<string> filePaths)
         {
             DirectoryInfo dir = new DirectoryInfo(rootPath);
             // 得到所有子目录
@@ -67,7 +69,7 @@ namespace TextLocator.Util
                 foreach (string di in dirs)
                 {
                     // 递归调用
-                    GetAllFiles(di, files);
+                    GetAllFiles(di, filePaths);
                 }
             }
             catch (Exception ex)
@@ -76,21 +78,25 @@ namespace TextLocator.Util
             }
 
             // 文件类型过滤
-            string fileExtFilter = "";
-            foreach(string fileExt in AppConst.FILE_EXTENSIONS.Split(','))
+            string fileExtFilter = AppConst.FILE_EXTENSIONS.Replace(",", "|");
+
+            try
             {
-                fileExtFilter += "*." + fileExt + ";";
+                string regex = @"^.+\.(" + fileExtFilter +  ")$";
+
+                // 查找word文件
+                string[] paths = Directory.GetFiles(dir.FullName)
+                    .Where(file => Regex.IsMatch(file, regex))
+                    .ToArray();
+                // 遍历每个文档
+                foreach (string path in paths)
+                {
+                    filePaths.Add(path);
+                }
             }
-            fileExtFilter = fileExtFilter.Substring(0, fileExtFilter.Length - 1);
-
-            log.Debug("文件后缀过滤器：" + fileExtFilter);
-
-            // 查找word文件
-            FileInfo[] fis = dir.GetFiles(fileExtFilter, SearchOption.AllDirectories);
-            // 遍历每个word文档
-            foreach (FileInfo fi in fis)
+            catch (Exception ex)
             {
-                files.Add(fi);
+                log.Error(ex.Message, ex);
             }
         }
 

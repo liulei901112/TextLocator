@@ -118,6 +118,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -144,9 +145,12 @@
     <Compile Include="FileInfoItem.xaml.cs">
       <DependentUpon>FileInfoItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="FolderInfoItem.xaml.cs">
+      <DependentUpon>FolderInfoItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Index\LuceneIndexCore.cs" />
-    <Compile Include="RegionWindow.xaml.cs">
-      <DependentUpon>RegionWindow.xaml</DependentUpon>
+    <Compile Include="FolderWindow.xaml.cs">
+      <DependentUpon>FolderWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Service\ExcelFileService.cs" />
     <Compile Include="Service\IFileInfoService.cs" />
@@ -164,6 +168,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="FolderInfoItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -176,7 +184,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="RegionWindow.xaml">
+    <Page Include="FolderWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

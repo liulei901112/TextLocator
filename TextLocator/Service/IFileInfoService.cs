@@ -19,5 +19,12 @@ namespace TextLocator.Service
         /// </summary>
         /// <param name="fileInfo">文件信息</param>
         Lucene.Net.Documents.Document GetIndexDocument(FileInfo fileInfo);
+
+        /// <summary>
+        /// 获取文件内容
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        string GetFileContent(string filePath);
     }
 }

@@ -40,7 +40,12 @@ namespace TextLocator
         /// </summary>
         private static readonly Lucene.Net.Analysis.Analyzer _AppIndexAnalyzer = new Lucene.Net.Analysis.PanGuAnalyzer();
 
-
+        /// <summary>
+        /// 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
+        /// 磁盘路径：Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(_AppIndexDir))
+        /// 内存：new Lucene.Net.Store.RAMDirectory()
+        /// </summary>
+        private static readonly Lucene.Net.Store.RAMDirectory _IndexDirctory = new Lucene.Net.Store.RAMDirectory();
 
         /// <summary>
         /// 索引文件夹列表
@@ -91,7 +96,7 @@ namespace TextLocator
                     _IndexFolders.Add(folderPath);
                 }
             }
-            _IndexFolders.Add("E:\\马士兵教育、潭州学院");
+            //_IndexFolders.Add("E:\\马士兵教育、潭州学院");
             _IndexFolders.Add("E:\\幼小衔接启蒙资料");
             _IndexFolders.Add("E:\\USB殷丹");
             string foldersText = "";
@@ -174,10 +179,7 @@ namespace TextLocator
             }
 
             // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
-            // 磁盘路径：Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(_AppIndexDir))
-            // 内存：new Lucene.Net.Store.RAMDirectory()
-
-            Lucene.Net.Index.IndexWriter writer = new Lucene.Net.Index.IndexWriter(new Lucene.Net.Store.RAMDirectory(), _AppIndexAnalyzer, true, Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
+            Lucene.Net.Index.IndexWriter writer = new Lucene.Net.Index.IndexWriter(_IndexDirctory, _AppIndexAnalyzer, true, Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
 
             // 遍历读取文件，并创建索引
             for (int i = 0; i < files.Count(); i++)
@@ -225,12 +227,12 @@ namespace TextLocator
                 Lucene.Net.Search.IndexSearcher searcher = null;
                 try
                 {
-                    if (!System.IO.Directory.Exists(_AppIndexDir))
+                    /*if (!System.IO.Directory.Exists(_AppIndexDir))
                     {
                         MessageBox.Show("首次使用该软件检索 必须先创建索引！" + "\r\n" + "请点击右边【创建索引】按钮,选择要检索的文件夹进行创建索引。");
                         return;
-                    }
-                    reader = Lucene.Net.Index.IndexReader.Open(Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(_AppIndexDir)), false);
+                    }*/
+                    reader = Lucene.Net.Index.IndexReader.Open(_IndexDirctory, false);
                     searcher = new Lucene.Net.Search.IndexSearcher(reader);
 
                     // 创建查询
@@ -257,9 +259,13 @@ namespace TextLocator
                     {
                         var hit = hits[i];
                         Lucene.Net.Documents.Document doc = searcher.Doc(hit.Doc);
+                        Lucene.Net.Documents.Field fileTypeField = doc.GetField("FileType");
                         Lucene.Net.Documents.Field fileNameField = doc.GetField("FileName");
                         Lucene.Net.Documents.Field filePathField = doc.GetField("FilePath");
                         Lucene.Net.Documents.Field contentField = doc.GetField("Content");
+                        Lucene.Net.Documents.Field breviaryField = doc.GetField("Breviary");
+                        Lucene.Net.Documents.Field fileSizeField = doc.GetField("FileSize");
+                        Lucene.Net.Documents.Field createTimeField = doc.GetField("CreateTime");
 
                         // 判断本地是否存在该文件，存在则在检索结果栏里显示出来
                         if (!System.IO.File.Exists(filePathField.StringValue))
@@ -271,17 +277,24 @@ namespace TextLocator
                             reader.Commit();
                             continue;
                         }
+                        
+                        // 文件信息
                         FileInfo fi = new FileInfo(filePathField.StringValue);
 
 
-                        log.Debug(fileNameField.StringValue + " = " + filePathField.StringValue + " ， " + fi.Length + " , " + fi.CreationTime.ToString());
+                        log.Debug(fileNameField.StringValue + " = " + filePathField.StringValue + " ， " + fileSizeField.StringValue + " , " + createTimeField.StringValue);
 
                         Entity.FileInfo fileInfo = new Entity.FileInfo()
                         {
+                            FileType = (FileType)System.Enum.Parse(typeof(FileType), fileTypeField.StringValue),
+
                             FileName = fileNameField.StringValue,
                             FilePath = filePathField.StringValue,
-                            FileSize = fi.Length,
-                            CreateTime = fi.CreationTime.ToString("yyyy-MM-dd"),
+                            Breviary = breviaryField.StringValue,
+                            
+                            FileSize = long.Parse(fileSizeField.StringValue),
+                            
+                            CreateTime = createTimeField.StringValue,
                             Keywords = keywords
                         };
 
@@ -323,10 +336,14 @@ namespace TextLocator
 
             this.PreviewFileName.Text = fileInfo.FileName;
             this.PreviewFileContent.Document.Blocks.Clear();
+
+            // 文件内容
+            string content = FileInfoServiceFactory.GetFileInfoService(fileInfo.FileType).GetFileContent(fileInfo.FilePath);
+
             // Paragraph 类似于 html 的 P 标签
             System.Windows.Documents.Paragraph p = new System.Windows.Documents.Paragraph();
             // Run 是一个 Inline 的标签
-            Run r = new Run(fileInfo.Content);
+            Run r = new Run(content);
             p.Inlines.Add(r);
             this.PreviewFileContent.Document.Blocks.Add(p);
 

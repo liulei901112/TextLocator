@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TextLocator.Enum;
 
 namespace TextLocator.Entity
 {
@@ -11,6 +12,10 @@ namespace TextLocator.Entity
     /// </summary>
     public class FileInfo
     {
+        /// <summary>
+        /// 文件类型
+        /// </summary>
+        public FileType FileType { get; set; }
         /// <summary>
         /// 文件名
         /// </summary>
@@ -28,9 +33,9 @@ namespace TextLocator.Entity
         /// </summary>
         public string CreateTime { get; set; }
         /// <summary>
-        /// 文件内容
+        ///  摘要
         /// </summary>
-        public string Content { get; set; }
+        public string Breviary { get; set; }
         /// <summary>
         /// 关键词
         /// </summary>

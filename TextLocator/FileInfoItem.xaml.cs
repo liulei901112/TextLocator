@@ -59,39 +59,19 @@ namespace TextLocator
             this.FileSize.Text = fileSize + "" + fileSizeUnit;
             this.CreateTime.Text = fileInfo.CreateTime;
 
-            ThreadPool.QueueUserWorkItem(_ => {
-                string content = "";
+            this.FileContent.Document.Blocks.Clear();
+            // Paragraph 类似于 html 的 P 标签
+            Paragraph p = new Paragraph();
+            // Run 是一个 Inline 的标签
+            Run r = new Run(fileInfo.Breviary);
+            p.Inlines.Add(r);
+            this.FileContent.Document.Blocks.Add(p);
 
-                using (var document = new Spire.Doc.Document(new FileStream(fileInfo.FilePath, FileMode.Open)))
-                {
-                    // 提取每个段落的文本 
-                    var sb = new StringBuilder();
-                    foreach (Spire.Doc.Section section in document.Sections)
-                    {
-                        foreach (Spire.Doc.Documents.Paragraph paragraph in section.Paragraphs)
-                        {
-                            sb.AppendLine(paragraph.Text);
-                        }
-                    }
-                    content = sb.ToString();
-                }
-
-                this.Dispatcher.InvokeAsync(() => {
-                    this.FileContent.Document.Blocks.Clear();
-                    // Paragraph 类似于 html 的 P 标签
-                    Paragraph p = new Paragraph();
-                    // Run 是一个 Inline 的标签
-                    Run r = new Run(content);
-                    p.Inlines.Add(r);
-                    this.FileContent.Document.Blocks.Add(p);
-
-                    // 关键词高亮
-                    if (fileInfo.Keywords.Count > 0)
-                    {
-                        RichTextBoxUtil.Highlighted(this.FileContent, Colors.Red, fileInfo.Keywords);
-                    }
-                });
-            });
+            // 关键词高亮
+            if (fileInfo.Keywords.Count > 0)
+            {
+                RichTextBoxUtil.Highlighted(this.FileContent, Colors.Red, fileInfo.Keywords);
+            }
         }
     }
 }

@@ -13,6 +13,11 @@ namespace TextLocator.Service
     /// </summary>
     public class PowerPointService : IFileInfoService
     {
+        public string GetFileContent(string filePath)
+        {
+            throw new NotImplementedException();
+        }
+
         public Document GetIndexDocument(FileInfo fileInfo)
         {
             throw new NotImplementedException();

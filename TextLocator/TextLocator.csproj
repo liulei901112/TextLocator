@@ -142,6 +142,7 @@
     <Compile Include="FileInfoItem.xaml.cs">
       <DependentUpon>FileInfoItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Index\LucenceIndex.cs" />
     <Compile Include="Service\ExcelService.cs" />
     <Compile Include="Service\IFileInfoService.cs" />
     <Compile Include="Service\OtherService.cs" />

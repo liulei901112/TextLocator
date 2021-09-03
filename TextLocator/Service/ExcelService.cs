@@ -10,6 +10,11 @@ namespace TextLocator.Service
 {
     public class ExcelService : IFileInfoService
     {
+        public string GetFileContent(string filePath)
+        {
+            throw new NotImplementedException();
+        }
+
         public Document GetIndexDocument(FileInfo fileInfo)
         {
             throw new NotImplementedException();

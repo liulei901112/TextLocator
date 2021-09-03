@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Media.Imaging;
+using TextLocator.Consts;
 using TextLocator.Enums;
 
 namespace TextLocator.Util
@@ -73,8 +74,19 @@ namespace TextLocator.Util
             {
                 log.Error(ex.Message, ex);
             }
+
+            // 文件类型过滤
+            string fileExtFilter = "";
+            foreach(string fileExt in AppConst.FILE_EXTENSIONS.Split(','))
+            {
+                fileExtFilter += "*." + fileExt + ";";
+            }
+            fileExtFilter = fileExtFilter.Substring(0, fileExtFilter.Length - 1);
+
+            log.Debug("文件后缀过滤器：" + fileExtFilter);
+
             // 查找word文件
-            FileInfo[] fis = dir.GetFiles("*.doc?");
+            FileInfo[] fis = dir.GetFiles(fileExtFilter, SearchOption.AllDirectories);
             // 遍历每个word文档
             foreach (FileInfo fi in fis)
             {

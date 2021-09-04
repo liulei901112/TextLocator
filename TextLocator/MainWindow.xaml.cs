@@ -171,6 +171,9 @@ namespace TextLocator
         /// <param name="fileTypeFilter">文件类型过滤器</param>
         private void Search(List<string> keywords, string fileTypeFilter)
         {
+            log.Debug("关键词：" + keywords + ", 文件类型：" + fileTypeFilter);
+            // 开始时间标记
+            DateTime beginMark = DateTime.Now;
             // 仅文件名
             bool onlyThsFileName = (bool)this.OnlyTheFileName.IsChecked;
             bool matchTheWords = (bool)this.MatchTheWords.IsChecked;
@@ -262,7 +265,7 @@ namespace TextLocator
                     FileInfo fi = new FileInfo(filePathField.StringValue);
 
 
-                    log.Debug(fileNameField.StringValue + " = " + filePathField.StringValue + " ， " + fileSizeField.StringValue + " , " + createTimeField.StringValue);
+                    log.Debug(fileNameField.StringValue + " => " + filePathField.StringValue + " ， " + fileSizeField.StringValue + " , " + createTimeField.StringValue);
 
                     Entity.FileInfo fileInfo = new Entity.FileInfo()
                     {
@@ -287,7 +290,7 @@ namespace TextLocator
                     resultNum++;
                 }
 
-                string message = "检索完成！共检索到" + resultNum + "个符合条件的结果！";
+                string message = "检索完成！共检索到" + resultNum + "个符合条件的结果！ - 耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
 
                 Message.ShowSuccess("MessageContainer", message);
 

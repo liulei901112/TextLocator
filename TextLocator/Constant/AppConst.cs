@@ -44,9 +44,9 @@ namespace TextLocator.Consts
             "xls,xlsm,xlsx," +
             "pdf," +
             "txt," +
-            "htm,html,mht,mhtml,xml," +
+            // "htm,html,mht,mhtml,xml," +
             "wps,wpt," +
-            "java,cs,css,js,md," +
+            "java,cs,js,md," +
             "jpg,png,bmp,jpeg,gif");
     }
 }

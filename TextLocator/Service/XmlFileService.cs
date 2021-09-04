@@ -30,7 +30,6 @@ namespace TextLocator.Service
             {
                 log.Error(ex.Message, ex);
             }
-            log.Debug(filePath + " => " + content);
             return content;
         }
     }

@@ -3,8 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using TextLocator.Consts;
 using TextLocator.Enums;
 using TextLocator.Factory;
@@ -29,7 +28,7 @@ namespace TextLocator.Index
         /// 创建索引
         /// </summary>
         /// <param name="filePaths">获得的文档包</param>
-        public static void CreateIndex(List<string> filePaths, bool rebuild, StatusCallback callback = null)
+        public static void CreateIndex(List<string> filePaths, bool rebuild, StatusCallback callback)
         {
             // 判断是创建索引还是增量索引（如果索引目录不存在，重建）
             bool create = !Directory.Exists(AppConst.APP_INDEX_DIR);
@@ -42,18 +41,24 @@ namespace TextLocator.Index
             // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
             Lucene.Net.Index.IndexWriter writer = new Lucene.Net.Index.IndexWriter(AppConst.INDEX_DIRECTORY, AppConst.INDEX_ANALYZER, create, Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
 
-            FileInfo fileInfo;
+            int count = filePaths.Count();
+
             // 遍历读取文件，并创建索引
-            for (int i = 0; i < filePaths.Count(); i++)
+            for (int i = 0; i < count; i++)
             {
                 // 文件路径
                 string filePath = filePaths[i];
+
                 if (filePath.IndexOf("~$") >0)
                 {
                     continue;
                 }
 
-                fileInfo = new FileInfo(filePath);
+                // 开始时间
+                DateTime beginMark = DateTime.Now;
+
+                // 文件信息
+                FileInfo fileInfo = new FileInfo(filePath);
 
                 // 文件名
                 string fileName = fileInfo.Name;
@@ -63,9 +68,6 @@ namespace TextLocator.Index
                 string createTime = fileInfo.CreationTime.ToString("yyyy-MM-dd");
                 // 文件标记
                 string fileMark = fileInfo.DirectoryName + fileInfo.CreationTime.ToString();
-
-                // 执行状态回调
-                callback("索引：" + filePath);
 
                 // 根据文件路径获取文件类型（自定义文件类型分类）
                 FileType fileType = FileTypeUtil.GetFileType(filePath);
@@ -96,16 +98,31 @@ namespace TextLocator.Index
                 doc.Add(new Lucene.Net.Documents.Field("FileName", fileName, Lucene.Net.Documents.Field.Store.YES, Lucene.Net.Documents.Field.Index.ANALYZED));
                 doc.Add(new Lucene.Net.Documents.Field("FilePath", filePath, Lucene.Net.Documents.Field.Store.YES, Lucene.Net.Documents.Field.Index.ANALYZED));
                 doc.Add(new Lucene.Net.Documents.Field("Content", content, Lucene.Net.Documents.Field.Store.NO, Lucene.Net.Documents.Field.Index.ANALYZED));
-                
+
                 writer.AddDocument(doc);
                 // 优化索引
                 writer.Optimize();
-            }
-            writer.Dispose();
 
-            // 手动GC
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+                string msg = "创建索引：（" + i + " / " + count + "） => 文件：" + filePath + "，耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
+
+                // 执行状态回调
+                callback(msg);
+
+                log.Debug(msg);                
+
+                // 手动GC
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+
+            try
+            {
+                writer.Dispose();
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message, ex);
+            }
         }
     }
 }

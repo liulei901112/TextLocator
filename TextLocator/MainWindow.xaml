@@ -20,7 +20,7 @@
                             <!-- 搜索 -->
                             <StackPanel Margin="20,15,0,0" Orientation="Horizontal" >
                                 <!-- 搜索框 -->
-                                <TextBox x:Name="SearchText" Width="500" Height="36" FontSize="20" HorizontalAlignment="Left" VerticalContentAlignment="Center" BorderThickness="1" BorderBrush="Green">
+                                <TextBox x:Name="SearchText" Width="500" Height="36" FontSize="20" HorizontalAlignment="Left" VerticalContentAlignment="Center" BorderThickness="1" BorderBrush="Green" PreviewKeyUp="SearchText_PreviewKeyUp">
                                     <TextBox.Resources>
                                         <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
                                             <VisualBrush.Visual>
@@ -44,6 +44,9 @@
                                             </Style.Triggers>
                                         </Style>
                                     </TextBox.Style>
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Command="{Binding KeyEventCommand}" Key="Enter"/>
+                                    </TextBox.InputBindings>
                                 </TextBox>
                                 <!-- 搜索按钮 -->
                                 <Button x:Name="SearchButton" Content="搜索" Margin="10,0,0,0" Width="150" Height="35" Click="SearchButton_Click"/>
@@ -55,14 +58,13 @@
                                 <!-- 复选框 -->
                                 <StackPanel>
                                     <Grid Margin="0,6,0,0">
-                                        <!-- 匹配大小写 -->
-                                        <CheckBox Content="匹配大小写" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center"/>
                                         <!-- 匹配全词 -->
+                                        <CheckBox x:Name="MatchTheWords" IsEnabled="false" Content="匹配全词" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center"/>
                                     </Grid>
                                     <Grid Margin="0,14,0,0">
                                         <!-- 匹配原始值 -->
                                         <!-- 仅文件名 -->
-                                        <CheckBox Content="仅文件名" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center"/>
+                                        <CheckBox x:Name="OnlyTheFileName" Content="仅文件名" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center"/>
                                     </Grid>
                                 </StackPanel>
                                 <!-- 分割线 -->
@@ -98,7 +100,7 @@
                         <Grid Width="900" HorizontalAlignment="Left">
                             <!-- 条件和排序 -->
                             <Grid Height="40" VerticalAlignment="Top" Background="#F3F3F3">
-                                <TextBlock Text="文件类型：" Margin="20,0,0,0"/>
+                                <TextBlock Text="文件类型：" Margin="20,0,0,0" HorizontalAlignment="Left"/>
                                 <ComboBox x:Name="FileTypeFilter" Margin="80,0,0,0" Width="130" HorizontalAlignment="Left" Height="25" SelectionChanged="FileTypeFilter_SelectionChanged">
                                     <ComboBoxItem Content="全部" IsSelected="True"/>
                                     <ComboBoxItem Content="Word类型"/>
@@ -110,12 +112,14 @@
                                 </ComboBox>
 
                                 <!-- 排序 -->
-                                <TextBlock Text="排序：" Margin="0,0,280,0" HorizontalAlignment="Right"/>
-                                <Button Content="默认" Margin="0,0,220,0"  Width="60" Height="20" HorizontalAlignment="Right"/>
+                                <TextBlock Text="排序：" Margin="0,0,70,0" HorizontalAlignment="Right"/>
+                                <Button Content="默认" Margin="0,0,10,0"  Width="60" Height="20" HorizontalAlignment="Right"/>
+                                <!-- <TextBlock Text="排序：" Margin="0,0,280,0" HorizontalAlignment="Right"/>
+                                <Button x:Name="SortDefault" Content="默认" Margin="0,0,220,0"  Width="60" Height="20" HorizontalAlignment="Right"/>
                                 <Button Content="匹配度" Margin="0,0,150,0"  Width="60" Height="20" HorizontalAlignment="Right" Background="Gray"/>
 
-                                <Button Content="时间" Margin="0,0,80,0" Width="60" Height="20" HorizontalAlignment="Right" Background="Gray"/>
-                                <Button Content="大小" Margin="0,0,10,0" Width="60" Height="20" HorizontalAlignment="Right" Background="Gray"/>
+                                <Button x:Name="SortTime" Content="时间" Margin="0,0,80,0" Width="60" Height="20" HorizontalAlignment="Right" Background="Gray"/>
+                                <Button x:Name="SortSize" Content="大小" Margin="0,0,10,0" Width="60" Height="20" HorizontalAlignment="Right" Background="Gray"/> -->
 
                                 <!-- 分割线 -->
                                 <GridSplitter Grid.Column="1" Height="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
@@ -170,9 +174,9 @@
                             <!-- 条件和排序 -->
                             <Grid Height="40" VerticalAlignment="Top" Background="#F3F3F3">
                                 <!-- 打开文件 -->
-                                <Image Source="/Resource/btn_file.png" ToolTip="打开文件" HorizontalAlignment="Left" Margin="10,5,0,5"/>
+                                <Image x:Name="OpenFile" Source="/Resource/btn_file.png" ToolTip="打开文件" HorizontalAlignment="Left" Margin="10,5,0,5" MouseUp="OpenFile_MouseUp"/>
                                 <!-- 打开文件夹 -->
-                                <Image Source="/Resource/btn_folder.png" ToolTip="打开文件夹" HorizontalAlignment="Left" Margin="50,5,0,5"/>
+                                <Image x:Name="OpenFolder" Source="/Resource/btn_folder.png" ToolTip="打开文件夹" HorizontalAlignment="Left" Margin="50,5,0,5" MouseUp="OpenFolder_MouseUp"/>
                                 
                                 <!-- 分割线 -->
                                 <GridSplitter Grid.Column="1" Height="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
@@ -180,7 +184,7 @@
                             <!-- 文件信息 -->
                             <Grid Margin="0,40,0,0" Height="40" VerticalAlignment="Top" Background="#F3F3F3">
                                 <!-- 图标 -->
-                                <Image x:Name="PreviewFileTypeIcon"  Source="/Resource/ext/word.png" Margin="10,0,0,0" Width="40" HorizontalAlignment="Left"/>
+                                <Image x:Name="PreviewFileTypeIcon"  Source="/Resource/ext/txt.png" Margin="10,0,0,0" Width="40" HorizontalAlignment="Left"/>
                                 <!-- 文件名 -->
                                 <TextBlock x:Name="PreviewFileName" Text="教 师 护 导 要 求（20210219）.doc" FontWeight="Bold" Margin="50,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                 <!-- 分割线 -->

@@ -46,12 +46,17 @@ namespace TextLocator.Index
             // 遍历读取文件，并创建索引
             for (int i = 0; i < filePaths.Count(); i++)
             {
-                fileInfo = new FileInfo(filePaths[i]);
+                // 文件路径
+                string filePath = filePaths[i];
+                if (filePath.IndexOf("~$") >0)
+                {
+                    continue;
+                }
+
+                fileInfo = new FileInfo(filePath);
 
                 // 文件名
                 string fileName = fileInfo.Name;
-                // 文件路径
-                string filePath = fileInfo.DirectoryName + "\\" + fileName;
                 // 文件大小
                 long fileSize = fileInfo.Length;
                 // 创建时间
@@ -97,6 +102,10 @@ namespace TextLocator.Index
                 writer.Optimize();
             }
             writer.Dispose();
+
+            // 手动GC
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
     }
 }

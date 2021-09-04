@@ -1,18 +1,7 @@
 ﻿using Rubyer;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using TextLocator.Consts;
 using TextLocator.Util;
 
 namespace TextLocator
@@ -56,7 +45,7 @@ namespace TextLocator
         {
             for(int i = 0; i < this.FolderList.Items.Count; i++)
             {
-                if ((this.FolderList.Items[i] as FolderInfoItem).FolderPath.Text == (sender as Button).Tag)
+                if ((this.FolderList.Items[i] as FolderInfoItem).FolderPath.Text.Equals((sender as Button).Tag))
                 {
                     this.FolderList.Items.RemoveAt(i);
                     break;

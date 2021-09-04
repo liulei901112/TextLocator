@@ -171,7 +171,12 @@ namespace TextLocator
         /// <param name="fileTypeFilter">文件类型过滤器</param>
         private void Search(List<string> keywords, string fileTypeFilter)
         {
-            log.Debug("关键词：" + keywords + ", 文件类型：" + fileTypeFilter);
+            string text = "";
+            foreach(string kw in keywords) {
+                text += kw + ",";
+            }
+            text = text.Substring(0, text.Length - 1);
+            log.Debug("关键词：（" + text + "）, 文件类型：" + fileTypeFilter);
             // 开始时间标记
             DateTime beginMark = DateTime.Now;
             // 仅文件名

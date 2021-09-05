@@ -10,17 +10,17 @@ namespace TextLocator.Enums
         /// <summary>
         /// Word
         /// </summary>
-        [Description("doc,docm,docx,wps,wpt")]
+        [Description("doc,docx")]
         Word类型,
         /// <summary>
         /// Excel
         /// </summary>
-        [Description("xls,xlsm,xlsx")]
+        [Description("xls,xlsx")]
         Excel类型,
         /// <summary>
         /// PowerPoint
         /// </summary>
-        [Description("ppt,pptm,pptx")]
+        [Description("ppt,pptx")]
         PowerPoint类型,
         /// <summary>
         /// PDF

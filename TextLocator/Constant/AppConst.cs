@@ -39,14 +39,14 @@ namespace TextLocator.Consts
         /// 支持的文件后缀集
         /// </summary>
         public static readonly string FILE_EXTENSIONS = AppUtil.ReadIni("AppConfig", "FileExtensions",
-            "doc,docm,docx," +
-            "ppt,pptm,rtf," +
-            "xls,xlsm,xlsx," +
+            "doc,docx," +
+            "ppt,pptx," +
+            "xls,xlsx," +
             "pdf," +
             "txt," +
             // "htm,html,mht,mhtml,xml," +
-            "wps,wpt," +
+            // "wps,wpt," +
             "java,cs,js,md," +
-            "jpg,png,bmp,jpeg,gif");
+            "jpg,png,gif");
     }
 }

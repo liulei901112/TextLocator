@@ -5,7 +5,10 @@
 基于.net实现的本地文档的全文索引定位器，根据关键词搜索定位本地文档内容。便于查找历史文档时节省时间。
 
 #### 软件架构
-本地单机软件。WPF实现的UI（RubyerUI组件），Lucene.Net实现的索引（PanGu.Lucene.Analyzer分词器），NPOI、Spire、Microsoft.Office.Interop实现的文档内容读取。
+本地单机软件。
+* WPF实现的UI（RubyerUI组件）
+* Lucene.Net实现的索引（PanGu.Lucene.Analyzer分词器）
+* NPOI、Spire、Microsoft.Office实现的文档内容读取
 
 
 #### 安装教程

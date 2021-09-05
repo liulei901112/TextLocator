@@ -40,7 +40,7 @@ namespace TextLocator.Service
             {
                 log.Error(ex.Message, ex);
             }
-            return content;
+            return content.Replace("Evaluation Warning : The document was created with Spire.PDF for .NET. ", "");
         }
     }
 }

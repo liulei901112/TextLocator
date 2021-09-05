@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using TextLocator.Consts;
 using TextLocator.Enums;
@@ -77,10 +78,10 @@ namespace TextLocator.Index
                     .GetFileContent(filePath);
 
                 // 缩略信息
-                string breviary = content.Replace(" ", "");
-                if (breviary.Length > 335)
+                string breviary = new Regex(" |\r|\n|\\s").Replace(content, "");
+                if (breviary.Length > 150)
                 {
-                    breviary = breviary.Substring(0, 335);
+                    breviary = breviary.Substring(0, 150) + "...";
                 }
 
                 // 当索引文件中含有与filemark相等的field值时，会先删除再添加，以防出现重复

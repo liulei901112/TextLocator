@@ -295,7 +295,7 @@ namespace TextLocator
                     resultNum++;
                 }
 
-                string message = "检索完成！共检索到" + resultNum + "个符合条件的结果！ - 耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
+                string message = "检索完成！共检索到" + resultNum + "个符合条件的结果（只显示前" + num + "条）。耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
 
                 Message.ShowSuccess("MessageContainer", message);
 

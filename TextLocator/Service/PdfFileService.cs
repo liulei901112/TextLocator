@@ -20,21 +20,25 @@ namespace TextLocator.Service
             try
             {
                 // 实例化一个PdfDocument对象
-                PdfDocument doc = new PdfDocument();
-
-                // 加载Pdf文档
-                doc.LoadFromFile(filePath);
-
-                //实例化一个StringBuilder 对象
-                StringBuilder builder = new StringBuilder();
-
-                //提取PDF所有页面的文本
-                foreach (PdfPageBase page in doc.Pages)
+                using (PdfDocument doc = new PdfDocument())
                 {
-                    builder.Append(page.ExtractText());
+                    //实例化一个StringBuilder 对象
+                    StringBuilder builder = new StringBuilder();
+                    // 加载Pdf文档
+                    doc.LoadFromFile(filePath);                    
+
+                    //提取PDF所有页面的文本
+                    foreach (PdfPageBase page in doc.Pages)
+                    {
+                        builder.Append(page.ExtractText());
+                    }
+
+                    doc.Dispose();
+
+                    content = builder.ToString();
                 }
 
-                content = builder.ToString();
+                
             }
             catch (Exception ex)
             {

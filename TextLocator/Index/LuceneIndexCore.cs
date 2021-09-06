@@ -37,11 +37,12 @@ namespace TextLocator.Index
             if (rebuild)
             {
                 create = rebuild;
-            }
+            } 
 
             // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
             Lucene.Net.Index.IndexWriter writer = new Lucene.Net.Index.IndexWriter(AppConst.INDEX_DIRECTORY, AppConst.INDEX_ANALYZER, create, Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
 
+            // 文件总数
             int count = filePaths.Count();
 
             // 遍历读取文件，并创建索引
@@ -54,6 +55,13 @@ namespace TextLocator.Index
                 {
                     continue;
                 }
+                if (!create && !string.IsNullOrEmpty(AppUtil.ReadIni("FileIndex", filePath, "")))
+                {
+                    continue;
+                }
+
+                // 写入
+                AppUtil.WriteIni("FileIndex", filePath, "1");
 
                 // 开始时间
                 DateTime beginMark = DateTime.Now;

@@ -1,3 +1,5 @@
 /TextLocator/bin
 /TextLocator/obj
 /packages
+/.vs/TextLocator/v16/*.suo
+/.vs

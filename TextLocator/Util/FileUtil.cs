@@ -1,6 +1,7 @@
 ﻿using log4net;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -18,23 +19,43 @@ namespace TextLocator.Util
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
-        /// 图标集合
+        /// 根据文件类型获取文件图标
         /// </summary>
-        private static readonly Dictionary<string, BitmapImage> icons = new Dictionary<string, BitmapImage>();
-
-        static FileUtil()
+        /// <param name="fileType"></param>
+        /// <returns></returns>
+        public static BitmapImage GetFileIcon(FileType fileType)
         {
-            icons.Add("word", new BitmapImage(new Uri(@"/Resource/ext/word.png", UriKind.Relative)));
-            icons.Add("excel", new BitmapImage(new Uri(@"/Resource/ext/excel.png", UriKind.Relative)));
-            icons.Add("ppt", new BitmapImage(new Uri(@"/Resource/ext/rtf.png", UriKind.Relative)));
-
-            icons.Add("pdf", new BitmapImage(new Uri(@"/Resource/ext/pdf.png", UriKind.Relative)));
-
-            icons.Add("txt", new BitmapImage(new Uri(@"/Resource/ext/txt.png", UriKind.Relative)));
-            icons.Add("html", new BitmapImage(new Uri(@"/Resource/ext/html.png", UriKind.Relative)));
-
-            icons.Add("eml", new BitmapImage(new Uri(@"/Resource/ext/eml.png", UriKind.Relative)));
-            icons.Add("rtf", new BitmapImage(new Uri(@"/Resource/ext/rtf.png", UriKind.Relative)));
+            Bitmap bitmap = null;
+            switch (fileType)
+            {
+                case FileType.Word类型:
+                    bitmap = Properties.Resources.word;
+                    break;
+                case FileType.Excel类型:
+                    bitmap = Properties.Resources.excel;
+                    break;
+                case FileType.PowerPoint类型:
+                    bitmap = Properties.Resources.ppt;
+                    break;
+                case FileType.PDF类型:
+                    bitmap = Properties.Resources.pdf;
+                    break;
+                default:
+                    bitmap = Properties.Resources.txt;
+                    break;
+            }
+            BitmapImage bi = new BitmapImage();
+            using (MemoryStream ms = new MemoryStream())
+            {
+                bitmap.Save(ms, bitmap.RawFormat);
+                bi.BeginInit();
+                bi.CacheOption = BitmapCacheOption.OnLoad;
+                bi.StreamSource = ms;
+                bi.EndInit();
+                bi.Freeze();
+            }
+            bitmap.Dispose();
+            return bi;
         }
 
         /// <summary>
@@ -52,6 +73,48 @@ namespace TextLocator.Util
 
             // 返回文件列表
             return filePaths;
+        }
+
+        /// <summary>
+        /// 获取文件大小友好显示
+        /// </summary>
+        /// <param name="fileSize"></param>
+        /// <returns></returns>
+        public static string GetFileSizeFriendly(long fileSize)
+        {
+            string fileSizeUnit = "b";
+            if (fileSize > 1024)
+            {
+                fileSize = fileSize / 1024;
+                fileSizeUnit = "KB";
+            }
+            if (fileSize > 1024)
+            {
+                fileSize = fileSize / 1024;
+                fileSizeUnit = "MB";
+            }
+            if (fileSize > 1024)
+            {
+                fileSize = fileSize / 1024;
+                fileSizeUnit = "GB";
+            }
+            return fileSize + "" + fileSizeUnit;
+        }
+
+        /// <summary>
+        /// 超出范围
+        /// </summary>
+        /// <param name="fileSize"></param>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public static bool OutOfRange(long fileSize, int range = 10)
+        {
+            return false;
+            /*if (fileSize <= 0)
+            {
+                return false;
+            }
+            return fileSize / 1024 / 1024 > range;*/
         }
 
         /// <summary>
@@ -98,32 +161,6 @@ namespace TextLocator.Util
             {
                 log.Error(ex.Message, ex);
             }
-        }
-
-        /// <summary>
-        /// 根据文件类型获取图标
-        /// </summary>
-        /// <param name="fileType"></param>
-        public static BitmapImage GetFileTypeIcon(FileType fileType)
-        {
-            switch (fileType)
-            {
-                case FileType.Word类型:
-                    return icons["word"];
-                case FileType.Excel类型:
-                    return icons["excel"];
-                case FileType.PowerPoint类型:
-                    return icons["ppt"];
-                case FileType.PDF类型:
-                    return icons["pdf"];
-                case FileType.HTML或XML类型:
-                    return icons["html"];
-                case FileType.纯文本:
-                    return icons["txt"];
-                case FileType.其他类型:
-                    return icons["txt"];
-            }
-            return null;
         }
     }
 }

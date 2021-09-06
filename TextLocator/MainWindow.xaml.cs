@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using TextLocator.Consts;
 using TextLocator.Core;
 using TextLocator.Enums;
@@ -160,9 +161,9 @@ namespace TextLocator
         /// <param name="text"></param>
         private void ShowStatus(string text)
         {
-            this.Dispatcher.InvokeAsync(() => {
+            this.Dispatcher.BeginInvoke(new Action(() => {
                 this.WorkStatus.Text = text;
-            });
+            }));
         }
 
         /// <summary>
@@ -289,7 +290,7 @@ namespace TextLocator
 
                     FileInfoItem infoItem = new FileInfoItem(fileInfo);
                     // 增加点击事件
-                    infoItem.MouseDoubleClick += InfoItem_MouseDoubleClick;
+                    infoItem.MouseDown += InfoItem_MouseDown;
                     infoItem.Tag = fileInfo;
                     this.SearchResultList.Items.Add(infoItem);
 
@@ -319,8 +320,12 @@ namespace TextLocator
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void InfoItem_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void InfoItem_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            // 手动GC
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
             FileInfoItem infoItem = sender as FileInfoItem;
             Entity.FileInfo fileInfo = infoItem.Tag as Entity.FileInfo;
 
@@ -333,24 +338,49 @@ namespace TextLocator
             this.OpenFile.Tag = fileInfo.FilePath;
             this.OpenFolder.Tag = fileInfo.FilePath.Replace(fileInfo.FileName, "");
 
-            // 文件内容预览
-            ThreadPool.QueueUserWorkItem(_ => {
-                // 文件内容
-                string content = FileInfoServiceFactory.GetFileInfoService(fileInfo.FileType).GetFileContent(fileInfo.FilePath);
+            // 获取扩展名
+            string fileExt = Path.GetExtension(fileInfo.FilePath).Replace(".", "");
+
+            // 图片文件
+            if ("png,jpg,gif".Contains(fileExt))
+            {
+                this.PreviewFileContent.Visibility = Visibility.Hidden;
+                this.PreviewImage.Visibility = Visibility.Visible;
+                BitmapImage bi = new BitmapImage();
+                bi.BeginInit();
+                bi.CacheOption = BitmapCacheOption.OnLoad;
+                bi.StreamSource = new MemoryStream(File.ReadAllBytes(fileInfo.FilePath));
+                bi.EndInit();
+                bi.Freeze();
                 
-                this.Dispatcher.InvokeAsync(()=> {
-                    // Paragraph 类似于 html 的 P 标签
-                    Paragraph p = new Paragraph();
-                    // Run 是一个 Inline 的标签
-                    Run r = new Run(content);
-                    p.Inlines.Add(r);
+                this.PreviewImage.Source = bi;
 
-                    this.PreviewFileContent.Document.Blocks.Add(p);
+            }
+            else
+            {
+                this.PreviewImage.Visibility = Visibility.Hidden;
+                this.PreviewFileContent.Visibility = Visibility.Visible;                
+                // 文件内容预览
+                ThreadPool.QueueUserWorkItem(_ =>
+                {
+                    // 文件内容
+                    string content = FileInfoServiceFactory.GetFileInfoService(fileInfo.FileType).GetFileContent(fileInfo.FilePath);
 
-                    // 关键词高亮
-                    RichTextBoxUtil.Highlighted(this.PreviewFileContent, Colors.Red, fileInfo.Keywords);
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        // Paragraph 类似于 html 的 P 标签
+                        Paragraph p = new Paragraph();
+                        // Run 是一个 Inline 的标签
+                        Run r = new Run(content);
+                        p.Inlines.Add(r);
+
+                        this.PreviewFileContent.Document.Blocks.Add(p);
+
+                        // 关键词高亮
+                        RichTextBoxUtil.Highlighted(this.PreviewFileContent, Colors.Red, fileInfo.Keywords);
+                    }));
                 });
-            });
+            }
         }
 
 

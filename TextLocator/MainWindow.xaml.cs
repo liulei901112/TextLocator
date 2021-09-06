@@ -572,13 +572,16 @@ namespace TextLocator
             this.FileTypeFilter.SelectedIndex = 0;
             this.SearchText.Text = "";
             this.SearchResultList.Items.Clear();
+
+            this.OpenFile.Tag = null;
+            this.OpenFolder.Tag = null;
             this.PreviewFileName.Text = "";
             this.PreviewFileContent.Document.Blocks.Clear();
+            this.PreviewImage.Source = null;
+
             this.WorkStatus.Text = "就绪";
             this.OnlyTheFileName.IsChecked = false;
             this.MatchTheWords.IsChecked = false;
-            this.OpenFile.Tag = null;
-            this.OpenFolder.Tag = null;
         }
 
         /// <summary>

@@ -87,7 +87,7 @@
                         <!-- 扩展区 -->
                         <StackPanel Width="365">
                             <!-- 搜索按钮 -->
-                            <Button x:Name="OptimizeButton" Content="优化" ToolTip="增量更新索引，并删除不存在的文件索引" Margin="0,20,0,0" Width="150" Height="35" Background="DarkOrange" Click="OptimizeButton_Click"/>
+                            <Button x:Name="OptimizeButton" Content="更新" ToolTip="增量更新索引，并删除不存在的文件索引" Margin="0,20,0,0" Width="150" Height="35" Background="DarkOrange" Click="OptimizeButton_Click"/>
                             <!-- 清空按钮 -->
                             <Button x:Name="RebuildButton" Content="重建" ToolTip="索引删除重建"  Margin="0,20,0,0" Width="150" Height="35" Background="DarkRed" Click="RebuildButton_Click"/>
                         </StackPanel>

@@ -153,6 +153,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Constant\AppConst.cs" />
+    <Compile Include="Core\AppCore.cs" />
     <Compile Include="Entity\FileInfo.cs" />
     <Compile Include="Enums\EnumExtension.cs" />
     <Compile Include="Enums\FileType.cs" />

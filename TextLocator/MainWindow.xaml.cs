@@ -12,6 +12,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using TextLocator.Consts;
+using TextLocator.Core;
 using TextLocator.Enums;
 using TextLocator.Factory;
 using TextLocator.Index;
@@ -288,7 +289,7 @@ namespace TextLocator
 
                     FileInfoItem infoItem = new FileInfoItem(fileInfo);
                     // 增加点击事件
-                    infoItem.MouseUp += InfoItem_MouseUp;
+                    infoItem.MouseDoubleClick += InfoItem_MouseDoubleClick;
                     infoItem.Tag = fileInfo;
                     this.SearchResultList.Items.Add(infoItem);
 
@@ -318,7 +319,7 @@ namespace TextLocator
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void InfoItem_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void InfoItem_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             FileInfoItem infoItem = sender as FileInfoItem;
             Entity.FileInfo fileInfo = infoItem.Tag as Entity.FileInfo;

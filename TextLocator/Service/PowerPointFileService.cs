@@ -26,9 +26,12 @@ namespace TextLocator.Service
                     {
                         if (shape is IAutoShape)
                         {
-                            foreach (TextParagraph tp in (shape as IAutoShape).TextFrame.Paragraphs)
+                            if ((shape as IAutoShape).TextFrame != null)
                             {
-                                builder.Append(tp.Text + Environment.NewLine);
+                                foreach (TextParagraph tp in (shape as IAutoShape).TextFrame.Paragraphs)
+                                {
+                                    builder.Append(tp.Text + Environment.NewLine);
+                                }
                             }
                         }
                     }

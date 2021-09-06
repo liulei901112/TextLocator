@@ -26,7 +26,7 @@ namespace TextLocator.Util
         {
             icons.Add("word", new BitmapImage(new Uri(@"/Resource/ext/word.png", UriKind.Relative)));
             icons.Add("excel", new BitmapImage(new Uri(@"/Resource/ext/excel.png", UriKind.Relative)));
-            icons.Add("ppt", new BitmapImage(new Uri(@"/Resource/ext/rtf.png", UriKind.Relative)));
+            icons.Add("ppt", new BitmapImage(new Uri(@"/Resource/ext/ppt.png", UriKind.Relative)));
 
             icons.Add("pdf", new BitmapImage(new Uri(@"/Resource/ext/pdf.png", UriKind.Relative)));
 

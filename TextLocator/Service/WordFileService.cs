@@ -22,15 +22,15 @@ namespace TextLocator.Service
                 using (var document = new Document(new FileStream(filePath, FileMode.Open)))
                 {
                     // 提取每个段落的文本 
-                    var sb = new StringBuilder();
+                    StringBuilder builder = new StringBuilder();
                     foreach (Section section in document.Sections)
                     {
                         foreach (Spire.Doc.Documents.Paragraph paragraph in section.Paragraphs)
                         {
-                            sb.AppendLine(paragraph.Text);
+                            builder.AppendLine(paragraph.Text);
                         }
                     }
-                    content = sb.ToString();
+                    content = builder.ToString();
                 }
             }
             catch (Exception ex)

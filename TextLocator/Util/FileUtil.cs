@@ -18,23 +18,36 @@ namespace TextLocator.Util
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
-        /// 图标集合
+        /// 根据文件类型获取文件图标
         /// </summary>
-        private static readonly Dictionary<string, BitmapImage> icons = new Dictionary<string, BitmapImage>();
-
-        static FileUtil()
+        /// <param name="fileType"></param>
+        /// <returns></returns>
+        public static BitmapImage GetFileIcon(FileType fileType)
         {
-            icons.Add("word", new BitmapImage(new Uri(@"/Resource/ext/word.png", UriKind.Relative)));
-            icons.Add("excel", new BitmapImage(new Uri(@"/Resource/ext/excel.png", UriKind.Relative)));
-            icons.Add("ppt", new BitmapImage(new Uri(@"/Resource/ext/ppt.png", UriKind.Relative)));
-
-            icons.Add("pdf", new BitmapImage(new Uri(@"/Resource/ext/pdf.png", UriKind.Relative)));
-
-            icons.Add("txt", new BitmapImage(new Uri(@"/Resource/ext/txt.png", UriKind.Relative)));
-            icons.Add("html", new BitmapImage(new Uri(@"/Resource/ext/html.png", UriKind.Relative)));
-
-            icons.Add("eml", new BitmapImage(new Uri(@"/Resource/ext/eml.png", UriKind.Relative)));
-            icons.Add("rtf", new BitmapImage(new Uri(@"/Resource/ext/rtf.png", UriKind.Relative)));
+            BitmapImage bi = new BitmapImage();
+            bi.BeginInit();
+            bi.CacheOption = BitmapCacheOption.OnLoad;
+            switch (fileType)
+            {
+                case FileType.Word类型:
+                    bi.StreamSource = new MemoryStream(File.ReadAllBytes(@"/Resource/ext/word.png"));
+                    break;
+                case FileType.Excel类型:
+                    bi.StreamSource = new MemoryStream(File.ReadAllBytes(@"/Resource/ext/excel.png"));
+                    break;
+                case FileType.PowerPoint类型:
+                    bi.StreamSource = new MemoryStream(File.ReadAllBytes(@"/Resource/ext/ppt.png"));
+                    break;
+                case FileType.PDF类型:
+                    bi.StreamSource = new MemoryStream(File.ReadAllBytes(@"/Resource/ext/pdf.png"));
+                    break;
+                default:
+                    bi.StreamSource = new MemoryStream(File.ReadAllBytes(@"/Resource/ext/txt.png"));
+                    break;
+            }
+            bi.EndInit();
+            bi.Freeze();
+            return bi;
         }
 
         /// <summary>
@@ -98,32 +111,6 @@ namespace TextLocator.Util
             {
                 log.Error(ex.Message, ex);
             }
-        }
-
-        /// <summary>
-        /// 根据文件类型获取图标
-        /// </summary>
-        /// <param name="fileType"></param>
-        public static BitmapImage GetFileTypeIcon(FileType fileType)
-        {
-            switch (fileType)
-            {
-                case FileType.Word类型:
-                    return icons["word"];
-                case FileType.Excel类型:
-                    return icons["excel"];
-                case FileType.PowerPoint类型:
-                    return icons["ppt"];
-                case FileType.PDF类型:
-                    return icons["pdf"];
-                case FileType.HTML或XML类型:
-                    return icons["html"];
-                case FileType.纯文本:
-                    return icons["txt"];
-                case FileType.其他类型:
-                    return icons["txt"];
-            }
-            return null;
         }
     }
 }

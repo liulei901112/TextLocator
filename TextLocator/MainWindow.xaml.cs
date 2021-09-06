@@ -330,7 +330,7 @@ namespace TextLocator
             Entity.FileInfo fileInfo = infoItem.Tag as Entity.FileInfo;
 
             // 根据文件类型显示图标
-            this.PreviewFileTypeIcon.Source = FileUtil.GetFileTypeIcon(fileInfo.FileType);
+            this.PreviewFileTypeIcon.Source = FileUtil.GetFileIcon(fileInfo.FileType);
             this.PreviewFileName.Text = fileInfo.FileName;
             this.PreviewFileContent.Document.Blocks.Clear();
 

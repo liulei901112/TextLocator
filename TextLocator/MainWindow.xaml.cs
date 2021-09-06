@@ -338,6 +338,13 @@ namespace TextLocator
             this.OpenFile.Tag = fileInfo.FilePath;
             this.OpenFolder.Tag = fileInfo.FilePath.Replace(fileInfo.FileName, "");
 
+            // 判断文件大小，超过2m的文件不预览
+            if (FileUtil.OutOfRange(fileInfo.FileSize))
+            {
+                Message.ShowInfo("MessageContainer", "只能预览小于2MB的文档");
+                return;
+            }
+
             // 获取扩展名
             string fileExt = Path.GetExtension(fileInfo.FilePath).Replace(".", "");
 

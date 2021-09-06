@@ -1,6 +1,7 @@
 ﻿using log4net;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -24,29 +25,36 @@ namespace TextLocator.Util
         /// <returns></returns>
         public static BitmapImage GetFileIcon(FileType fileType)
         {
-            BitmapImage bi = new BitmapImage();
-            bi.BeginInit();
-            bi.CacheOption = BitmapCacheOption.OnLoad;
+            Bitmap bitmap = null;
             switch (fileType)
             {
                 case FileType.Word类型:
-                    bi.StreamSource = new MemoryStream(File.ReadAllBytes(@"/Resource/ext/word.png"));
+                    bitmap = Properties.Resources.word;
                     break;
                 case FileType.Excel类型:
-                    bi.StreamSource = new MemoryStream(File.ReadAllBytes(@"/Resource/ext/excel.png"));
+                    bitmap = Properties.Resources.excel;
                     break;
                 case FileType.PowerPoint类型:
-                    bi.StreamSource = new MemoryStream(File.ReadAllBytes(@"/Resource/ext/ppt.png"));
+                    bitmap = Properties.Resources.ppt;
                     break;
                 case FileType.PDF类型:
-                    bi.StreamSource = new MemoryStream(File.ReadAllBytes(@"/Resource/ext/pdf.png"));
+                    bitmap = Properties.Resources.pdf;
                     break;
                 default:
-                    bi.StreamSource = new MemoryStream(File.ReadAllBytes(@"/Resource/ext/txt.png"));
+                    bitmap = Properties.Resources.txt;
                     break;
             }
-            bi.EndInit();
-            bi.Freeze();
+            BitmapImage bi = new BitmapImage();
+            using (MemoryStream ms = new MemoryStream())
+            {
+                bitmap.Save(ms, bitmap.RawFormat);
+                bi.BeginInit();
+                bi.CacheOption = BitmapCacheOption.OnLoad;
+                bi.StreamSource = ms;
+                bi.EndInit();
+                bi.Freeze();
+            }
+            bitmap.Dispose();
             return bi;
         }
 
@@ -65,6 +73,48 @@ namespace TextLocator.Util
 
             // 返回文件列表
             return filePaths;
+        }
+
+        /// <summary>
+        /// 获取文件大小友好显示
+        /// </summary>
+        /// <param name="fileSize"></param>
+        /// <returns></returns>
+        public static string GetFileSizeFriendly(long fileSize)
+        {
+            string fileSizeUnit = "b";
+            if (fileSize > 1024)
+            {
+                fileSize = fileSize / 1024;
+                fileSizeUnit = "KB";
+            }
+            if (fileSize > 1024)
+            {
+                fileSize = fileSize / 1024;
+                fileSizeUnit = "MB";
+            }
+            if (fileSize > 1024)
+            {
+                fileSize = fileSize / 1024;
+                fileSizeUnit = "GB";
+            }
+            return fileSize + "" + fileSizeUnit;
+        }
+
+        /// <summary>
+        /// 超出范围
+        /// </summary>
+        /// <param name="fileSize"></param>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public static bool OutOfRange(long fileSize, int range = 10)
+        {
+            return false;
+            /*if (fileSize <= 0)
+            {
+                return false;
+            }
+            return fileSize / 1024 / 1024 > range;*/
         }
 
         /// <summary>

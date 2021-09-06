@@ -50,24 +50,7 @@ namespace TextLocator
             // 显示文件信息
             this.FileName.Text = fileInfo.FileName;
             this.FileFolder.Text = fileInfo.FilePath.Replace(fileInfo.FileName, "");
-            long fileSize = fileInfo.FileSize;
-            string fileSizeUnit = "b";
-            if (fileSize > 1024)
-            {
-                fileSize = fileSize / 1024;
-                fileSizeUnit = "KB";
-            }
-            if (fileSize > 1024)
-            {
-                fileSize = fileSize / 1024;
-                fileSizeUnit = "MB";
-            }
-            if (fileSize > 1024)
-            {
-                fileSize = fileSize / 1024;
-                fileSizeUnit = "GB";
-            }
-            this.FileSize.Text = fileSize + "" + fileSizeUnit;
+            this.FileSize.Text = FileUtil.GetFileSizeFriendly(fileInfo.FileSize);
             this.CreateTime.Text = fileInfo.CreateTime;
 
             this.FileContent.Document.Blocks.Clear();

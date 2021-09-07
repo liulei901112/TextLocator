@@ -153,7 +153,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Constant\AppConst.cs" />
+    <Compile Include="Core\AppConst.cs" />
     <Compile Include="Core\AppCore.cs" />
     <Compile Include="Entity\FileInfo.cs" />
     <Compile Include="Enums\EnumExtension.cs" />
@@ -169,8 +169,10 @@
     <Compile Include="FolderWindow.xaml.cs">
       <DependentUpon>FolderWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Service\DevelopFileService.cs" />
     <Compile Include="Service\ExcelFileService.cs" />
     <Compile Include="Service\IFileInfoService.cs" />
+    <Compile Include="Service\ImageFileService.cs" />
     <Compile Include="Service\OtherFileService.cs" />
     <Compile Include="Service\PdfFileService.cs" />
     <Compile Include="Service\PowerPointFileService.cs" />
@@ -286,6 +288,12 @@
     <Resource Include="Resource\ext\rtf.png" />
     <Resource Include="Resource\ext\txt.png" />
     <Resource Include="Resource\ext\word.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\ext\jpg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\ext\code.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

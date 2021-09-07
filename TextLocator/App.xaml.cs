@@ -33,7 +33,11 @@ namespace TextLocator
                 // PDF服务
                 FileInfoServiceFactory.Register(FileType.PDF类型, new PdfFileService());
                 // HTML或XML服务
-                FileInfoServiceFactory.Register(FileType.HTML或XML类型, new XmlFileService());
+                FileInfoServiceFactory.Register(FileType.HTML和XML类型, new XmlFileService());
+                // 常用图片服务
+                FileInfoServiceFactory.Register(FileType.常用图片, new DevelopFileService());
+                // 程序员服务
+                FileInfoServiceFactory.Register(FileType.代码文件, new DevelopFileService());
                 // 纯文本服务
                 FileInfoServiceFactory.Register(FileType.纯文本, new TxtFileService());
                 // 其他类型服务

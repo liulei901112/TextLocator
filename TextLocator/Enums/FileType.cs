@@ -30,12 +30,22 @@ namespace TextLocator.Enums
         /// <summary>
         /// XML和html
         /// </summary>
-        [Description("htm,html,mht,mhtml,xml")]
-        HTML或XML类型,
+        [Description("html,xml")]
+        HTML和XML类型,
+        /// <summary>
+        /// 常用图片
+        /// </summary>
+        [Description("jpg,png,gif,jpeg")]
+        常用图片,
+        /// <summary>
+        /// 代码文件
+        /// </summary>
+        [Description("css,js,java,cs,md")]
+        代码文件,
         /// <summary>
         /// 纯文本
         /// </summary>
-        [Description("txt,css,js,java,cs,md")]
+        [Description("txt")]
         纯文本,
         /// <summary>
         /// 其他类型

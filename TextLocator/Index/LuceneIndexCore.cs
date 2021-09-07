@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using TextLocator.Consts;
+using TextLocator.Core;
 using TextLocator.Enums;
 using TextLocator.Factory;
 using TextLocator.Util;
@@ -51,10 +51,12 @@ namespace TextLocator.Index
                 // 文件路径
                 string filePath = filePaths[i];
 
+                // 临时文件跳过
                 if (filePath.IndexOf("~$") >0)
                 {
                     continue;
                 }
+                // 非重建 && 文件已经被索引过
                 if (!create && !string.IsNullOrEmpty(AppUtil.ReadIni("FileIndex", filePath, "")))
                 {
                     continue;

@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
-using TextLocator.Consts;
+using TextLocator.Core;
 using TextLocator.Enums;
 
 namespace TextLocator.Util
@@ -40,6 +40,12 @@ namespace TextLocator.Util
                 case FileType.PDF类型:
                     bitmap = Properties.Resources.pdf;
                     break;
+                case FileType.常用图片:
+                    bitmap = Properties.Resources.jpg;
+                    break;
+                case FileType.代码文件:
+                    bitmap = Properties.Resources.code;
+                    break;
                 default:
                     bitmap = Properties.Resources.txt;
                     break;
@@ -54,7 +60,15 @@ namespace TextLocator.Util
                 bi.EndInit();
                 bi.Freeze();
             }
-            bitmap.Dispose();
+
+            try
+            {
+                bitmap.Dispose();
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message, ex);
+            }
             return bi;
         }
 
@@ -140,12 +154,9 @@ namespace TextLocator.Util
                 log.Error(ex.Message, ex);
             }
 
-            // 文件类型过滤
-            string fileExtFilter = AppConst.FILE_EXTENSIONS.Replace(",", "|");
-
             try
             {
-                string regex = @"^.+\.(" + fileExtFilter +  ")$";
+                string regex = @"^.+\.(" + FileTypeUtil.GetFileTypeExts("|") + ")$";
 
                 // 查找word文件
                 string[] paths = Directory.GetFiles(dir.FullName)

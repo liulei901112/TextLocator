@@ -10,6 +10,7 @@
 * WPF实现的UI（RubyerUI组件）
 * Lucene.Net实现的索引（PanGu.Lucene.Analyzer分词器）
 * NPOI、Spire、Microsoft.Office实现的文档内容读取
+* log4net记录日志
 
 
 #### 安装教程
@@ -31,3 +32,4 @@
 6. [Microsoft.Office.Interop.Excel](https://www.nuget.org/packages/Microsoft.Office.Interop.Excel/)
 7. [Microsoft.Office.Interop.Word](https://www.nuget.org/packages/Microsoft.Office.Interop.Word/)
 8. [Microsoft.Office.Interop.PowerPoint](https://www.nuget.org/packages/Microsoft.Office.Interop.PowerPoint/)
+9. [log4net](https://logging.apache.org/log4net/)

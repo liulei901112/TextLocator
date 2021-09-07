@@ -169,6 +169,7 @@
     <Compile Include="FolderWindow.xaml.cs">
       <DependentUpon>FolderWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Index\MutipleThreadResetEvent.cs" />
     <Compile Include="Service\DevelopFileService.cs" />
     <Compile Include="Service\ExcelFileService.cs" />
     <Compile Include="Service\IFileInfoService.cs" />

@@ -1,5 +1,5 @@
 # 文本定位器
-![主界面](https://images.gitee.com/uploads/images/2021/0906/224436_07453e0f_995027.png "主界面")
+![主界面](https://images.gitee.com/uploads/images/2021/0907/213343_f73e8c6f_995027.png "主界面")
 
 #### 介绍
 基于.net实现的本地文档的全文索引定位器，根据关键词搜索定位本地文档内容。便于查找历史文档时节省时间。

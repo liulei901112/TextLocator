@@ -1,6 +1,4 @@
 ﻿using System.Reflection;
-using System.Resources;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 
@@ -8,11 +6,11 @@ using System.Windows;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("TextLocator")]
-[assembly: AssemblyDescription("本地全文索引搜索定位工具")]
+[assembly: AssemblyDescription("本地文档全文索引搜索定位工具")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("刘磊")]
-[assembly: AssemblyProduct("TextLocator")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyProduct("文本定位器")]
+[assembly: AssemblyCopyright("Copyright © 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,8 +49,8 @@ using System.Windows;
 //可以指定所有这些值，也可以使用“生成号”和“修订号”的默认值
 //通过使用 "*"，如下所示:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.0.3")]
+[assembly: AssemblyFileVersion("1.0.0.3")]
 
 // log4net
 [assembly: log4net.Config.XmlConfigurator(Watch = true)]

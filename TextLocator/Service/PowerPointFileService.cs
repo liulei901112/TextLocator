@@ -18,23 +18,28 @@ namespace TextLocator.Service
             string content = "";
             try
             {
-                Presentation presentation = new Presentation(filePath, FileFormat.Auto);
-                StringBuilder builder = new StringBuilder();
-                foreach (ISlide slide in presentation.Slides)
-                {
-                    foreach (IShape shape in slide.Shapes)
+                using (Presentation presentation = new Presentation(filePath, FileFormat.Auto)) {
+                    StringBuilder builder = new StringBuilder();
+                    foreach (ISlide slide in presentation.Slides)
                     {
-                        if (shape is IAutoShape)
+                        foreach (IShape shape in slide.Shapes)
                         {
-                            foreach (TextParagraph tp in (shape as IAutoShape).TextFrame.Paragraphs)
+                            if (shape is IAutoShape)
                             {
-                                builder.Append(tp.Text + Environment.NewLine);
+                                if ((shape as IAutoShape).TextFrame != null)
+                                {
+                                    foreach (TextParagraph tp in (shape as IAutoShape).TextFrame.Paragraphs)
+                                    {
+                                        builder.Append(tp.Text + Environment.NewLine);
+                                    }
+                                }
                             }
+                            shape.Dispose();
                         }
+                        slide.Dispose();
                     }
+                    content = builder.ToString();
                 }
-
-                content = builder.ToString();
             }
             catch (Exception ex)
             {

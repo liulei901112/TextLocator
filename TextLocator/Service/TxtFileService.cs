@@ -18,15 +18,17 @@ namespace TextLocator.Service
             string content = "";
             try
             {
-                StreamReader reader = new StreamReader(filePath, Encoding.UTF8);
-                StringBuilder builder = new StringBuilder();
-                string line;
-                while ((line = reader.ReadLine()) != null)
+                using (StreamReader reader = new StreamReader(filePath, Encoding.UTF8))
                 {
-                    builder.Append(line);
-                }
+                    StringBuilder builder = new StringBuilder();
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        builder.Append(line);
+                    }
 
-                content = builder.ToString();
+                    content = builder.ToString();
+                }
             }
             catch (Exception ex)
             {

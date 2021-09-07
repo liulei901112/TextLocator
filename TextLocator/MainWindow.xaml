@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TextLocator"
         xmlns:rubyer="clr-namespace:Rubyer;assembly=Rubyer"
         mc:Ignorable="d"
-        Title="搜索文本定位" Width="1366" Height="768" WindowStartupLocation="CenterScreen" Icon="Resource/App.ico" Loaded="Window_Loaded">
+        Title="文本搜索定位" Width="1366" Height="768" WindowStartupLocation="CenterScreen" Icon="Resource/App.ico" Loaded="Window_Loaded">
     <!-- DockPanel停靠容器 && Viewbox显示盒子 && Canvas画布 -->
     <DockPanel LastChildFill="True">
         <Viewbox Stretch="Fill">
@@ -87,7 +87,7 @@
                         <!-- 扩展区 -->
                         <StackPanel Width="365">
                             <!-- 搜索按钮 -->
-                            <Button x:Name="OptimizeButton" Content="优化" ToolTip="增量更新索引，并删除不存在的文件索引" Margin="0,20,0,0" Width="150" Height="35" Background="DarkOrange" Click="OptimizeButton_Click"/>
+                            <Button x:Name="OptimizeButton" Content="更新" ToolTip="增量更新索引，并删除不存在的文件索引" Margin="0,20,0,0" Width="150" Height="35" Background="DarkOrange" Click="OptimizeButton_Click"/>
                             <!-- 清空按钮 -->
                             <Button x:Name="RebuildButton" Content="重建" ToolTip="索引删除重建"  Margin="0,20,0,0" Width="150" Height="35" Background="DarkRed" Click="RebuildButton_Click"/>
                         </StackPanel>
@@ -192,11 +192,14 @@
                             </Grid>
                             <!-- 内容预览 -->
                             <ScrollViewer Margin="0,80,0,0">
-                                <!-- 预览 -->
-                                <RichTextBox x:Name="PreviewFileContent" Margin="0,0,0,0" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="True">
-                                    <FlowDocument>
-                                        <Paragraph>
-                                            <Run>网站维护合同书
+                                <Grid>
+                                    <!-- 预览图片 -->
+                                    <Image x:Name="PreviewImage"/>
+                                    <!-- 文档 -->
+                                    <RichTextBox x:Name="PreviewFileContent" Margin="0,0,0,0" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="True">
+                                        <FlowDocument>
+                                            <Paragraph>
+                                                <Run>网站维护合同书
 甲方名称：尚迪（上海）铝业有限公司          乙方名称：                    
 联系电话：021-37595166                      联系电话：                         
 
@@ -213,9 +216,10 @@
 甲方要求在当前网站风格、版式以及页面数的基础上，重新增加功能性新的页面或修
 改网站风格和版式时，需另外支付费用。
 顶目4、乙方为甲方网站的数据库进行维护和管理，包括：对网站数据库进行整理和优化、定期检测数据库的信息的准确性、清除多余数据、定期备份数据库等服务。保证网站数据库数据的合法、完整以及难确。</Run>
-                                        </Paragraph>
-                                    </FlowDocument>
-                                </RichTextBox>
+                                            </Paragraph>
+                                        </FlowDocument>
+                                    </RichTextBox>
+                                </Grid>
                             </ScrollViewer>
                         </Grid>
                     </StackPanel>

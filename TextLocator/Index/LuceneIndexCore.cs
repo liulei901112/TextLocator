@@ -24,8 +24,9 @@ namespace TextLocator.Index
         /// <summary>
         /// 状态回调委托
         /// </summary>
-        /// <param name="status"></param>
-        public delegate void Callback(string status);
+        /// <param name="msg"></param>
+        /// <param name="percent"></param>
+        public delegate void Callback(string msg, double percent);
 
         /// <summary>
         /// 锁
@@ -57,10 +58,13 @@ namespace TextLocator.Index
             // 文件总数
             int count = filePaths.Count();
 
+            // 每次初始化的时候完成数量都是0
+            finishCount = 0;
+
             using (var countDown = new MutipleThreadResetEvent(count))
             {
                 // 设置线程最大数量
-                ThreadPool.SetMaxThreads(24, 48);
+                ThreadPool.SetMaxThreads(32, 64);
                 // 遍历读取文件，并创建索引
                 for (int i = 0; i < count; i++)
                 {
@@ -77,6 +81,7 @@ namespace TextLocator.Index
 
                 // 等待所有线程结束
                 countDown.WaitAll();
+                // 销毁
                 countDown.Dispose();
             }
 
@@ -167,14 +172,12 @@ namespace TextLocator.Index
                     indexWriter.AddDocument(doc);
                     // 优化索引
                     indexWriter.Optimize();
-
-                    finishCount++;
                 }
 
-                string msg = "索引：[" + finishCount + " / " + taskInfo.TotalCount + "] => 文件：" + filePath + "，耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
+                string msg = "索引：[" + finishCount * 1.0F + "/" + taskInfo.TotalCount + "] => 文件：" + filePath + "，耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
 
                 // 执行状态回调
-                taskInfo.Callback(msg);
+                taskInfo.Callback(msg, finishCount * 1.00F / taskInfo.TotalCount * 1.00F * 100.00F);
 
                 log.Debug(msg);
             }
@@ -184,6 +187,12 @@ namespace TextLocator.Index
             }
             finally
             {
+
+                lock (locker)
+                {
+                    finishCount++;
+                }
+
                 // 手动GC
                 GC.Collect();
                 GC.WaitForPendingFinalizers();

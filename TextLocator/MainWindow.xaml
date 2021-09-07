@@ -226,11 +226,13 @@
                     <!-- 分割线 -->
                     <GridSplitter Grid.Column="1" Height="1" VerticalAlignment="Bottom" Margin="0,0,0,25" HorizontalAlignment="Stretch" Background="Gray" />
                     <!-- 底部 -->
-                    <Grid Height="25" VerticalAlignment="Bottom" Background="#C8C8C8">
-                        <!-- <ProgressBar Width="150" Margin="10,0,0,0" HorizontalAlignment="Left"
-                                     IsIndeterminate="True"
-                                                rubyer:ProgressBarHelper.Thickness="20"/> -->
-                        <TextBlock x:Name="WorkStatus" Text="就绪" Margin="10,0,0,0" HorizontalAlignment="Left"/>
+                    <Grid Height="25" VerticalAlignment="Bottom" Background="#C8C8C8">                        
+                        <!-- 索引进度条 -->
+                        <ProgressBar x:Name="WorkProgress" Value="100"
+                                                rubyer:ProgressBarHelper.Thickness="100"
+                                                rubyer:ProgressBarHelper.IsShowPercent="false"/>
+                        <!-- 状态信息 -->
+                        <TextBlock x:Name="WorkStatus" Text="就绪" Foreground="White" Margin="10,0,0,0" HorizontalAlignment="Left"/>
                     </Grid>
 
                     <!-- 消息容器 -->

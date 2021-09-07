@@ -30,14 +30,15 @@ namespace TextLocator.Factory
 				IFileInfoService fileInfoService = services[fileType];
 				if (null == fileInfoService)
 				{
-					throw new Exception("暂无[" + fileType.ToString() + "]服务实例");
+					log.Error("暂无[" + fileType.ToString() + "]服务实例， 返回默认其他类型文件服务实例");
+					fileInfoService = services[FileType.其他类型];
 				}
 				return fileInfoService;
 			}
 			catch (Exception ex)
 			{
 				log.Error(ex.Message, ex);
-				throw new Exception("暂无[" + fileType.ToString() + "]服务实例");
+				throw new Exception("暂无[" + fileType.ToString() + "]服务实例， 返回默认其他类型文件服务实例");
 			}
 		}
 

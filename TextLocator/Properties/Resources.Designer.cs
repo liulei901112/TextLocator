@@ -63,6 +63,16 @@ namespace TextLocator.Properties {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
+        internal static System.Drawing.Bitmap code {
+            get {
+                object obj = ResourceManager.GetObject("code", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
         internal static System.Drawing.Bitmap eml {
             get {
                 object obj = ResourceManager.GetObject("eml", resourceCulture);
@@ -86,6 +96,16 @@ namespace TextLocator.Properties {
         internal static System.Drawing.Bitmap html {
             get {
                 object obj = ResourceManager.GetObject("html", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap jpg {
+            get {
+                object obj = ResourceManager.GetObject("jpg", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -7,12 +7,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using TextLocator.Consts;
 using TextLocator.Core;
 using TextLocator.Enums;
 using TextLocator.Factory;
@@ -74,13 +72,25 @@ namespace TextLocator
             // 文件类型筛选下拉框数据初始化
             this.FileTypeFilter.Items.Clear();
             this.FileTypeFilter.Items.Add("全部");
+
+            // 文件类型名字
+            string fileTypeNames = "";
+
             // 获取文件类型枚举，遍历并加入下拉列表
-            foreach (string fileTypeName in FileTypeUtil.GetFileTypes())
+            foreach (string fileTypeName in FileTypeUtil.GetFileTypeNames())
             {
                 this.FileTypeFilter.Items.Add(fileTypeName);
+                fileTypeNames += fileTypeName + ",";
             }
             // 默认选中全部
             this.FileTypeFilter.SelectedIndex = 0;
+
+
+            // 初始化文件后缀
+            // 去掉最后的逗号
+            fileTypeNames = fileTypeNames.Substring(0, fileTypeNames.Length - 1);
+            this.FileTypeNames.Text = fileTypeNames;
+            this.FileTypeNames.ToolTip = FileTypeUtil.GetFileTypeExts();
         }
 
         /// <summary>
@@ -90,7 +100,9 @@ namespace TextLocator
         {
             // 初始化显示被索引的文件夹列表
             _IndexFolders.Clear();
+            // 读取被索引文件夹配置信息，如果配置信息为空：默认为我的文档和我的桌面
             string customFolders = AppUtil.ReadIni("AppConfig", "FolderPaths", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "," + Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+            // 配置信息不为空
             if (!string.IsNullOrEmpty(customFolders))
             {
                 string[] customFolderArray = customFolders.Split(',');
@@ -106,11 +118,6 @@ namespace TextLocator
             }
             this.FolderPaths.Text = foldersText.Substring(0, foldersText.Length - 2);
             this.FolderPaths.ToolTip = this.FolderPaths.Text;
-
-
-            // 初始化支持文件后缀列表
-            this.FileExtensions.Text = AppConst.FILE_EXTENSIONS;
-            this.FileExtensions.ToolTip = this.FileExtensions.Text;
         }
 
         #endregion
@@ -349,19 +356,22 @@ namespace TextLocator
             string fileExt = Path.GetExtension(fileInfo.FilePath).Replace(".", "");
 
             // 图片文件
-            if ("png,jpg,gif".Contains(fileExt))
+            if (FileType.常用图片.GetDescription().Contains(fileExt))
             {
                 this.PreviewFileContent.Visibility = Visibility.Hidden;
                 this.PreviewImage.Visibility = Visibility.Visible;
-                BitmapImage bi = new BitmapImage();
-                bi.BeginInit();
-                bi.CacheOption = BitmapCacheOption.OnLoad;
-                bi.StreamSource = new MemoryStream(File.ReadAllBytes(fileInfo.FilePath));
-                bi.EndInit();
-                bi.Freeze();
-                
-                this.PreviewImage.Source = bi;
+                ThreadPool.QueueUserWorkItem(_ => {
+                    BitmapImage bi = new BitmapImage();
+                    bi.BeginInit();
+                    bi.CacheOption = BitmapCacheOption.OnLoad;
+                    bi.StreamSource = new MemoryStream(File.ReadAllBytes(fileInfo.FilePath));
+                    bi.EndInit();
+                    bi.Freeze();
 
+                    this.Dispatcher.BeginInvoke(new Action(() => {
+                        this.PreviewImage.Source = bi;
+                    }));
+                });                
             }
             else
             {

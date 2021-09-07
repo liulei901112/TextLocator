@@ -13,6 +13,7 @@ namespace TextLocator.Util
     /// </summary>
     public class FileTypeUtil
     {
+
         /// <summary>
         /// 根据路径返回文件类型
         /// </summary>
@@ -54,10 +55,10 @@ namespace TextLocator.Util
         }
 
         /// <summary>
-        /// 获取文件类型列表
+        /// 获取文件类型列表（Word类型,Excel类型...）
         /// </summary>
         /// <returns></returns>
-        public static List<string> GetFileTypes()
+        public static List<string> GetFileTypeNames()
         {
             List<string> fileTypes = new List<string>();
             // 遍历文件类型，根据后缀查找文件类型
@@ -71,6 +72,26 @@ namespace TextLocator.Util
                 }
             }
             return fileTypes;
+        }
+
+        /// <summary>
+        /// 文件类型后缀列表（ext1,ext2...）
+        /// </summary>
+        /// <param name="separator">分隔符，默认【，】</param>
+        /// <returns></returns>
+        public static string GetFileTypeExts(string separator = ",")
+        {
+            string fileTypeExts = "";
+            // 遍历文件类型，根据后缀查找文件类型
+            foreach (FileType ft in Enum.GetValues(typeof(FileType)))
+            {
+                // 获取描述
+                string description = ft.GetDescription();
+                if (!string.IsNullOrEmpty(description)) {
+                    fileTypeExts += description + separator;
+                }
+            }
+            return fileTypeExts.Substring(0, fileTypeExts.Length - 1);
         }
     }
 }

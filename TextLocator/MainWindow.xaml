@@ -74,7 +74,7 @@
                                     <!-- 扩展名 -->
                                     <Grid>
                                         <TextBlock Text="文件类型：" HorizontalAlignment="Left"/>
-                                        <TextBox x:Name="FileExtensions" Text="doc,docm,docx,ppt,pptm,xls,xlsm,xlsx,htm,html,pdf,txt,java,css,cs" IsReadOnly="true" Width="700" Height="20" Margin="65,0,0,0" HorizontalAlignment="Left"/>
+                                        <TextBox x:Name="FileTypeNames" Text="doc,docm,docx,ppt,pptm,xls,xlsm,xlsx,htm,html,pdf,txt,java,css,cs" IsReadOnly="true" Width="700" Height="20" Margin="65,0,0,0" HorizontalAlignment="Left"/>
                                     </Grid>
                                     <!-- 文件夹 -->
                                     <Grid Margin="0,10,0,0" >

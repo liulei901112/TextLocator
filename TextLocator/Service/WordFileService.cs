@@ -13,29 +13,37 @@ namespace TextLocator.Service
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private static object locker = new object();
+
         public string GetFileContent(string filePath)
         {
             // 文件内容
             string content = "";
-            try
+            lock (locker)
             {
-                using (var document = new Document(new FileStream(filePath, FileMode.Open)))
+                try
                 {
-                    // 提取每个段落的文本 
-                    StringBuilder builder = new StringBuilder();
-                    foreach (Section section in document.Sections)
+                    using (var document = new Document(new FileStream(filePath, FileMode.Open)))
                     {
-                        foreach (Spire.Doc.Documents.Paragraph paragraph in section.Paragraphs)
+                        // 提取每个段落的文本 
+                        StringBuilder builder = new StringBuilder();
+                        foreach (Section section in document.Sections)
                         {
-                            builder.AppendLine(paragraph.Text);
+                            foreach (Spire.Doc.Documents.Paragraph paragraph in section.Paragraphs)
+                            {
+                                builder.AppendLine(paragraph.Text);
+                            }
                         }
+                        document.Close();
+                        document.Dispose();
+
+                        content = builder.ToString();
                     }
-                    content = builder.ToString();
                 }
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex.Message, ex);
+                catch (Exception ex)
+                {
+                    log.Error(ex.Message, ex);
+                }
             }
             return content;
         }

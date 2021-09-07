@@ -8,6 +8,7 @@ using System.Threading;
 using TextLocator.Core;
 using TextLocator.Enums;
 using TextLocator.Factory;
+using TextLocator.Service;
 using TextLocator.Util;
 
 namespace TextLocator.Index
@@ -83,9 +84,10 @@ namespace TextLocator.Index
                 // 根据文件路径获取文件类型（自定义文件类型分类）
                 FileType fileType = FileTypeUtil.GetFileType(filePath);
 
+                IFileInfoService fileInfoService = FileInfoServiceFactory.GetFileInfoService(fileType);
+
                 // 文件内容
-                string content = FileInfoServiceFactory.GetFileInfoService(fileType)
-                    .GetFileContent(filePath);
+                string content = fileInfoService.GetFileContent(filePath);
 
                 // 缩略信息
                 string breviary = new Regex(" |\r|\n|\\s").Replace(content, "");
@@ -114,7 +116,7 @@ namespace TextLocator.Index
                 // 优化索引
                 writer.Optimize();
 
-                string msg = "创建索引：（" + i + " / " + count + "） => 文件：" + filePath + "，耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
+                string msg = "索引：[" + i + " / " + count + "] => 文件：" + filePath + "，耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
 
                 // 执行状态回调
                 callback(msg);

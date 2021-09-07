@@ -181,8 +181,8 @@ namespace TextLocator
         private void Search(List<string> keywords, string fileTypeFilter)
         {
             string text = "";
-            foreach(string kw in keywords) {
-                text += kw + ",";
+            foreach(string keyword in keywords) {
+                text += keyword + ",";
             }
             text = text.Substring(0, text.Length - 1);
             log.Debug("关键词：（" + text + "）, 文件类型：" + fileTypeFilter);
@@ -304,9 +304,7 @@ namespace TextLocator
                     resultNum++;
                 }
 
-                string message = "检索完成！共检索到" + resultNum + "个符合条件的结果（只显示前" + num + "条）。耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
-
-                Message.ShowSuccess("MessageContainer", message);
+                string message = "检索完成！共检索到" + resultNum + "个符合条件的结果（只显示前" + num + "条）。耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒。";
 
                 ShowStatus(message);
             }

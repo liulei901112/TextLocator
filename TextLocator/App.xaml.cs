@@ -35,7 +35,7 @@ namespace TextLocator
                 // HTML或XML服务
                 FileInfoServiceFactory.Register(FileType.HTML和XML类型, new XmlFileService());
                 // 常用图片服务
-                FileInfoServiceFactory.Register(FileType.常用图片, new DevelopFileService());
+                FileInfoServiceFactory.Register(FileType.常用图片, new ImageFileService());
                 // 程序员服务
                 FileInfoServiceFactory.Register(FileType.代码文件, new DevelopFileService());
                 // 纯文本服务

@@ -12,27 +12,34 @@ namespace TextLocator.Service
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private static volatile object locker = new object();
+
         public string GetFileContent(string filePath)
         {
             // 文件内容
             string content = "";
-            try
+            lock (locker)
             {
-                using (StreamReader reader = new StreamReader(filePath, Encoding.UTF8))
+                try
                 {
-                    StringBuilder builder = new StringBuilder();
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
+                    using (StreamReader reader = new StreamReader(filePath, Encoding.UTF8))
                     {
-                        builder.Append(line);
-                    }
+                        StringBuilder builder = new StringBuilder();
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            builder.Append(line);
+                        }
+                        reader.Close();
+                        reader.Dispose();
 
-                    content = builder.ToString();
+                        content = builder.ToString();
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex.Message, ex);
+                catch (Exception ex)
+                {
+                    log.Error(ex.Message, ex);
+                }
             }
             return content;
         }

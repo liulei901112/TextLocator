@@ -13,22 +13,30 @@ namespace TextLocator.Service
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private static object locker = new object();
+
         public string GetFileContent(string filePath)
         {
             // 文件内容
             string content = "";
-            try
+            lock (locker)
             {
-                using (StreamReader reader = new StreamReader(new FileStream(filePath, FileMode.Open), Encoding.UTF8))
+                try
                 {
-                    content = reader.ReadToEnd();
+                    using (StreamReader reader = new StreamReader(new FileStream(filePath, FileMode.Open), Encoding.UTF8))
+                    {
+                        content = reader.ReadToEnd();
 
-                    content = Regex.Replace(content, "\\<.[^<>]*\\>", "");
+                        content = Regex.Replace(content, "\\<.[^<>]*\\>", "");
+
+                        reader.Close();
+                        reader.Dispose();
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex.Message, ex);
+                catch (Exception ex)
+                {
+                    log.Error(ex.Message, ex);
+                }
             }
             return content;
         }

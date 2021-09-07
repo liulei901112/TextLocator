@@ -139,20 +139,20 @@ namespace TextLocator.Index
                 // 根据文件路径获取文件类型（自定义文件类型分类）
                 FileType fileType = FileTypeUtil.GetFileType(filePath);
 
+                IFileInfoService fileInfoService = FileInfoServiceFactory.GetFileInfoService(fileType);
+
+                // 文件内容
+                string content = fileInfoService.GetFileContent(filePath);
+
+                // 缩略信息
+                string breviary = new Regex(" |\r|\n|\\s").Replace(content, "");
+                if (breviary.Length > 150)
+                {
+                    breviary = breviary.Substring(0, 150) + "...";
+                }
+
                 lock (locker)
                 {
-                    IFileInfoService fileInfoService = FileInfoServiceFactory.GetFileInfoService(fileType);
-
-                    // 文件内容
-                    string content = fileInfoService.GetFileContent(filePath);
-
-                    // 缩略信息
-                    string breviary = new Regex(" |\r|\n|\\s").Replace(content, "");
-                    if (breviary.Length > 150)
-                    {
-                        breviary = breviary.Substring(0, 150) + "...";
-                    }
-
                     // 当索引文件中含有与filemark相等的field值时，会先删除再添加，以防出现重复
                     indexWriter.DeleteDocuments(new Lucene.Net.Index.Term("FileMark", fileMark));
 

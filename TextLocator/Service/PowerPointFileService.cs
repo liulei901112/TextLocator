@@ -12,38 +12,44 @@ namespace TextLocator.Service
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private static volatile object locker = new object();
+
         public string GetFileContent(string filePath)
         {
             // 文件内容
             string content = "";
-            try
+            lock (locker)
             {
-                using (Presentation presentation = new Presentation(filePath, FileFormat.Auto)) {
-                    StringBuilder builder = new StringBuilder();
-                    foreach (ISlide slide in presentation.Slides)
+                try
+                {
+                    using (Presentation presentation = new Presentation(filePath, FileFormat.Auto))
                     {
-                        foreach (IShape shape in slide.Shapes)
+                        StringBuilder builder = new StringBuilder();
+                        foreach (ISlide slide in presentation.Slides)
                         {
-                            if (shape is IAutoShape)
+                            foreach (IShape shape in slide.Shapes)
                             {
-                                if ((shape as IAutoShape).TextFrame != null)
+                                if (shape is IAutoShape)
                                 {
-                                    foreach (TextParagraph tp in (shape as IAutoShape).TextFrame.Paragraphs)
+                                    if ((shape as IAutoShape).TextFrame != null)
                                     {
-                                        builder.Append(tp.Text + Environment.NewLine);
+                                        foreach (TextParagraph tp in (shape as IAutoShape).TextFrame.Paragraphs)
+                                        {
+                                            builder.Append(tp.Text + Environment.NewLine);
+                                        }
                                     }
                                 }
+                                shape.Dispose();
                             }
-                            shape.Dispose();
+                            slide.Dispose();
                         }
-                        slide.Dispose();
+                        content = builder.ToString();
                     }
-                    content = builder.ToString();
                 }
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex.Message, ex);
+                catch (Exception ex)
+                {
+                    log.Error(ex.Message, ex);
+                }
             }
             return content;
         }

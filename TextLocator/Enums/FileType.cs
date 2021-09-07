@@ -40,7 +40,7 @@ namespace TextLocator.Enums
         /// <summary>
         /// 代码文件
         /// </summary>
-        [Description("css,js,java,cs,md")]
+        [Description("cs,java,js,css,md")]
         代码文件,
         /// <summary>
         /// 纯文本

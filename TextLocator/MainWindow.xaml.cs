@@ -146,13 +146,17 @@ namespace TextLocator
             Task.Factory.StartNew(() =>
             {
                 DateTime beginMark = DateTime.Now;
+                // 定义文件列表
+                List<string> filePaths = new List<string>();
                 foreach (string s in _IndexFolders)
                 {
+                    log.Debug("目录：" + s);
                     // 获取文件信息列表
-                    List<string> filePaths = FileUtil.GetAllFiles(s);
-                    // 创建索引方法
-                    LuceneIndexCore.CreateIndex(filePaths, rebuild, ShowStatus);
+                    FileUtil.GetAllFiles(s, filePaths);
                 }
+
+                // 创建索引方法
+                LuceneIndexCore.CreateIndex(filePaths, rebuild, ShowStatus);
 
                 string msg = "索引执行结束，共用时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
 
@@ -173,10 +177,15 @@ namespace TextLocator
         /// 显示状态
         /// </summary>
         /// <param name="text"></param>
-        private void ShowStatus(string text)
+        /// <param name="percent"></param>
+        private void ShowStatus(string text, double percent = 100)
         {
             this.Dispatcher.BeginInvoke(new Action(() => {
                 this.WorkStatus.Text = text;
+                if (percent > 0)
+                {
+                    this.WorkProgress.Value = percent;
+                }
             }));
         }
 
@@ -311,11 +320,11 @@ namespace TextLocator
                     resultNum++;
                 }
 
-                string message = "检索完成！共检索到" + resultNum + "个符合条件的结果（只显示前" + num + "条）。耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒。";
+                string msg = "检索完成！共检索到" + resultNum + "个符合条件的结果（只显示前" + num + "条）。耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒。";
 
-                Message.ShowSuccess("MessageContainer", message);
+                Message.ShowSuccess("MessageContainer", msg);
 
-                ShowStatus(message);
+                ShowStatus(msg);
             }
             finally
             {
@@ -474,6 +483,8 @@ namespace TextLocator
                 return;
             }
 
+            ShowStatus("开始更新索引...");
+
             BuildIndex(false);
         }
 
@@ -498,7 +509,9 @@ namespace TextLocator
                 Message.ShowWarning("MessageContainer", "索引构建中，请稍等。");
                 return;
             }
-            build = true;           
+            build = true;
+
+            ShowStatus("开始重建索引...");
 
             BuildIndex(true);
         }

@@ -73,23 +73,6 @@ namespace TextLocator.Util
         }
 
         /// <summary>
-        /// 获取全部文件
-        /// </summary>
-        /// <param name="rootPath">根目录路径</param>
-        /// <returns></returns>
-        public static List<string> GetAllFiles(string rootPath)
-        {
-            log.Debug("根目录：" + rootPath);
-            // 声明一个files包，用来存储遍历出的word文档
-            List<string> filePaths = new List<string>();
-            // 获取全部文件列表
-            GetAllFiles(rootPath, filePaths);
-
-            // 返回文件列表
-            return filePaths;
-        }
-
-        /// <summary>
         /// 获取文件大小友好显示
         /// </summary>
         /// <param name="fileSize"></param>
@@ -136,7 +119,7 @@ namespace TextLocator.Util
         /// </summary>
         /// <param name="rootPath">根目录路径</param>
         /// <param name="filePaths">文档列表</param>
-        private static void GetAllFiles(string rootPath, List<string> filePaths)
+        public static void GetAllFiles(string rootPath, List<string> filePaths)
         {
             DirectoryInfo dir = new DirectoryInfo(rootPath);
             // 得到所有子目录

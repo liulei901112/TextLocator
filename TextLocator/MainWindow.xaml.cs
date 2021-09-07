@@ -475,14 +475,23 @@ namespace TextLocator
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void RebuildButton_Click(object sender, RoutedEventArgs e)
+        private async void RebuildButton_Click(object sender, RoutedEventArgs e)
         {
+            if (Directory.Exists(AppConst.APP_INDEX_DIR))
+            {
+                var result = await MessageBoxR.ConfirmInContainer("DialogContaioner", "确定要重建索引嘛？时间可能比较久哦！", "提示");
+                if (result == MessageBoxResult.Cancel)
+                {
+                    return;
+                }
+            }
+
             if (build)
             {
                 Message.ShowWarning("MessageContainer", "索引构建中，请稍等。");
                 return;
             }
-            build = true;
+            build = true;           
 
             BuildIndex(true);
         }

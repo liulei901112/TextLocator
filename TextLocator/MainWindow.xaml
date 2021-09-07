@@ -235,6 +235,7 @@
 
                     <!-- 消息容器 -->
                     <rubyer:MessageContainer Identifier="MessageContainer" Grid.ColumnSpan="2"/>
+                    <rubyer:MessageBoxContainer Identifier="DialogContaioner" Grid.ColumnSpan="2"/>
                 </Grid>
             </Canvas>
         </Viewbox>

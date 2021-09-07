@@ -91,7 +91,7 @@ namespace TextLocator.Util
                     fileTypeExts += description + separator;
                 }
             }
-            return fileTypeExts.Substring(0, fileTypeExts.Length - 1);
+            return fileTypeExts.Substring(0, fileTypeExts.Length - 1).Replace(",", separator);
         }
     }
 }

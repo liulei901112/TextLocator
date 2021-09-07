@@ -101,7 +101,7 @@
                             <!-- 条件和排序 -->
                             <Grid Height="40" VerticalAlignment="Top" Background="#F3F3F3">
                                 <TextBlock Text="文件类型：" Margin="20,0,0,0" HorizontalAlignment="Left"/>
-                                <ComboBox x:Name="FileTypeFilter" Margin="80,0,0,0" Width="130" HorizontalAlignment="Left" Height="25" SelectionChanged="FileTypeFilter_SelectionChanged">
+                                <ComboBox x:Name="FileTypeFilter" Margin="85,0,0,0" Width="130" HorizontalAlignment="Left" Height="25" SelectionChanged="FileTypeFilter_SelectionChanged">
                                     <ComboBoxItem Content="全部" IsSelected="True"/>
                                     <ComboBoxItem Content="Word类型"/>
                                     <ComboBoxItem Content="Excel类型"/>

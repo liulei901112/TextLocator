@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TextLocator"
         xmlns:rubyer="clr-namespace:Rubyer;assembly=Rubyer"
         mc:Ignorable="d"
-        Title="文本搜索定位" Width="1366" Height="768" WindowStartupLocation="CenterScreen" Icon="Resource/App.ico" Loaded="Window_Loaded">
+        Title="文本搜索定位器" Width="1366" Height="768" WindowStartupLocation="CenterScreen" Icon="Resource/App.ico" Loaded="Window_Loaded">
     <!-- DockPanel停靠容器 && Viewbox显示盒子 && Canvas画布 -->
     <DockPanel LastChildFill="True">
         <Viewbox Stretch="Fill">
@@ -78,7 +78,7 @@
                                     </Grid>
                                     <!-- 文件夹 -->
                                     <Grid Margin="0,10,0,0" >
-                                        <TextBlock Text="文件夹：" HorizontalAlignment="Left" Margin="12,0,0,0"/>
+                                        <TextBlock Text="搜索区域：" HorizontalAlignment="Left"/>
                                         <TextBox x:Name="FolderPaths" Text="D:\UserData\" IsReadOnly="true" Width="700" Height="20" Margin="65,0,0,0" HorizontalAlignment="Left" MouseDoubleClick="FolderPaths_MouseDoubleClick"/>
                                     </Grid>
                                 </StackPanel>

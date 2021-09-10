@@ -162,10 +162,8 @@ namespace TextLocator.Index
                 // 根据文件路径获取文件类型（自定义文件类型分类）
                 FileType fileType = FileTypeUtil.GetFileType(filePath);
 
-                IFileInfoService fileInfoService = FileInfoServiceFactory.GetFileInfoService(fileType);
-
                 // 文件内容
-                string content = fileInfoService.GetFileContent(filePath);
+                string content = FileInfoServiceFactory.GetFileInfoService(fileType).GetFileContent(filePath);
 
                 // 缩略信息
                 string breviary = new Regex(" |\r|\n|\\s").Replace(content, "");

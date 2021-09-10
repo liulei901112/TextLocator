@@ -84,15 +84,6 @@
     <Reference Include="NPOI.OpenXmlFormats, Version=2.5.4.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
       <HintPath>..\packages\NPOI.2.5.4\lib\net45\NPOI.OpenXmlFormats.dll</HintPath>
     </Reference>
-    <Reference Include="PanGu, Version=2.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PanGu.Segment.0.0.3\lib\PanGu.dll</HintPath>
-    </Reference>
-    <Reference Include="PanGu.HighLight, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PanGu.Segment.0.0.3\lib\PanGu.HighLight.dll</HintPath>
-    </Reference>
-    <Reference Include="PanGu.Lucene.Analyzer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PanGu.Lucene.Analyzer.0.0.2\lib\PanGu.Lucene.Analyzer.dll</HintPath>
-    </Reference>
     <Reference Include="Rubyer, Version=1.0.16.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Rubyer.1.0.16\lib\net46\Rubyer.dll</HintPath>
     </Reference>
@@ -243,30 +234,27 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Dict\Dict.dct">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Dict\jieba\char_state_tab.json">
+    <None Include="Dict\char_state_tab.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Dict\jieba\pos_prob_emit.json">
+    <None Include="Dict\pos_prob_emit.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Dict\jieba\pos_prob_start.json">
+    <None Include="Dict\pos_prob_start.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Dict\jieba\pos_prob_trans.json">
+    <None Include="Dict\pos_prob_trans.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Dict\jieba\prob_emit.json">
+    <None Include="Dict\prob_emit.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Dict\jieba\prob_trans.json">
+    <None Include="Dict\prob_trans.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -279,36 +267,6 @@
   <ItemGroup>
     <Resource Include="Resource\btn_file.png" />
     <Resource Include="Resource\btn_folder.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Dict\Wildcard.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Dict\Synonym.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Dict\Stopword.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Dict\ChsSingleName.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Dict\ChsDoubleName2.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Dict\ChsDoubleName1.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resource\ext\excel.png" />
@@ -326,16 +284,16 @@
     <Resource Include="Resource\ext\image.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Dict\jieba\cn_synonym.txt">
+    <Resource Include="Dict\cn_synonym.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Dict\jieba\dict.txt">
+    <Resource Include="Dict\dict.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Dict\jieba\idf.txt">
+    <Resource Include="Dict\idf.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Dict\jieba\stopwords.txt">
+    <Resource Include="Dict\stopwords.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

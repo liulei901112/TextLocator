@@ -48,7 +48,7 @@ namespace TextLocator
             this.FileTypeIcon.Source = FileUtil.GetFileIcon(fileInfo.FileType);
 
             // 显示文件信息
-            this.FileName.Text = fileInfo.FileName;
+            this.FileName.Text = fileInfo.FileName.Length > 90 ? fileInfo.FileName.Substring(0, 90) + "..." : fileInfo.FileName;
             this.FileFolder.Text = fileInfo.FilePath.Replace(fileInfo.FileName, "");
             this.FileSize.Text = FileUtil.GetFileSizeFriendly(fileInfo.FileSize);
             this.CreateTime.Text = fileInfo.CreateTime;

@@ -59,12 +59,12 @@
                                 <StackPanel>
                                     <Grid Margin="0,6,0,0">
                                         <!-- 匹配全词 -->
-                                        <CheckBox x:Name="MatchTheWords" IsEnabled="false" Content="匹配全词" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center"/>
+                                        <CheckBox x:Name="MatchWords" IsEnabled="false" Content="匹配全词" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center"/>
                                     </Grid>
                                     <Grid Margin="0,14,0,0">
                                         <!-- 匹配原始值 -->
                                         <!-- 仅文件名 -->
-                                        <CheckBox x:Name="OnlyTheFileName" Content="仅文件名" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center"/>
+                                        <CheckBox x:Name="OnlyFileName" Content="仅文件名" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center" Checked="OnlyFileName_Checked" Unchecked="OnlyFileName_Unchecked"/>
                                     </Grid>
                                 </StackPanel>
                                 <!-- 分割线 -->
@@ -126,8 +126,7 @@
                             </Grid>
                             
                             <!-- 搜索结果列表 -->
-                            <ListBox x:Name="SearchResultList" Margin="0,40,0,0" Height="561" VerticalAlignment="Top" BorderThickness="1" BorderBrush="#EAEAEB" Background="Transparent">
-                                <ListBoxItem>
+                            <ListBox x:Name="SearchResultList" Margin="0,40,0,0" Cursor="Hand" Height="561" VerticalAlignment="Top" BorderThickness="1" BorderBrush="#EAEAEB" Background="Transparent" SelectionChanged="SearchResultList_SelectionChanged">                                <ListBoxItem>
                                     <Grid Width="870" Height="110" HorizontalAlignment="Left" VerticalAlignment="Top">
                                         <!-- 图标 -->
                                         <Image Source="/Resource/ext/word.png" Width="60" HorizontalAlignment="Left"/>

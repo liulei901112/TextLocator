@@ -190,166 +190,253 @@ namespace TextLocator
         }
 
         /// <summary>
-        /// 检索关键字
+        /// 搜索
         /// </summary>
         /// <param name="keywords">关键词</param>
-        /// <param name="fileTypeFilter">文件类型过滤器</param>
-        private void Search(List<string> keywords, string fileTypeFilter)
+        /// <param name="fileType"></param>
+        /// <param name="onlyFileName"></param>
+        /// <param name="matchWords"></param>
+        private void Search(List<string> keywords, string fileType, bool onlyFileName = false, bool matchWords = false)
         {
             string text = "";
             foreach(string keyword in keywords) {
                 text += keyword + ",";
             }
             text = text.Substring(0, text.Length - 1);
-            log.Debug("关键词：（" + text + "）, 文件类型：" + fileTypeFilter);
-            // 开始时间标记
-            DateTime beginMark = DateTime.Now;
-            // 仅文件名
-            bool onlyThsFileName = (bool)this.OnlyTheFileName.IsChecked;
-            bool matchTheWords = (bool)this.MatchTheWords.IsChecked;
+            log.Debug("关键词：（" + text + "）, 文件类型：" + fileType);
 
-            // 清空搜索结果列表
-            this.SearchResultList.Items.Clear();
-            int num = 100;
-            Lucene.Net.Index.IndexReader reader = null;
-            Lucene.Net.Search.IndexSearcher searcher = null;
-            try
-            {
-                if (!CheckIndexExist())
+            ThreadPool.QueueUserWorkItem(_ => {
+                // 开始时间标记
+                DateTime beginMark = DateTime.Now;
+
+                // 清空搜索结果列表
+                this.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    return;
-                }
-                reader = Lucene.Net.Index.IndexReader.Open(AppConst.INDEX_DIRECTORY, false);
-                searcher = new Lucene.Net.Search.IndexSearcher(reader);
-
-                List<string> fields = new List<string>() { "FileName" };
-
-                // 创建查询
-                Lucene.Net.Analysis.PerFieldAnalyzerWrapper wrapper = new Lucene.Net.Analysis.PerFieldAnalyzerWrapper(AppConst.INDEX_ANALYZER);
-                wrapper.AddAnalyzer("FileName", AppConst.INDEX_ANALYZER);
-
-                // 仅文件名未被选中时
-                if (!onlyThsFileName)
+                    this.SearchResultList.Items.Clear();
+                }));
+                int num = 100;
+                Lucene.Net.Index.IndexReader reader = null;
+                Lucene.Net.Search.IndexSearcher searcher = null;
+                try
                 {
-                    wrapper.AddAnalyzer("FilePath", AppConst.INDEX_ANALYZER);
-                    wrapper.AddAnalyzer("Content", AppConst.INDEX_ANALYZER);
-
-                    fields.Add("FilePath");
-                    fields.Add("Content");
-                }
-
-                // 匹配全词未被选中
-                if (!matchTheWords)
-                {
-
-                }
-
-                Lucene.Net.QueryParsers.QueryParser parser = 
-                    new Lucene.Net.QueryParsers.MultiFieldQueryParser(
-                        Lucene.Net.Util.Version.LUCENE_30, 
-                        fields.ToArray(),
-                        wrapper);
-                Lucene.Net.Search.BooleanQuery Bquery = new Lucene.Net.Search.BooleanQuery();
-                for (int i = 0; i < keywords.Count; i++)
-                {
-                    Lucene.Net.Search.Query query = parser.Parse(keywords[i]);
-                    Bquery.Add(query, Lucene.Net.Search.Occur.MUST);
-                }
-
-                // 文件类型筛选
-                if (!string.IsNullOrWhiteSpace(fileTypeFilter))
-                {
-                    Bquery.Add(new Lucene.Net.Search.TermQuery(new Lucene.Net.Index.Term("FileType", fileTypeFilter)), Lucene.Net.Search.Occur.MUST);
-                }
-
-                Lucene.Net.Search.TopScoreDocCollector collector = Lucene.Net.Search.TopScoreDocCollector.Create(num, true);
-                searcher.Search(Bquery, collector);
-                // 以后就可以对获取到的collector数据进行操作
-                var hits = collector.TopDocs().ScoreDocs;                
-                // 计算检索结果数量
-                int resultNum = 0; 
-                for (int i = 0; i < hits.Count(); i++)
-                {
-                    var hit = hits[i];
-                    Lucene.Net.Documents.Document doc = searcher.Doc(hit.Doc);
-                    Lucene.Net.Documents.Field fileTypeField = doc.GetField("FileType");
-                    Lucene.Net.Documents.Field fileNameField = doc.GetField("FileName");
-                    Lucene.Net.Documents.Field filePathField = doc.GetField("FilePath");
-                    Lucene.Net.Documents.Field contentField = doc.GetField("Content");
-                    Lucene.Net.Documents.Field breviaryField = doc.GetField("Breviary");
-                    Lucene.Net.Documents.Field fileSizeField = doc.GetField("FileSize");
-                    Lucene.Net.Documents.Field createTimeField = doc.GetField("CreateTime");
-
-                    // 判断本地是否存在该文件，存在则在检索结果栏里显示出来
-                    if (!System.IO.File.Exists(filePathField.StringValue))
+                    if (!CheckIndexExist())
                     {
-                        // 该文件的在索引里的文档号,Doc是该文档进入索引时Lucene的编号，默认按照顺序编的
-                        int docId = hit.Doc;
-                        // 删除该索引
-                        reader.DeleteDocument(docId);
-                        reader.Commit();
-                        continue;
+                        return;
+                    }
+                    reader = Lucene.Net.Index.IndexReader.Open(AppConst.INDEX_DIRECTORY, false);
+                    searcher = new Lucene.Net.Search.IndexSearcher(reader);
+
+                    List<string> fields = new List<string>() { "FileName" };
+
+                    // 创建查询
+                    Lucene.Net.Analysis.PerFieldAnalyzerWrapper wrapper = new Lucene.Net.Analysis.PerFieldAnalyzerWrapper(AppConst.INDEX_ANALYZER);
+                    wrapper.AddAnalyzer("FileName", AppConst.INDEX_ANALYZER);
+
+                    // 仅文件名未被选中时
+                    if (!onlyFileName)
+                    {
+                        wrapper.AddAnalyzer("FilePath", AppConst.INDEX_ANALYZER);
+                        wrapper.AddAnalyzer("Content", AppConst.INDEX_ANALYZER);
+
+                        fields.Add("FilePath");
+                        fields.Add("Content");
                     }
 
-                    // 文件信息
-                    FileInfo fi = new FileInfo(filePathField.StringValue);
-
-
-                    log.Debug(fileNameField.StringValue + " => " + filePathField.StringValue + " ， " + fileSizeField.StringValue + " , " + createTimeField.StringValue);
-
-                    Entity.FileInfo fileInfo = new Entity.FileInfo()
+                    // 匹配全词未被选中
+                    if (!matchWords)
                     {
-                        FileType = (FileType)System.Enum.Parse(typeof(FileType), fileTypeField.StringValue),
 
-                        FileName = fileNameField.StringValue,
-                        FilePath = filePathField.StringValue,
-                        Breviary = breviaryField.StringValue,
+                    }
 
-                        FileSize = long.Parse(fileSizeField.StringValue),
+                    Lucene.Net.QueryParsers.QueryParser parser =
+                        new Lucene.Net.QueryParsers.MultiFieldQueryParser(
+                            Lucene.Net.Util.Version.LUCENE_30,
+                            fields.ToArray(),
+                            wrapper);
+                    Lucene.Net.Search.BooleanQuery Bquery = new Lucene.Net.Search.BooleanQuery();
+                    for (int i = 0; i < keywords.Count; i++)
+                    {
+                        Lucene.Net.Search.Query query = parser.Parse(keywords[i]);
+                        Bquery.Add(query, Lucene.Net.Search.Occur.MUST);
+                    }
 
-                        CreateTime = createTimeField.StringValue,
-                        Keywords = keywords
-                    };
+                    // 文件类型筛选
+                    if (!string.IsNullOrWhiteSpace(fileType))
+                    {
+                        Bquery.Add(new Lucene.Net.Search.TermQuery(new Lucene.Net.Index.Term("FileType", fileType)), Lucene.Net.Search.Occur.MUST);
+                    }
 
-                    FileInfoItem infoItem = new FileInfoItem(fileInfo);
-                    // 增加点击事件
-                    infoItem.MouseDown += InfoItem_MouseDown;
-                    infoItem.Tag = fileInfo;
-                    this.SearchResultList.Items.Add(infoItem);
+                    Lucene.Net.Search.TopScoreDocCollector collector = Lucene.Net.Search.TopScoreDocCollector.Create(num, true);
+                    searcher.Search(Bquery, collector);
+                    // 以后就可以对获取到的collector数据进行操作
+                    var hits = collector.TopDocs().ScoreDocs;
+                    // 计算检索结果数量
+                    int resultNum = 0;
+                    for (int i = 0; i < hits.Count(); i++)
+                    {
+                        var hit = hits[i];
+                        Lucene.Net.Documents.Document doc = searcher.Doc(hit.Doc);
+                        Lucene.Net.Documents.Field fileTypeField = doc.GetField("FileType");
+                        Lucene.Net.Documents.Field fileNameField = doc.GetField("FileName");
+                        Lucene.Net.Documents.Field filePathField = doc.GetField("FilePath");
+                        Lucene.Net.Documents.Field contentField = doc.GetField("Content");
+                        Lucene.Net.Documents.Field breviaryField = doc.GetField("Breviary");
+                        Lucene.Net.Documents.Field fileSizeField = doc.GetField("FileSize");
+                        Lucene.Net.Documents.Field createTimeField = doc.GetField("CreateTime");
 
-                    resultNum++;
+                        // 判断本地是否存在该文件，存在则在检索结果栏里显示出来
+                        if (!File.Exists(filePathField.StringValue))
+                        {
+                            // 该文件的在索引里的文档号,Doc是该文档进入索引时Lucene的编号，默认按照顺序编的
+                            int docId = hit.Doc;
+                            // 删除该索引
+                            reader.DeleteDocument(docId);
+                            reader.Commit();
+                            continue;
+                        }
+
+                        // 文件信息
+                        FileInfo fi = new FileInfo(filePathField.StringValue);
+
+
+                        log.Debug(fileNameField.StringValue + " => " + filePathField.StringValue + " ， " + fileSizeField.StringValue + " , " + createTimeField.StringValue);
+
+                        Entity.FileInfo fileInfo = new Entity.FileInfo()
+                        {
+                            FileType = (FileType)System.Enum.Parse(typeof(FileType), fileTypeField.StringValue),
+
+                            FileName = fileNameField.StringValue,
+                            FilePath = filePathField.StringValue,
+                            Breviary = breviaryField.StringValue,
+
+                            FileSize = long.Parse(fileSizeField.StringValue),
+
+                            CreateTime = createTimeField.StringValue,
+                            Keywords = keywords
+                        };
+
+                        this.Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            FileInfoItem infoItem = new FileInfoItem(fileInfo);
+                            infoItem.Tag = fileInfo;
+                            this.SearchResultList.Items.Add(infoItem);
+                        }));
+                        
+
+                        resultNum++;
+                    }
+
+                    string msg = "检索完成！共检索到" + resultNum + "个符合条件的结果（只显示前" + num + "条）。耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒。";
+
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        Message.ShowSuccess("MessageContainer", msg);
+                    })); 
+
+                    ShowStatus(msg);
                 }
+                finally
+                {
+                    if (searcher != null)
+                        searcher.Dispose();
 
-                string msg = "检索完成！共检索到" + resultNum + "个符合条件的结果（只显示前" + num + "条）。耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒。";
-
-                Message.ShowSuccess("MessageContainer", msg);
-
-                ShowStatus(msg);
-            }
-            finally
-            {
-                if (searcher != null)
-                    searcher.Dispose();
-
-                if (reader != null)
-                    reader.Dispose();
-            }
+                    if (reader != null)
+                        reader.Dispose();
+                }
+            });
         }
         #endregion
 
         #region 功能按钮事件
         /// <summary>
-        /// 搜索结果列表点击事件
+        /// 搜索
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void InfoItem_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
+            // 获取搜索关键词列表
+            List<string> keywords = GetTextKeywords();
+
+            if (keywords == null || keywords.Count <= 0)
+            {
+                Message.ShowWarning("MessageContainer", "请输入搜索关键词");
+                return;
+            }
+
+            // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
+            this.OnlyFileName.IsChecked = false;
+            this.FileTypeFilter.SelectedIndex = 0;
+
+            BeforeSearch();
+        }
+
+        /// <summary>
+        /// 回车搜索
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SearchText_PreviewKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                SearchText.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+
+                // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
+                this.OnlyFileName.IsChecked = false;
+                this.FileTypeFilter.SelectedIndex = 0;
+
+                BeforeSearch();
+            }
+        }
+
+        /// <summary>
+        /// 文件类型过滤选中
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FileTypeFilter_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            BeforeSearch();
+        }
+
+        /// <summary>
+        /// 仅文件名选中时
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnlyFileName_Checked(object sender, RoutedEventArgs e)
+        {
+            BeforeSearch();
+        }
+
+        /// <summary>
+        /// 仅文件名取消选中时
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnlyFileName_Unchecked(object sender, RoutedEventArgs e)
+        {
+            BeforeSearch();
+        }
+
+        /// <summary>
+        /// 列表项被选中事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SearchResultList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if(SearchResultList.SelectedIndex == -1)
+            {
+                return;
+            }
+
             // 手动GC
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
-            FileInfoItem infoItem = sender as FileInfoItem;
+            FileInfoItem infoItem = SearchResultList.SelectedItem as FileInfoItem;
             Entity.FileInfo fileInfo = infoItem.Tag as Entity.FileInfo;
 
             // 根据文件类型显示图标
@@ -387,12 +474,12 @@ namespace TextLocator
                     this.Dispatcher.BeginInvoke(new Action(() => {
                         this.PreviewImage.Source = bi;
                     }));
-                });                
+                });
             }
             else
             {
                 this.PreviewImage.Visibility = Visibility.Hidden;
-                this.PreviewFileContent.Visibility = Visibility.Visible;                
+                this.PreviewFileContent.Visibility = Visibility.Visible;
                 // 文件内容预览
                 ThreadPool.QueueUserWorkItem(_ =>
                 {
@@ -401,63 +488,14 @@ namespace TextLocator
 
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        // Paragraph 类似于 html 的 P 标签
-                        Paragraph p = new Paragraph();
-                        // Run 是一个 Inline 的标签
-                        Run r = new Run(content);
-                        p.Inlines.Add(r);
-
-                        this.PreviewFileContent.Document.Blocks.Add(p);
+                        // 填充数据
+                        RichTextBoxUtil.FillingData(this.PreviewFileContent, content, new SolidColorBrush(Colors.Black));
 
                         // 关键词高亮
                         RichTextBoxUtil.Highlighted(this.PreviewFileContent, Colors.Red, fileInfo.Keywords);
                     }));
                 });
             }
-        }
-
-
-        /// <summary>
-        /// 搜索
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SearchButton_Click(object sender, RoutedEventArgs e)
-        {
-            // 获取搜索关键词列表
-            List<string> keywords = GetTextKeywords();
-
-            if (keywords == null || keywords.Count <= 0)
-            {
-                Message.ShowWarning("MessageContainer", "请输入搜索关键词");
-                return;
-            }
-            BeforeSearch();
-        }
-
-        /// <summary>
-        /// 回车搜索
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SearchText_PreviewKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                SearchText.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-
-                BeforeSearch();
-            }
-        }
-
-        /// <summary>
-        /// 文件类型过滤选中
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FileTypeFilter_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            BeforeSearch();
         }
 
         /// <summary>
@@ -619,8 +657,8 @@ namespace TextLocator
             this.PreviewImage.Source = null;
 
             this.WorkStatus.Text = "就绪";
-            this.OnlyTheFileName.IsChecked = false;
-            this.MatchTheWords.IsChecked = false;
+            this.OnlyFileName.IsChecked = false;
+            this.MatchWords.IsChecked = false;
         }
 
         /// <summary>
@@ -647,7 +685,7 @@ namespace TextLocator
                 return;
             }
 
-            Search(keywords, filter == null ? null : filter + "");
+            Search(keywords, (filter == null ? null : filter + ""), (bool)this.OnlyFileName.IsChecked);
         }
         #endregion
     }

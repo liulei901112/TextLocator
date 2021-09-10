@@ -25,9 +25,14 @@ namespace TextLocator.Service
                 {
                     using (StreamReader reader = new StreamReader(new FileStream(filePath, FileMode.Open), Encoding.UTF8))
                     {
-                        content = reader.ReadToEnd();
+                        StringBuilder builder = new StringBuilder();
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            builder.Append(line);
+                        }
 
-                        content = Regex.Replace(content, "\\<.[^<>]*\\>", "");
+                        content = Regex.Replace(builder.ToString(), "\\<.[^<>]*\\>", "");
 
                         reader.Close();
                         reader.Dispose();

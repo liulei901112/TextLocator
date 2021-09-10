@@ -40,27 +40,6 @@ namespace TextLocator.Index
         private static volatile int finishCount = 0;
 
         /// <summary>
-        /// 关键词分词
-        /// </summary>
-        /// <param name="keywords">关键词</param>
-        /// <param name="tokenizer">分词token</param>
-        /// <param name="keywordList">关键词列表</param>
-        public static void KeywordSegment(string keywords, JiebaTokenizer tokenizer, List<string> keywordList)
-        {
-            var words = tokenizer.Tokenize(keywords);
-
-            foreach (var word in words)
-            {
-                if (string.IsNullOrWhiteSpace(word.Word))
-                {
-                    continue;
-                }
-
-                keywordList.Add(word.Word);
-            }
-        }
-
-        /// <summary>
         /// 创建索引
         /// </summary>
         /// <param name="filePaths">获得的文档包</param>
@@ -75,7 +54,11 @@ namespace TextLocator.Index
             } 
 
             // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
-            Lucene.Net.Index.IndexWriter indexWriter = new Lucene.Net.Index.IndexWriter(AppConst.INDEX_DIRECTORY, AppConst.INDEX_ANALYZER, create, Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
+            Lucene.Net.Index.IndexWriter indexWriter = new Lucene.Net.Index.IndexWriter(
+                AppConst.INDEX_DIRECTORY, 
+                AppConst.INDEX_ANALYZER, 
+                create, 
+                Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
 
             // 文件总数
             int count = filePaths.Count();

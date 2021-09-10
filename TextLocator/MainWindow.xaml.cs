@@ -60,6 +60,7 @@ namespace TextLocator
 
             // 检查索引是否存在
             CheckIndexExist();
+
         }
 
         #region 初始化
@@ -241,8 +242,10 @@ namespace TextLocator
                         List<string> segmentList = new List<string>();
                         for (int i = 0; i < keywords.Count; i++)
                         {
-                            IndexCore.KeywordSegment(keywords[i], new Jieba.JiebaTokenizer(new JiebaNet.Segmenter.JiebaSegmenter(), keywords[i]), segmentList);
-                        }                        
+                            segmentList.AddRange(AppConst.INDEX_SEGMENTER.Cut(keywords[i]).ToList());
+                        }
+                        // 合并关键词
+                        keywords = keywords.Union(segmentList).ToList();
                     }
 
                     string text = "";
@@ -262,7 +265,7 @@ namespace TextLocator
                     for (int i = 0; i < keywords.Count; i++)
                     {
                         Lucene.Net.Search.Query query = parser.Parse(keywords[i]);
-                        Bquery.Add(query, Lucene.Net.Search.Occur.MUST);
+                        Bquery.Add(query, matchWords ? Lucene.Net.Search.Occur.MUST : Lucene.Net.Search.Occur.SHOULD);
                     }
 
                     // 文件类型筛选
@@ -725,7 +728,15 @@ namespace TextLocator
                 return;
             }
 
-            Search(keywords, (filter == null ? null : filter + ""), (bool)this.OnlyFileName.IsChecked);
+            // 清空预览信息
+            this.OpenFile.Tag = null;
+            this.OpenFolder.Tag = null;
+            this.PreviewFileName.Text = "";
+            this.PreviewFileContent.Document.Blocks.Clear();
+            this.PreviewImage.Source = null;
+
+            // 搜索
+            Search(keywords, (filter == null ? null : filter + ""), (bool)this.OnlyFileName.IsChecked, (bool)this.MatchWords.IsChecked);
         }
         #endregion
     }

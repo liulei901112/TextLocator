@@ -174,7 +174,7 @@
     <Compile Include="FolderInfoItem.xaml.cs">
       <DependentUpon>FolderInfoItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Index\LuceneIndexCore.cs" />
+    <Compile Include="Index\IndexCore.cs" />
     <Compile Include="FolderWindow.xaml.cs">
       <DependentUpon>FolderWindow.xaml</DependentUpon>
     </Compile>
@@ -197,6 +197,7 @@
     <Compile Include="Service\WordFileService.cs" />
     <Compile Include="Service\XmlFileService.cs" />
     <Compile Include="Util\AppUtil.cs" />
+    <Compile Include="Util\SimpleCacheUtil.cs" />
     <Compile Include="Util\FileTypeUtil.cs" />
     <Compile Include="Util\FileUtil.cs" />
     <Compile Include="Util\RichTextBoxUtil.cs" />

@@ -59,7 +59,7 @@
                                 <StackPanel>
                                     <Grid Margin="0,6,0,0">
                                         <!-- 匹配全词 -->
-                                        <CheckBox x:Name="MatchWords" IsEnabled="false" Content="匹配全词" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center"/>
+                                        <CheckBox x:Name="MatchWords" Content="匹配全词" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center" Checked="MatchWords_Checked" Unchecked="MatchWords_Unchecked"/>
                                     </Grid>
                                     <Grid Margin="0,14,0,0">
                                         <!-- 匹配原始值 -->

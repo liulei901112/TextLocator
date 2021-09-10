@@ -156,7 +156,7 @@ namespace TextLocator
                 }
 
                 // 创建索引方法
-                LuceneIndexCore.CreateIndex(filePaths, rebuild, ShowStatus);
+                IndexCore.CreateIndex(filePaths, rebuild, ShowStatus);
 
                 string msg = "索引执行结束，共用时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
 
@@ -193,18 +193,11 @@ namespace TextLocator
         /// 搜索
         /// </summary>
         /// <param name="keywords">关键词</param>
-        /// <param name="fileType"></param>
-        /// <param name="onlyFileName"></param>
-        /// <param name="matchWords"></param>
+        /// <param name="fileType">文件类型</param>
+        /// <param name="onlyFileName">仅文件名</param>
+        /// <param name="matchWords">匹配全词</param>
         private void Search(List<string> keywords, string fileType, bool onlyFileName = false, bool matchWords = false)
         {
-            string text = "";
-            foreach(string keyword in keywords) {
-                text += keyword + ",";
-            }
-            text = text.Substring(0, text.Length - 1);
-            log.Debug("关键词：（" + text + "）, 文件类型：" + fileType);
-
             ThreadPool.QueueUserWorkItem(_ => {
                 // 开始时间标记
                 DateTime beginMark = DateTime.Now;
@@ -245,8 +238,20 @@ namespace TextLocator
                     // 匹配全词未被选中
                     if (!matchWords)
                     {
-
+                        List<string> segmentList = new List<string>();
+                        for (int i = 0; i < keywords.Count; i++)
+                        {
+                            IndexCore.KeywordSegment(keywords[i], new Jieba.JiebaTokenizer(new JiebaNet.Segmenter.JiebaSegmenter(), keywords[i]), segmentList);
+                        }                        
                     }
+
+                    string text = "";
+                    foreach (string k in keywords)
+                    {
+                        text += k + ",";
+                    }
+                    text = text.Substring(0, text.Length - 1);
+                    log.Debug("关键词：（" + text + "）, 文件类型：" + fileType);
 
                     Lucene.Net.QueryParsers.QueryParser parser =
                         new Lucene.Net.QueryParsers.MultiFieldQueryParser(
@@ -365,6 +370,7 @@ namespace TextLocator
             }
 
             // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
+            this.MatchWords.IsChecked = false;
             this.OnlyFileName.IsChecked = false;
             this.FileTypeFilter.SelectedIndex = 0;
 
@@ -383,10 +389,13 @@ namespace TextLocator
                 SearchText.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
 
                 // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
+                this.MatchWords.IsChecked = false;
                 this.OnlyFileName.IsChecked = false;
                 this.FileTypeFilter.SelectedIndex = 0;
 
                 BeforeSearch();
+
+                SearchText.Focus();
             }
         }
 
@@ -416,6 +425,26 @@ namespace TextLocator
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void OnlyFileName_Unchecked(object sender, RoutedEventArgs e)
+        {
+            BeforeSearch();
+        }
+        
+        /// <summary>
+        /// 匹配全瓷选中
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MatchWords_Checked(object sender, RoutedEventArgs e)
+        {
+            BeforeSearch();
+        }
+
+        /// <summary>
+        /// 匹配全瓷取消选中
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MatchWords_Unchecked(object sender, RoutedEventArgs e)
         {
             BeforeSearch();
         }
@@ -483,8 +512,19 @@ namespace TextLocator
                 // 文件内容预览
                 ThreadPool.QueueUserWorkItem(_ =>
                 {
-                    // 文件内容
-                    string content = FileInfoServiceFactory.GetFileInfoService(fileInfo.FileType).GetFileContent(fileInfo.FilePath);
+                    string content = "";
+                    if (SimpleCacheUtil.Exsits(fileInfo.FilePath))
+                    {
+                        content = SimpleCacheUtil.Get<string>(fileInfo.FilePath);
+                    }
+                    else
+                    {
+                        // 文件内容
+                        content = FileInfoServiceFactory.GetFileInfoService(fileInfo.FileType).GetFileContent(fileInfo.FilePath);
+
+                        // 写入缓存
+                        SimpleCacheUtil.Add(fileInfo.FilePath, content);                        
+                    }
 
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {

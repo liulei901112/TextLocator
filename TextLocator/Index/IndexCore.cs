@@ -9,6 +9,7 @@ using TextLocator.Core;
 using TextLocator.Enums;
 using TextLocator.Factory;
 using TextLocator.Index;
+using TextLocator.Jieba;
 using TextLocator.Service;
 using TextLocator.Util;
 
@@ -17,7 +18,7 @@ namespace TextLocator.Index
     /// <summary>
     /// Lucence 索引核心工具类
     /// </summary>
-    public class LuceneIndexCore
+    public class IndexCore
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -37,6 +38,27 @@ namespace TextLocator.Index
         /// 已完成数量
         /// </summary>
         private static volatile int finishCount = 0;
+
+        /// <summary>
+        /// 关键词分词
+        /// </summary>
+        /// <param name="keywords">关键词</param>
+        /// <param name="tokenizer">分词token</param>
+        /// <param name="keywordList">关键词列表</param>
+        public static void KeywordSegment(string keywords, JiebaTokenizer tokenizer, List<string> keywordList)
+        {
+            var words = tokenizer.Tokenize(keywords);
+
+            foreach (var word in words)
+            {
+                if (string.IsNullOrWhiteSpace(word.Word))
+                {
+                    continue;
+                }
+
+                keywordList.Add(word.Word);
+            }
+        }
 
         /// <summary>
         /// 创建索引
@@ -81,6 +103,7 @@ namespace TextLocator.Index
 
                 // 等待所有线程结束
                 countDown.WaitAll();
+
                 // 销毁
                 countDown.Dispose();
             }
@@ -213,7 +236,7 @@ namespace TextLocator.Index
             public string FilePath { get; set; }
             public bool Create { get; set; }
             public Lucene.Net.Index.IndexWriter IndexWriter { get; set; }
-            public LuceneIndexCore.Callback Callback { get; set; }
+            public IndexCore.Callback Callback { get; set; }
             public MutipleThreadResetEvent ResetEvent { get; set; }
         }
     }

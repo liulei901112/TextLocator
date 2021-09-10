@@ -10,7 +10,7 @@ namespace TextLocator.Jieba
     /// <summary>
     /// 分词器
     /// </summary>
-    internal class JiebaTokenizer : Tokenizer
+    public class JiebaTokenizer : Tokenizer
     {
         private JiebaSegmenter segmenter;
         private ITermAttribute termAtt;

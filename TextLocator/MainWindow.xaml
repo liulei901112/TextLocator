@@ -78,7 +78,7 @@
                                     </Grid>
                                     <!-- 文件夹 -->
                                     <Grid Margin="0,10,0,0" >
-                                        <TextBlock Text="文件夹：" HorizontalAlignment="Left" Margin="12,0,0,0"/>
+                                        <TextBlock Text="搜索区域：" HorizontalAlignment="Left"/>
                                         <TextBox x:Name="FolderPaths" Text="D:\UserData\" IsReadOnly="true" Width="700" Height="20" Margin="65,0,0,0" HorizontalAlignment="Left" MouseDoubleClick="FolderPaths_MouseDoubleClick"/>
                                     </Grid>
                                 </StackPanel>

@@ -9,7 +9,7 @@ using System.Windows;
 [assembly: AssemblyDescription("本地文档全文索引搜索定位工具")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("刘磊")]
-[assembly: AssemblyProduct("文本定位器")]
+[assembly: AssemblyProduct("文本搜索定位器")]
 [assembly: AssemblyCopyright("Copyright © 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -93,11 +93,17 @@
                         </StackPanel>
                     </StackPanel>
                     <!-- 分割线 -->
-                    <GridSplitter Grid.Column="1" Height="1" Margin="0,140,0,0" VerticalAlignment="Top" HorizontalAlignment="Stretch" Background="Gray" />
+                    <GridSplitter Grid.Column="1" Height="1" Cursor="Arrow" Margin="0,140,0,0" VerticalAlignment="Top" HorizontalAlignment="Stretch" Background="Gray" />
                     <!-- 中间 -->
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,141,0,0" Height="601">
+                    <Grid VerticalAlignment="Top" Margin="0,141,0,0" Height="601">
+                        <Grid.RowDefinitions/>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="6*" MinWidth="500"/>
+                            <ColumnDefinition Width="3"/>
+                            <ColumnDefinition Width="3*" MinWidth="480"/>
+                        </Grid.ColumnDefinitions>
                         <!-- 左边 -->
-                        <Grid Width="900" HorizontalAlignment="Left">
+                        <Grid HorizontalAlignment="Stretch" Grid.Column="0">
                             <!-- 条件和排序 -->
                             <Grid Height="40" VerticalAlignment="Top" Background="#F3F3F3">
                                 <TextBlock Text="文件类型：" Margin="20,0,0,0" HorizontalAlignment="Left"/>
@@ -122,7 +128,7 @@
                                 <Button x:Name="SortSize" Content="大小" Margin="0,0,10,0" Width="60" Height="20" HorizontalAlignment="Right" Background="Gray"/> -->
 
                                 <!-- 分割线 -->
-                                <GridSplitter Grid.Column="1" Height="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
+                                <GridSplitter Grid.Column="1" Height="1" Cursor="Arrow" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
                             </Grid>
                             
                             <!-- 搜索结果列表 -->
@@ -167,9 +173,9 @@
                             </ListBox>
                         </Grid>
                         <!-- 分割线 -->
-                        <GridSplitter Grid.Column="1" Width="1" HorizontalAlignment="Stretch" Background="Gray" />
+                        <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Center" Background="Gray" />
                         <!-- 右边 -->
-                        <Grid Width="464" HorizontalAlignment="Right">
+                        <Grid HorizontalAlignment="Stretch" Grid.Column="3">
                             <!-- 条件和排序 -->
                             <Grid Height="40" VerticalAlignment="Top" Background="#F3F3F3">
                                 <!-- 打开文件 -->
@@ -178,7 +184,7 @@
                                 <Image x:Name="OpenFolder" Source="/Resource/btn_folder.png" ToolTip="打开文件夹" HorizontalAlignment="Left" Margin="50,5,0,5" MouseUp="OpenFolder_MouseUp"/>
                                 
                                 <!-- 分割线 -->
-                                <GridSplitter Grid.Column="1" Height="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
+                                <GridSplitter Grid.Column="1" Height="1" Cursor="Arrow" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
                             </Grid>
                             <!-- 文件信息 -->
                             <Grid Margin="0,40,0,0" Height="40" VerticalAlignment="Top" Background="#F3F3F3">
@@ -187,7 +193,7 @@
                                 <!-- 文件名 -->
                                 <TextBlock x:Name="PreviewFileName" Text="教 师 护 导 要 求（20210219）.doc" FontWeight="Bold" Margin="50,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                 <!-- 分割线 -->
-                                <GridSplitter Grid.Column="1" Height="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
+                                <GridSplitter Grid.Column="1" Height="1" Cursor="Arrow" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
                             </Grid>
                             <!-- 内容预览 -->
                             <ScrollViewer Margin="0,80,0,0">
@@ -221,7 +227,7 @@
                                 </Grid>
                             </ScrollViewer>
                         </Grid>
-                    </StackPanel>
+                    </Grid>
                     <!-- 分割线 -->
                     <GridSplitter Grid.Column="1" Height="1" VerticalAlignment="Bottom" Margin="0,0,0,25" HorizontalAlignment="Stretch" Background="Gray" />
                     <!-- 底部 -->

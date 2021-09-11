@@ -59,7 +59,6 @@ namespace TextLocator
 
             // 检查索引是否存在
             CheckIndexExist();
-
         }
 
         #region 初始化
@@ -127,12 +126,15 @@ namespace TextLocator
         /// 检查索引是否存在
         /// </summary>
         /// <returns></returns>
-        private bool CheckIndexExist()
+        private bool CheckIndexExist(bool showWarning = true)
         {
             bool exists = Directory.Exists(AppConst.APP_INDEX_DIR);
             if (!exists)
             {
-                Message.ShowWarning("MessageContainer", "首次使用该软件，需先设置需要索引的文件夹。并点击右侧重建按钮进行初始化");
+                if (showWarning)
+                {
+                    Message.ShowWarning("MessageContainer", "首次使用该软件，需先设置需要索引的文件夹。并点击右侧重建按钮进行初始化");
+                }
             }
             return exists;
         }
@@ -575,7 +577,7 @@ namespace TextLocator
         /// <param name="e"></param>
         private async void RebuildButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Directory.Exists(AppConst.APP_INDEX_DIR))
+            if (CheckIndexExist(false))
             {
                 var result = await MessageBoxR.ConfirmInContainer("DialogContaioner", "确定要重建索引嘛？时间可能比较久哦！", "提示");
                 if (result == MessageBoxResult.Cancel)

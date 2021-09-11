@@ -11,27 +11,27 @@ namespace TextLocator.Enums
         /// Word
         /// </summary>
         [Description("doc,docx")]
-        Word类型,
+        Word文档,
         /// <summary>
         /// Excel
         /// </summary>
         [Description("xls,xlsx")]
-        Excel类型,
+        Excel表格,
         /// <summary>
         /// PowerPoint
         /// </summary>
         [Description("ppt,pptx")]
-        PowerPoint类型,
+        PPT演示文稿,
         /// <summary>
         /// PDF
         /// </summary>
         [Description("pdf")]
-        PDF类型,
+        PDF文档,
         /// <summary>
         /// XML和html
         /// </summary>
         [Description("html,xml")]
-        HTML和XML类型,
+        HTML和XML,
         /// <summary>
         /// 常用图片
         /// </summary>
@@ -46,11 +46,6 @@ namespace TextLocator.Enums
         /// 纯文本
         /// </summary>
         [Description("txt")]
-        纯文本,
-        /// <summary>
-        /// 其他类型
-        /// </summary>
-        [Description()]
-        其他类型
+        文本文件
     }
 }

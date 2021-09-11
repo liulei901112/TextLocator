@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -70,25 +71,26 @@ namespace TextLocator
             // 文件类型筛选下拉框数据初始化
             this.FileTypeFilter.Items.Clear();
             this.FileTypeFilter.Items.Add("全部");
-
-            // 文件类型名字
-            string fileTypeNames = "";
+            this.FileTypeNames.Children.Clear();
 
             // 获取文件类型枚举，遍历并加入下拉列表
-            foreach (string fileTypeName in FileTypeUtil.GetFileTypeNames())
+            foreach (FileType fileType in Enum.GetValues(typeof(FileType)))
             {
-                this.FileTypeFilter.Items.Add(fileTypeName);
-                fileTypeNames += fileTypeName + ",";
+                this.FileTypeFilter.Items.Add(fileType.ToString());
+
+                // 标签
+                Button ft = new Button()
+                {
+                    Content = fileType.ToString(),
+                    Height = 25,
+                    Margin = new Thickness(this.FileTypeNames.Children.Count == 0 ? 0 : 2, 0, 0, 0),
+                    ToolTip = fileType.GetDescription(),
+                    Background = Brushes.Gray
+                };
+                this.FileTypeNames.Children.Add(ft);
             }
             // 默认选中全部
             this.FileTypeFilter.SelectedIndex = 0;
-
-
-            // 初始化文件后缀
-            // 去掉最后的逗号
-            fileTypeNames = fileTypeNames.Substring(0, fileTypeNames.Length - 1);
-            this.FileTypeNames.Text = fileTypeNames;
-            this.FileTypeNames.ToolTip = FileTypeUtil.GetFileTypeExts();
         }
 
         /// <summary>

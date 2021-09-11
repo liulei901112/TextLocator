@@ -71,15 +71,27 @@
                                 <GridSplitter Margin="30,0,30,0" Grid.Column="1" Width="1" HorizontalAlignment="Stretch" Background="Gray" />
                                 <!-- 扩展信息 -->
                                 <StackPanel>
-                                    <!-- 扩展名 -->
+                                    <!-- 文件类型 -->
                                     <Grid>
                                         <TextBlock Text="文件类型：" HorizontalAlignment="Left"/>
-                                        <TextBox x:Name="FileTypeNames" Text="doc,docm,docx,ppt,pptm,xls,xlsm,xlsx,htm,html,pdf,txt,java,css,cs" IsReadOnly="true" Width="700" Height="20" Margin="65,0,0,0" HorizontalAlignment="Left"/>
+                                        <Border Width="700" Height="25" Margin="65,0,0,0" HorizontalAlignment="Left" BorderBrush="Gray" BorderThickness="1">
+                                            <StackPanel x:Name="FileTypeNames" Orientation="Horizontal">
+                                                <Button Content="Word类型" Height="25"/>
+                                                <Button Content="Excel类型" Height="25" Margin="5,0,0,0"/>
+                                                <Button Content="PowerPoint类型" Height="25" Margin="5,0,0,0"/>
+                                                <Button Content="PDF类型" Height="25" Margin="5,0,0,0"/>
+                                                <Button Content="HTML和XML类型" Height="25" Margin="5,0,0,0"/>
+                                                <Button Content="常用图片" Height="25" Margin="5,0,0,0"/>
+                                                <Button Content="代码文件" Height="25" Margin="5,0,0,0"/>
+                                                <Button Content="文本类型" Height="25" Margin="5,0,0,0"/>
+                                            </StackPanel>
+                                        </Border>                                        
+                                        <!-- <TextBox x:Name="FileTypeNames" Text="doc,docm,docx,ppt,pptm,xls,xlsm,xlsx,htm,html,pdf,txt,java,css,cs" IsReadOnly="true" Width="700" Height="20" Margin="65,0,0,0" HorizontalAlignment="Left"/> -->
                                     </Grid>
-                                    <!-- 文件夹 -->
-                                    <Grid Margin="0,20,0,0" >
+                                    <!-- 搜索区域 -->
+                                    <Grid Margin="0,10,0,0" >
                                         <TextBlock Text="搜索区域：" HorizontalAlignment="Left"/>
-                                        <TextBox x:Name="FolderPaths" Text="D:\UserData\" IsReadOnly="true" Width="700" Height="20" Margin="65,0,0,0" HorizontalAlignment="Left" MouseDoubleClick="FolderPaths_MouseDoubleClick"/>
+                                        <TextBox x:Name="FolderPaths" Text="C:\Users\{User}\Document" IsReadOnly="true" Width="700" Height="25" Margin="65,0,0,0" HorizontalAlignment="Left" MouseDoubleClick="FolderPaths_MouseDoubleClick"/>
                                     </Grid>
                                 </StackPanel>
                             </StackPanel>

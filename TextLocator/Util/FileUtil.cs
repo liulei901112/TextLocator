@@ -29,19 +29,19 @@ namespace TextLocator.Util
             Bitmap bitmap = null;
             switch (fileType)
             {
-                case FileType.Word类型:
+                case FileType.Word文档:
                     bitmap = Properties.Resources.word;
                     break;
-                case FileType.Excel类型:
+                case FileType.Excel表格:
                     bitmap = Properties.Resources.excel;
                     break;
-                case FileType.PowerPoint类型:
+                case FileType.PPT演示文稿:
                     bitmap = Properties.Resources.ppt;
                     break;
-                case FileType.PDF类型:
+                case FileType.PDF文档:
                     bitmap = Properties.Resources.pdf;
                     break;
-                case FileType.HTML和XML类型:
+                case FileType.HTML和XML:
                     bitmap = Properties.Resources.html;
                     break;
                 case FileType.常用图片:
@@ -50,7 +50,7 @@ namespace TextLocator.Util
                 case FileType.代码文件:
                     bitmap = Properties.Resources.code;
                     break;
-                case FileType.纯文本:
+                case FileType.文本文件:
                     bitmap = Properties.Resources.txt;
                     break;
                 default:

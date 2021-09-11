@@ -1,4 +1,4 @@
-# 文本定位器
+# 文本搜索定位器
 ![搜索结果](https://images.gitee.com/uploads/images/2021/0907/225105_6a9f6cf1_995027.png "搜索结果")
 ![索引进度](https://images.gitee.com/uploads/images/2021/0907/223936_915effc8_995027.png "索引进度")
 ![索引完成](https://images.gitee.com/uploads/images/2021/0907/224830_4f62909d_995027.png "索引完成")

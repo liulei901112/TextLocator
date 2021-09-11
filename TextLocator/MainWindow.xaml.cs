@@ -60,7 +60,6 @@ namespace TextLocator
             // 检查索引是否存在
             CheckIndexExist();
         }
-
         #region 初始化
 
         /// <summary>

@@ -109,37 +109,31 @@ namespace TextLocator.Index
             try
             {
                 string filePath = taskInfo.FilePath;
-                bool create = taskInfo.Create;
                 Lucene.Net.Index.IndexWriter indexWriter = taskInfo.IndexWriter;
                 // 临时文件跳过
                 if (filePath.IndexOf("~$") > 0)
                 {
                     return;
-                }
-                // 文件信息
-                FileInfo fileInfo = new FileInfo(filePath);
-                // 最后写入时间
-                string lastWriteTime = fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
-                // 文件索引标记
-                string exists = AppUtil.ReadIni("FileIndex", filePath, "");
+                }                
 
                 // 非重建 && 文件已经被索引过
-                bool isUpdate = !create;
-                bool isIndexExists = !string.IsNullOrEmpty(exists);
-                bool isFileUpdate = lastWriteTime.Equals(exists);
-                if (isUpdate && isIndexExists && isFileUpdate)
+                bool isUpdate = !taskInfo.Create;
+                bool isExists = !string.IsNullOrEmpty(AppUtil.ReadIni("FileIndex", filePath, ""));
+                if (isUpdate && isExists)
                 {
 #if DEBUG
-                    log.Debug("非重建，索引存在，文件未变化 => 跳过：" + filePath);
+                    log.Debug("非重建，索引存在 => 跳过：" + filePath);
 #endif
                     return;
                 }
                 // 写入
-                AppUtil.WriteIni("FileIndex", filePath, lastWriteTime);
+                AppUtil.WriteIni("FileIndex", filePath, "1");
 
                 // 开始时间
                 DateTime beginMark = DateTime.Now;
 
+                // 文件信息
+                FileInfo fileInfo = new FileInfo(filePath);
                 // 文件名
                 string fileName = fileInfo.Name;
                 // 文件大小

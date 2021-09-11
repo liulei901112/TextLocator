@@ -34,7 +34,7 @@ namespace TextLocator.Service
                             builder.Append(line);
                         }
 
-                        content = Regex.Replace(builder.ToString(), "\\<.[^<>]*\\>", ""); ;
+                        content = Regex.Replace(builder.ToString(), "\\<.[^<>]*\\>", "");
 
                         reader.Close();
                         reader.Dispose();

@@ -68,8 +68,6 @@ namespace TextLocator.Index
 
             using (var countDown = new MutipleThreadResetEvent(count))
             {
-                // 设置线程最大数量
-                ThreadPool.SetMaxThreads(32, 64);
                 // 遍历读取文件，并创建索引
                 for (int i = 0; i < count; i++)
                 {
@@ -118,20 +116,29 @@ namespace TextLocator.Index
                 {
                     return;
                 }
+                // 文件信息
+                FileInfo fileInfo = new FileInfo(filePath);
+                // 最后写入时间
+                string lastWriteTime = fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
+                // 文件索引标记
+                string exists = AppUtil.ReadIni("FileIndex", filePath, "");
+
                 // 非重建 && 文件已经被索引过
-                if (!create && !string.IsNullOrEmpty(AppUtil.ReadIni("FileIndex", filePath, "")))
+                bool isUpdate = !create;
+                bool isIndexExists = !string.IsNullOrEmpty(exists);
+                bool isFileUpdate = lastWriteTime.Equals(exists);
+                if (isUpdate && isIndexExists && isFileUpdate)
                 {
+#if DEBUG
+                    log.Debug("非重建，索引存在，文件未变化 => 跳过：" + filePath);
+#endif
                     return;
                 }
-
                 // 写入
-                AppUtil.WriteIni("FileIndex", filePath, "1");
+                AppUtil.WriteIni("FileIndex", filePath, lastWriteTime);
 
                 // 开始时间
                 DateTime beginMark = DateTime.Now;
-
-                // 文件信息
-                FileInfo fileInfo = new FileInfo(filePath);
 
                 // 文件名
                 string fileName = fileInfo.Name;

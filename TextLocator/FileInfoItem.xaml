@@ -9,12 +9,19 @@
     <Grid Width="870" Height="110" HorizontalAlignment="Left" VerticalAlignment="Top">
         <!-- 图标 -->
         <Image x:Name="FileTypeIcon" Source="/Resource/ext/word.png" Width="60" HorizontalAlignment="Left"/>
+        
         <!-- 文件信息 -->
         <Grid Margin="80,0,0,0">
             <!-- 文件标题、大小、时间 -->
             <Grid VerticalAlignment="Top" Margin="0,10,0,0">
-                <!-- 文件名 Click="Hyperlink_Click" -->
-                <TextBlock x:Name="FileName" Text="教 师 护 导 要 求（20210219）.doc" Foreground="#1A0DAB" TextDecorations="Underline" HorizontalAlignment="Left"/>
+                <!-- 预览 -->
+                <RichTextBox x:Name="FileName" Margin="-5,0,0,0" IsHitTestVisible="False" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="False">
+                    <FlowDocument>
+                        <Paragraph>
+                            <Run Foreground="#1A0DAB">教 师 护 导 要 求（20210219）.doc</Run>
+                        </Paragraph>
+                    </FlowDocument>
+                </RichTextBox>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <!-- 文件大小 -->
                     <TextBlock x:Name="FileSize" Text="1MB" Foreground="#545454" HorizontalAlignment="Right"/>
@@ -25,10 +32,16 @@
             </Grid>
 
             <!-- 文件夹 -->
-            <TextBlock x:Name="FileFolder" Text="D:\桌面文档\金壕软件科技\教 师 护 导 要 求（20210219）.doc" Margin="0,30,0,0" Foreground="#006621" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <RichTextBox x:Name="FileFolder" Margin="-5,30,0,0" IsHitTestVisible="False" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top">
+                <FlowDocument>
+                    <Paragraph>
+                        <Run Foreground="#006621">D:\桌面文档\金壕软件科技\教 师 护 导 要 求（20210219）.doc</Run>
+                    </Paragraph>
+                </FlowDocument>
+            </RichTextBox>
 
             <!-- 预览 -->
-            <RichTextBox x:Name="FileContent" Margin="-5,50,0,0" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="True">
+            <RichTextBox x:Name="FileContent" Margin="-5,50,0,0" IsHitTestVisible="False" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="True">
                 <FlowDocument>
                     <Paragraph>
                         <Run Foreground="#545454">项目1、乙方为甲方网站的服务器进行维护和管理，包括：病毒排查和清除、网站数据的备份，网站空间的定期清理和维护，服务器帐号的管理等服务，保证网站的正常运行和网站数据的完整性以及网站服务器帐号的安全。 项目2、乙方为甲方网站的系统程序进行维护和管理，包括：程序代码的整理和优化、排除程序代码的漏洞、排除因系统错误导致的故障、保证网站系统的正常运行。</Run>
@@ -36,7 +49,6 @@
                 </FlowDocument>
             </RichTextBox>
         </Grid>
-
         <!-- 分割线 -->
         <GridSplitter Grid.Column="1" Height="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
     </Grid>

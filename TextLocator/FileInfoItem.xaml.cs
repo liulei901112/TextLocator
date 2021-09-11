@@ -1,5 +1,6 @@
 ﻿using log4net;
 using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -46,24 +47,28 @@ namespace TextLocator
         {
             // 根据文件类型显示图标
             this.FileTypeIcon.Source = FileUtil.GetFileIcon(fileInfo.FileType);
-
-            // 显示文件信息
-            this.FileName.Text = fileInfo.FileName;
-            this.FileFolder.Text = fileInfo.FilePath.Replace(fileInfo.FileName, "");
+            // 文件大小
             this.FileSize.Text = FileUtil.GetFileSizeFriendly(fileInfo.FileSize);
+            // 文件创建时间
             this.CreateTime.Text = fileInfo.CreateTime;
 
-            this.FileContent.Document.Blocks.Clear();
-            // Paragraph 类似于 html 的 P 标签
-            Paragraph p = new Paragraph();
-            // Run 是一个 Inline 的标签
-            Run r = new Run(fileInfo.Breviary);
-            p.Inlines.Add(r);
-            this.FileContent.Document.Blocks.Add(p);
+            string fileName = fileInfo.FileName;
+            // 显示文件名称
+            RichTextBoxUtil.FillingData(this.FileName, fileName.Length > 90 ? fileName.Substring(0, 90) : fileName, (Brush)new BrushConverter().ConvertFromString("#1A0DAB"), true);
+
+            string filePath = fileInfo.FilePath.Replace(fileInfo.FileName, "");
+            this.FileFolder.ToolTip = filePath;
+            // 文件路径
+            RichTextBoxUtil.FillingData(this.FileFolder, filePath.Length > 100 ? filePath.Substring(0, 100) + "..." : filePath, (Brush)new BrushConverter().ConvertFromString("#006621"));
+
+            // 结果列表内容预览
+            RichTextBoxUtil.FillingData(this.FileContent, fileInfo.Breviary, (Brush)new BrushConverter().ConvertFromString("#545454"));
 
             // 关键词高亮
             if (fileInfo.Keywords.Count > 0)
             {
+                RichTextBoxUtil.Highlighted(this.FileName, Colors.Red, fileInfo.Keywords);
+                RichTextBoxUtil.Highlighted(this.FileFolder, Colors.Red, fileInfo.Keywords);
                 RichTextBoxUtil.Highlighted(this.FileContent, Colors.Red, fileInfo.Keywords);
             }
         }

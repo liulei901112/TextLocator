@@ -1,11 +1,8 @@
 ﻿using log4net;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace TextLocator.Service
 {
@@ -30,9 +27,14 @@ namespace TextLocator.Service
                 {
                     using (StreamReader reader = new StreamReader(new FileStream(filePath, FileMode.Open), Encoding.UTF8))
                     {
-                        content = reader.ReadToEnd();
+                        StringBuilder builder = new StringBuilder();
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            builder.Append(line);
+                        }
 
-                        content = Regex.Replace(content, "\\<.[^<>]*\\>", "");
+                        content = Regex.Replace(builder.ToString(), "\\<.[^<>]*\\>", "");
 
                         reader.Close();
                         reader.Dispose();

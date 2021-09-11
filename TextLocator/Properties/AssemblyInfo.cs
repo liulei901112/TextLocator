@@ -9,8 +9,8 @@ using System.Windows;
 [assembly: AssemblyDescription("本地文档全文索引搜索定位工具")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("刘磊")]
-[assembly: AssemblyProduct("文本定位器")]
-[assembly: AssemblyCopyright("Copyright © 2021")]
+[assembly: AssemblyProduct("文本搜索定位器")]
+[assembly: AssemblyCopyright("Copyright © 2021 Liulei All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -49,8 +49,8 @@ using System.Windows;
 //可以指定所有这些值，也可以使用“生成号”和“修订号”的默认值
 //通过使用 "*"，如下所示:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.8")]
+[assembly: AssemblyVersion("1.1.0")]
+[assembly: AssemblyFileVersion("1.1.0")]
 
 // log4net
 [assembly: log4net.Config.XmlConfigurator(Watch = true)]

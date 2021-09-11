@@ -51,6 +51,7 @@ namespace TextLocator.Service
                             }
                             // 关闭文件流
                             fileStream.Close();
+                            fileStream.Dispose();
 
                             if (readWorkbook != null)
                             {
@@ -122,7 +123,6 @@ namespace TextLocator.Service
                                 }
                                 sheet.Dispose();
                             }
-
                             workbook.Dispose();
 
                             content = builder.ToString();

@@ -45,6 +45,12 @@
     <Reference Include="ICSharpCode.SharpZipLib, Version=1.3.1.9, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpZipLib.1.3.1\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
+    <Reference Include="JiebaNet.Analyser, Version=0.42.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\jieba.NET.0.42.2\lib\net45\JiebaNet.Analyser.dll</HintPath>
+    </Reference>
+    <Reference Include="JiebaNet.Segmenter, Version=0.42.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\jieba.NET.0.42.2\lib\net45\JiebaNet.Segmenter.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=2.0.12.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.12\lib\net45\log4net.dll</HintPath>
     </Reference>
@@ -63,6 +69,9 @@
       <HintPath>..\packages\Microsoft.Office.Interop.Word.15.0.4797.1003\lib\net20\Microsoft.Office.Interop.Word.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="NPOI, Version=2.5.4.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
       <HintPath>..\packages\NPOI.2.5.4\lib\net45\NPOI.dll</HintPath>
     </Reference>
@@ -74,15 +83,6 @@
     </Reference>
     <Reference Include="NPOI.OpenXmlFormats, Version=2.5.4.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
       <HintPath>..\packages\NPOI.2.5.4\lib\net45\NPOI.OpenXmlFormats.dll</HintPath>
-    </Reference>
-    <Reference Include="PanGu, Version=2.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PanGu.Segment.0.0.3\lib\PanGu.dll</HintPath>
-    </Reference>
-    <Reference Include="PanGu.HighLight, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PanGu.Segment.0.0.3\lib\PanGu.HighLight.dll</HintPath>
-    </Reference>
-    <Reference Include="PanGu.Lucene.Analyzer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PanGu.Lucene.Analyzer.0.0.2\lib\PanGu.Lucene.Analyzer.dll</HintPath>
     </Reference>
     <Reference Include="Rubyer, Version=1.0.16.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Rubyer.1.0.16\lib\net46\Rubyer.dll</HintPath>
@@ -165,11 +165,13 @@
     <Compile Include="FolderInfoItem.xaml.cs">
       <DependentUpon>FolderInfoItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Index\LuceneIndexCore.cs" />
+    <Compile Include="Index\IndexCore.cs" />
     <Compile Include="FolderWindow.xaml.cs">
       <DependentUpon>FolderWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Index\MutipleThreadResetEvent.cs" />
+    <Compile Include="Jieba\JiebaAnalyzer.cs" />
+    <Compile Include="Jieba\JiebaTokenizer.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -178,14 +180,14 @@
     <Compile Include="Service\DevelopFileService.cs" />
     <Compile Include="Service\ExcelFileService.cs" />
     <Compile Include="Service\IFileInfoService.cs" />
-    <Compile Include="Service\ImageFileService.cs" />
-    <Compile Include="Service\OtherFileService.cs" />
+    <Compile Include="Service\NoTextFileService.cs" />
     <Compile Include="Service\PdfFileService.cs" />
     <Compile Include="Service\PowerPointFileService.cs" />
     <Compile Include="Service\TxtFileService.cs" />
     <Compile Include="Service\WordFileService.cs" />
     <Compile Include="Service\XmlFileService.cs" />
     <Compile Include="Util\AppUtil.cs" />
+    <Compile Include="Util\SimpleCacheUtil.cs" />
     <Compile Include="Util\FileTypeUtil.cs" />
     <Compile Include="Util\FileUtil.cs" />
     <Compile Include="Util\RichTextBoxUtil.cs" />
@@ -231,13 +233,28 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Dict\Dict.dct">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Dict\char_state_tab.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Dict\pos_prob_emit.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Dict\pos_prob_start.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Dict\pos_prob_trans.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Dict\prob_emit.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Dict\prob_trans.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -249,36 +266,6 @@
   <ItemGroup>
     <Resource Include="Resource\btn_file.png" />
     <Resource Include="Resource\btn_folder.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Dict\Wildcard.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Dict\Synonym.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Dict\Stopword.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Dict\ChsSingleName.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Dict\ChsDoubleName2.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Dict\ChsDoubleName1.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resource\ext\excel.png" />
@@ -294,6 +281,20 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resource\ext\image.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Dict\cn_synonym.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Dict\dict.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Dict\idf.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Dict\stopwords.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

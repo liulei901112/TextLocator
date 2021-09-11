@@ -1,5 +1,7 @@
-﻿using System;
+﻿using JiebaNet.Segmenter;
+using System;
 using System.IO;
+using TextLocator.Jieba;
 
 namespace TextLocator.Core
 {
@@ -21,7 +23,11 @@ namespace TextLocator.Core
         /// new Lucene.Net.Analysis.Cn.ChineseAnalyzer();
         /// new Lucene.Net.Analysis.Standard.StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);// 用standardAnalyzer分词器
         /// </summary>
-        public static readonly Lucene.Net.Analysis.Analyzer INDEX_ANALYZER = new Lucene.Net.Analysis.PanGuAnalyzer();
+        public static readonly Lucene.Net.Analysis.Analyzer INDEX_ANALYZER = new JiebaAnalyzer(); //new Lucene.Net.Analysis.PanGuAnalyzer();
+        /// <summary>
+        /// 分割器
+        /// </summary>
+        public static readonly JiebaSegmenter INDEX_SEGMENTER = new JiebaSegmenter();
 
         /// <summary>
         /// 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）

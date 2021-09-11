@@ -180,8 +180,7 @@
     <Compile Include="Service\DevelopFileService.cs" />
     <Compile Include="Service\ExcelFileService.cs" />
     <Compile Include="Service\IFileInfoService.cs" />
-    <Compile Include="Service\ImageFileService.cs" />
-    <Compile Include="Service\OtherFileService.cs" />
+    <Compile Include="Service\NoTextFileService.cs" />
     <Compile Include="Service\PdfFileService.cs" />
     <Compile Include="Service\PowerPointFileService.cs" />
     <Compile Include="Service\TxtFileService.cs" />

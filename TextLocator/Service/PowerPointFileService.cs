@@ -43,6 +43,8 @@ namespace TextLocator.Service
                             }
                             slide.Dispose();
                         }
+                        presentation.Dispose();
+
                         content = builder.ToString();
                     }
                 }

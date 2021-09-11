@@ -27,13 +27,7 @@ namespace TextLocator.Factory
 		{
 			try
 			{
-				IFileInfoService fileInfoService = services[fileType];
-				if (null == fileInfoService)
-				{
-					log.Error("暂无[" + fileType.ToString() + "]服务实例， 返回默认其他类型文件服务实例");
-					fileInfoService = services[FileType.其他类型];
-				}
-				return fileInfoService;
+				return services[fileType];
 			}
 			catch (Exception ex)
 			{

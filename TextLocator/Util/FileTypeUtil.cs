@@ -22,7 +22,7 @@ namespace TextLocator.Util
         public static FileType GetFileType(string filePath)
         {
             // 默认为其他类型文件
-            FileType fileType = FileType.其他类型;
+            FileType fileType = FileType.文本文件;
             
             // 判断文件路径
             if (string.IsNullOrEmpty(filePath))
@@ -52,26 +52,6 @@ namespace TextLocator.Util
             }
 
             return fileType;
-        }
-
-        /// <summary>
-        /// 获取文件类型列表（Word类型,Excel类型...）
-        /// </summary>
-        /// <returns></returns>
-        public static List<string> GetFileTypeNames()
-        {
-            List<string> fileTypes = new List<string>();
-            // 遍历文件类型，根据后缀查找文件类型
-            foreach (FileType ft in Enum.GetValues(typeof(FileType)))
-            {
-                // 获取描述
-                string fileTypeName = ft.ToString();
-                if (!fileTypeName.Equals("其他类型"))
-                {
-                    fileTypes.Add(fileTypeName);
-                }
-            }
-            return fileTypes;
         }
 
         /// <summary>

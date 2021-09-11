@@ -25,23 +25,21 @@ namespace TextLocator
             try
             {
                 // Word服务
-                FileInfoServiceFactory.Register(FileType.Word类型, new WordFileService());
+                FileInfoServiceFactory.Register(FileType.Word文档, new WordFileService());
                 // Excel服务
-                FileInfoServiceFactory.Register(FileType.Excel类型, new ExcelFileService());
+                FileInfoServiceFactory.Register(FileType.Excel表格, new ExcelFileService());
                 // PowerPoint服务
-                FileInfoServiceFactory.Register(FileType.PowerPoint类型, new PowerPointFileService());
+                FileInfoServiceFactory.Register(FileType.PPT演示文稿, new PowerPointFileService());
                 // PDF服务
-                FileInfoServiceFactory.Register(FileType.PDF类型, new PdfFileService());
+                FileInfoServiceFactory.Register(FileType.PDF文档, new PdfFileService());
                 // HTML或XML服务
-                FileInfoServiceFactory.Register(FileType.HTML和XML类型, new XmlFileService());
+                FileInfoServiceFactory.Register(FileType.HTML和XML, new XmlFileService());
                 // 常用图片服务
                 FileInfoServiceFactory.Register(FileType.常用图片, new NoTextFileService());
                 // 程序员服务
                 FileInfoServiceFactory.Register(FileType.代码文件, new DevelopFileService());
                 // 纯文本服务
-                FileInfoServiceFactory.Register(FileType.纯文本, new TxtFileService());
-                // 其他类型服务
-                FileInfoServiceFactory.Register(FileType.其他类型, new NoTextFileService());
+                FileInfoServiceFactory.Register(FileType.文本文件, new TxtFileService());
             }
             catch (Exception ex)
             {

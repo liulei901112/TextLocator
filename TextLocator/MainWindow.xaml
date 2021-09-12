@@ -112,7 +112,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="6*" MinWidth="500"/>
                             <ColumnDefinition Width="3"/>
-                            <ColumnDefinition Width="3*" MinWidth="480"/>
+                            <ColumnDefinition Width="3*" MinWidth="450"/>
                         </Grid.ColumnDefinitions>
                         <!-- 左边 -->
                         <Grid HorizontalAlignment="Stretch" Grid.Column="0">
@@ -144,7 +144,8 @@
                             </Grid>
                             
                             <!-- 搜索结果列表 -->
-                            <ListBox x:Name="SearchResultList" Margin="0,40,0,0" Cursor="Hand" Height="561" VerticalAlignment="Top" BorderThickness="1" BorderBrush="#EAEAEB" Background="Transparent" SelectionChanged="SearchResultList_SelectionChanged">                                <ListBoxItem>
+                            <ListBox x:Name="SearchResultList" Margin="0,40,0,0" Cursor="Hand" Height="561" VerticalAlignment="Top" BorderThickness="1" BorderBrush="#EAEAEB" Background="Transparent" SelectionChanged="SearchResultList_SelectionChanged">
+                                <ListBoxItem>
                                     <Grid Width="870" Height="110" HorizontalAlignment="Left" VerticalAlignment="Top">
                                         <!-- 图标 -->
                                         <Image Source="/Resource/ext/word.png" Width="60" HorizontalAlignment="Left"/>
@@ -185,7 +186,7 @@
                             </ListBox>
                         </Grid>
                         <!-- 分割线 -->
-                        <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Center" Background="Gray" />
+                        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Center" ShowsPreview="False" Background="Gray" />
                         <!-- 右边 -->
                         <Grid HorizontalAlignment="Stretch" Grid.Column="3">
                             <!-- 条件和排序 -->

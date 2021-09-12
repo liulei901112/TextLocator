@@ -60,6 +60,12 @@ namespace TextLocator
 
             // 检查索引是否存在
             CheckIndexExist();
+
+            // 检查配置参数信息
+            if (string.IsNullOrEmpty(AppUtil.ReadIni("AppConfig", "MaxCountLimit", "")))
+            {
+                AppUtil.WriteIni("AppConfig", "MaxCountLimit", AppConst.MAX_COUNT_LIMIT + "");
+            }
         }
         #region 初始化
 

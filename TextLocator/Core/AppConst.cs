@@ -40,6 +40,6 @@ namespace TextLocator.Core
         /// <summary>
         /// 搜索最大值限制
         /// </summary>
-        public static readonly int MAX_COUNT_LIMIT = int.Parse(AppUtil.ReadIni("AppConfig", "MaxCountLimit", "512"));
+        public static readonly int MAX_COUNT_LIMIT = int.Parse(AppUtil.ReadIni("AppConfig", "MaxCountLimit", "100"));
     }
 }

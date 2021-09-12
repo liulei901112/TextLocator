@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -410,6 +411,16 @@ namespace TextLocator
         }
 
         /// <summary>
+        /// 文本内容变化时
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SearchText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
+
+        /// <summary>
         /// 文件类型过滤选中
         /// </summary>
         /// <param name="sender"></param>
@@ -670,17 +681,28 @@ namespace TextLocator
         /// <returns></returns>
         private List<string> GetTextKeywords()
         {
-            string text = this.SearchText.Text.Trim();
-            if (string.IsNullOrEmpty(text))
-            {
-                return null;
-            }
+            string text = this.SearchText.Text;
+            // 清除开始和结尾空格
+            text = text.Trim();
+            // 替换特殊字符
+            text = AppConst.REGIX_SPECIAL_CHARACTER.Replace(text, "");
+            // 为空直接返回null
+            if (string.IsNullOrEmpty(text)) return null;
+
+            // 回写处理过的字符
+            this.SearchText.Text = text;
+            this.SearchText.SelectionStart = this.SearchText.Text.Length;
+
             List<string> keywords = new List<string>();
             if (text.IndexOf(" ") != -1)
             {
                 string[] texts = text.Split(' ');
                 foreach (string txt in texts)
                 {
+                    if (string.IsNullOrEmpty(txt))
+                    {
+                        continue;
+                    }
                     keywords.Add(txt);
                 }
             }

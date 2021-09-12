@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using TextLocator.Core;
 
 namespace TextLocator.Service
 {
@@ -34,7 +35,7 @@ namespace TextLocator.Service
                             builder.Append(line);
                         }
 
-                        content = Regex.Replace(builder.ToString(), "\\<.[^<>]*\\>", "");
+                        content = AppConst.REGIX_TAG.Replace(builder.ToString(), "");
 
                         reader.Close();
                         reader.Dispose();

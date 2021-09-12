@@ -1,6 +1,7 @@
 ﻿using JiebaNet.Segmenter;
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using TextLocator.Jieba;
 using TextLocator.Util;
 
@@ -41,5 +42,18 @@ namespace TextLocator.Core
         /// 搜索最大值限制
         /// </summary>
         public static readonly int MAX_COUNT_LIMIT = int.Parse(AppUtil.ReadIni("AppConfig", "MaxCountLimit", "100"));
+
+        /// <summary>
+        /// 匹配特殊字符
+        /// </summary>
+        public static readonly Regex REGIX_SPECIAL_CHARACTER = new Regex("`|~|!|@|#|\\$|%|\\^|&|\\*|\\(|\\)|_|\\-|\\+|\\=|\\[|\\]|\\{|\\}|\\\\|\\||;|:|'|\"|,|\\<|\\.|\\>|\\/|\\?|");
+        /// <summary>
+        /// 匹配空白和换行
+        /// </summary>
+        public static readonly Regex REGIX_LINE_BREAKS_AND_WHITESPACE = new Regex(" |\r|\n|\\s");
+        /// <summary>
+        /// 匹配HTML和XML标签
+        /// </summary>
+        public static readonly Regex REGIX_TAG = new Regex("\\<.[^<>]*\\>");
     }
 }

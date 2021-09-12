@@ -150,7 +150,7 @@ namespace TextLocator.Index
                 string content = FileInfoServiceFactory.GetFileInfoService(fileType).GetFileContent(filePath);
 
                 // 缩略信息
-                string breviary = new Regex(" |\r|\n|\\s").Replace(content, "");
+                string breviary = AppConst.REGIX_LINE_BREAKS_AND_WHITESPACE.Replace(content, "");
                 if (breviary.Length > 150)
                 {
                     breviary = breviary.Substring(0, 150) + "...";

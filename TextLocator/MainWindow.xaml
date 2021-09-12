@@ -112,7 +112,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="6*" MinWidth="500"/>
                             <ColumnDefinition Width="3"/>
-                            <ColumnDefinition Width="3*" MinWidth="450"/>
+                            <ColumnDefinition Width="3*" MinWidth="460"/>
                         </Grid.ColumnDefinitions>
                         <!-- 左边 -->
                         <Grid HorizontalAlignment="Stretch" Grid.Column="0">

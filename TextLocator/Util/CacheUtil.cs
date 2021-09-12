@@ -9,17 +9,17 @@ namespace TextLocator.Util
     /// <summary>
     /// 简单缓存工具类
     /// </summary>
-    public class SimpleCacheUtil
+    public class CacheUtil
     {
         //缓存容器 
-        private static Dictionary<string, object> simpleCacheDic = new Dictionary<string, object>();
+        private static Dictionary<string, object> cacheDic = new Dictionary<string, object>();
 
         /// <summary>
         /// 添加缓存
         /// </summary>
         public static void Add(string key, object value)
         {
-            simpleCacheDic.Add(key, value);
+            cacheDic[key] = value;
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace TextLocator.Util
         {
             try
             {
-                return (T)simpleCacheDic[key];
+                return (T)cacheDic[key];
             } catch { }
             return default(T);
         }
@@ -41,7 +41,7 @@ namespace TextLocator.Util
         /// <returns></returns>
         public static bool Exsits(string key)
         {
-            return simpleCacheDic.ContainsKey(key);
+            return cacheDic.ContainsKey(key);
         }
     }
 }

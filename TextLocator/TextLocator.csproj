@@ -187,7 +187,7 @@
     <Compile Include="Service\WordFileService.cs" />
     <Compile Include="Service\XmlFileService.cs" />
     <Compile Include="Util\AppUtil.cs" />
-    <Compile Include="Util\SimpleCacheUtil.cs" />
+    <Compile Include="Util\CacheUtil.cs" />
     <Compile Include="Util\FileTypeUtil.cs" />
     <Compile Include="Util\FileUtil.cs" />
     <Compile Include="Util\RichTextBoxUtil.cs" />

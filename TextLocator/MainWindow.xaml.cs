@@ -523,9 +523,9 @@ namespace TextLocator
                 ThreadPool.QueueUserWorkItem(_ =>
                 {
                     string content = "";
-                    if (SimpleCacheUtil.Exsits(fileInfo.FilePath))
+                    if (CacheUtil.Exsits(fileInfo.FilePath))
                     {
-                        content = SimpleCacheUtil.Get<string>(fileInfo.FilePath);
+                        content = CacheUtil.Get<string>(fileInfo.FilePath);
                     }
                     else
                     {
@@ -533,7 +533,7 @@ namespace TextLocator
                         content = FileInfoServiceFactory.GetFileInfoService(fileInfo.FileType).GetFileContent(fileInfo.FilePath);
 
                         // 写入缓存
-                        SimpleCacheUtil.Add(fileInfo.FilePath, content);                        
+                        CacheUtil.Add(fileInfo.FilePath, content);                        
                     }
 
                     this.Dispatcher.BeginInvoke(new Action(() =>
@@ -670,7 +670,7 @@ namespace TextLocator
         /// <returns></returns>
         private List<string> GetTextKeywords()
         {
-            string text = this.SearchText.Text;
+            string text = this.SearchText.Text.Trim();
             if (string.IsNullOrEmpty(text))
             {
                 return null;

@@ -20,7 +20,7 @@
                             <!-- 搜索 -->
                             <StackPanel Margin="20,15,0,0" Orientation="Horizontal" >
                                 <!-- 搜索框 -->
-                                <TextBox x:Name="SearchText" Width="500" Height="36" FontSize="20" HorizontalAlignment="Left" VerticalContentAlignment="Center" BorderThickness="1" BorderBrush="Green" PreviewKeyUp="SearchText_PreviewKeyUp">
+                                <TextBox x:Name="SearchText" Width="500" Height="36" FontSize="20" HorizontalAlignment="Left" VerticalContentAlignment="Center" BorderThickness="1" BorderBrush="Green" PreviewKeyUp="SearchText_PreviewKeyUp" TextChanged="SearchText_TextChanged">
                                     <TextBox.Resources>
                                         <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
                                             <VisualBrush.Visual>

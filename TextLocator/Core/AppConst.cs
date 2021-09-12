@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using TextLocator.Jieba;
+using TextLocator.Util;
 
 namespace TextLocator.Core
 {
@@ -35,5 +36,10 @@ namespace TextLocator.Core
         /// 内存：new Lucene.Net.Store.RAMDirectory()
         /// </summary>
         public static readonly Lucene.Net.Store.FSDirectory INDEX_DIRECTORY = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(APP_INDEX_DIR));
+
+        /// <summary>
+        /// 搜索最大值限制
+        /// </summary>
+        public static readonly int MAX_COUNT_LIMIT = int.Parse(AppUtil.ReadIni("AppConfig", "MaxCountLimit", "512"));
     }
 }

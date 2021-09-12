@@ -210,7 +210,6 @@ namespace TextLocator
                 {
                     this.SearchResultList.Items.Clear();
                 }));
-                int num = 100;
                 Lucene.Net.Index.IndexReader reader = null;
                 Lucene.Net.Search.IndexSearcher searcher = null;
                 try
@@ -276,7 +275,7 @@ namespace TextLocator
                         Bquery.Add(new Lucene.Net.Search.TermQuery(new Lucene.Net.Index.Term("FileType", fileType)), Lucene.Net.Search.Occur.MUST);
                     }
 
-                    Lucene.Net.Search.TopScoreDocCollector collector = Lucene.Net.Search.TopScoreDocCollector.Create(num, true);
+                    Lucene.Net.Search.TopScoreDocCollector collector = Lucene.Net.Search.TopScoreDocCollector.Create(AppConst.MAX_COUNT_LIMIT, true);
                     searcher.Search(Bquery, collector);
                     // 以后就可以对获取到的collector数据进行操作
                     var hits = collector.TopDocs().ScoreDocs;
@@ -336,7 +335,7 @@ namespace TextLocator
                         resultNum++;
                     }
 
-                    string msg = "检索完成！共检索到" + resultNum + "个符合条件的结果（只显示前" + num + "条）。耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒。";
+                    string msg = "检索完成：分词（" + text + "），共检索" + resultNum + "个符合条件的结果（只显示前" + AppConst.MAX_COUNT_LIMIT + "条），耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒。";
 
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {

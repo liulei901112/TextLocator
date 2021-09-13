@@ -61,25 +61,62 @@ namespace TextLocator.Index
                 Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
 
             // 文件总数
-            int count = filePaths.Count();
+            int totalCount = filePaths.Count();
 
             // 每次初始化的时候完成数量都是0
             finishCount = 0;
 
-            using (MutipleThreadResetEvent resetEvent = new MutipleThreadResetEvent(count))
+            using (MutipleThreadResetEvent resetEvent = new MutipleThreadResetEvent(totalCount))
             {
                 // 遍历读取文件，并创建索引
-                for (int i = 0; i < count; i++)
+                for (int i = 0; i < totalCount; i++)
                 {
+                    string filePath = filePaths[i];
+                    // 非重建 && 文件已经被索引过
+                    bool isUpdate = !create;
+                    bool isExists = !string.IsNullOrEmpty(AppUtil.ReadIni("FileIndex", filePath, ""));
+                    if (isUpdate && isExists)
+                    {
+                        string skipMsg = "跳过文件：" + filePath;
+
+                        callback(skipMsg, CalcCompletionRatio(finishCount, totalCount));
+
+                        lock (locker)
+                        {
+                            finishCount++;
+                        }
+
+                        try
+                        {
+                            resetEvent.SetOne();
+                        }
+                        catch { }
+
+#if !DEBUG
+                        log.Debug(skipMsg);
+#endif
+                        continue;
+                    }
                     // 加入线程池
                     ThreadPool.QueueUserWorkItem(new WaitCallback(CreateIndexTask), new TaskInfo() {
-                        TotalCount = count,
-                        FilePath = filePaths[i],
                         Create = create,
+                        TotalCount = totalCount,
+                        FilePath = filePaths[i],
                         IndexWriter = indexWriter,
                         Callback = callback,
                         ResetEvent = resetEvent
                     });
+                    /*new Thread(()=> {
+                        CreateIndexTask(new TaskInfo()
+                        {
+                            Create = create,
+                            TotalCount = totalCount,
+                            FilePath = filePaths[i],
+                            IndexWriter = indexWriter,
+                            Callback = callback,
+                            ResetEvent = resetEvent
+                        });
+                    }).Start();*/
                 }
 
                 // 等待所有线程结束
@@ -107,25 +144,16 @@ namespace TextLocator.Index
         {
             TaskInfo taskInfo = obj as TaskInfo;
             try
-            {
-                string filePath = taskInfo.FilePath;
-                Lucene.Net.Index.IndexWriter indexWriter = taskInfo.IndexWriter;            
+            {                
+                Lucene.Net.Index.IndexWriter indexWriter = taskInfo.IndexWriter;
 
-                // 非重建 && 文件已经被索引过
-                bool isUpdate = !taskInfo.Create;
-                bool isExists = !string.IsNullOrEmpty(AppUtil.ReadIni("FileIndex", filePath, ""));
-                if (isUpdate && isExists)
-                {
-#if DEBUG
-                    log.Debug("非重建，索引存在 => 跳过：" + filePath);
-#endif
-                    return;
-                }
+                string filePath = taskInfo.FilePath;
+
                 // 写入
                 AppUtil.WriteIni("FileIndex", filePath, "1");
 
                 // 开始时间
-                DateTime beginMark = DateTime.Now;
+                var workMark = WorkTime.StartNew();
 
                 // 文件信息
                 FileInfo fileInfo = new FileInfo(filePath);
@@ -174,10 +202,10 @@ namespace TextLocator.Index
                     indexWriter.Optimize();
                 }
 
-                string msg = "索引：[" + finishCount * 1.0F + "/" + taskInfo.TotalCount + "] => 引擎：" + fileType + "，文件：" + filePath + "，耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
+                string msg = "索引：[" + finishCount * 1.0F + "/" + taskInfo.TotalCount + "] => 引擎：" + fileType + "，文件：" + filePath + "，耗时：" + workMark.TotalSeconds + "秒";
 
                 // 执行状态回调
-                taskInfo.Callback(msg, finishCount * 1.00F / taskInfo.TotalCount * 1.00F * 100.00F);
+                taskInfo.Callback(msg, CalcCompletionRatio(finishCount, taskInfo.TotalCount));
 
                 log.Debug(msg);
             }
@@ -187,21 +215,32 @@ namespace TextLocator.Index
             }
             finally
             {
-
                 lock (locker)
                 {
                     finishCount++;
                 }
 
-                // 手动GC
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-
                 try
                 {
                     taskInfo.ResetEvent.SetOne();
-                } catch { }
+                }
+                catch { }
+
+                // 手动GC
+                GC.Collect();
+                GC.WaitForPendingFinalizers();                
             }
+        }
+
+        /// <summary>
+        /// 计算完成比例
+        /// </summary>
+        /// <param name="finishCount"></param>
+        /// <param name="totalCount"></param>
+        /// <returns></returns>
+        private static double CalcCompletionRatio(double finishCount, double totalCount)
+        {
+            return finishCount * 1.00F / totalCount * 1.00F * 100.00F;
         }
 
         /// <summary>
@@ -209,11 +248,11 @@ namespace TextLocator.Index
         /// </summary>
         class TaskInfo
         {
+            public bool Create { get; set; }
             public int TotalCount { get; set; }
             public string FilePath { get; set; }
-            public bool Create { get; set; }
             public Lucene.Net.Index.IndexWriter IndexWriter { get; set; }
-            public IndexCore.Callback Callback { get; set; }
+            public Callback Callback { get; set; }
             public MutipleThreadResetEvent ResetEvent { get; set; }
         }
     }

@@ -1,10 +1,7 @@
 ﻿using log4net;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using TextLocator.Enums;
@@ -45,6 +42,12 @@ namespace TextLocator
             {
                 log.Error("文件服务工厂初始化错误：" + ex.Message, ex);
             }
+
+
+            bool setMinThread = ThreadPool.SetMinThreads(12, 12);
+            log.Debug("修改线程池最小线程数量：" + setMinThread);
+            bool setMaxThread = ThreadPool.SetMaxThreads(24, 24);
+            log.Debug("修改线程池最大线程数量：" + setMaxThread);
         }
 
         protected override void OnStartup(StartupEventArgs e)

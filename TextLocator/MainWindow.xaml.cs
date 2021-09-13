@@ -155,7 +155,8 @@ namespace TextLocator
         {
             Task.Factory.StartNew(() =>
             {
-                DateTime beginMark = DateTime.Now;
+                var workMark = WorkTime.StartNew();
+
                 // 定义文件列表
                 List<string> filePaths = new List<string>();
                 foreach (string s in _IndexFolders)
@@ -168,7 +169,7 @@ namespace TextLocator
                 // 创建索引方法
                 IndexCore.CreateIndex(filePaths, rebuild, ShowStatus);
 
-                string msg = "索引执行结束，共用时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
+                string msg = "索引执行结束，共用时：" + workMark.TotalSeconds + "秒";
 
                 // 显示状态
                 ShowStatus(msg);
@@ -210,7 +211,7 @@ namespace TextLocator
         {
             ThreadPool.QueueUserWorkItem(_ => {
                 // 开始时间标记
-                DateTime beginMark = DateTime.Now;
+                var workMark = WorkTime.StartNew();
 
                 // 清空搜索结果列表
                 this.Dispatcher.BeginInvoke(new Action(() =>
@@ -342,7 +343,7 @@ namespace TextLocator
                         resultNum++;
                     }
 
-                    string msg = "检索完成：分词（" + text + "），共检索" + resultNum + "个符合条件的结果（只显示前" + AppConst.MAX_COUNT_LIMIT + "条），耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒。";
+                    string msg = "检索完成：分词（" + text + "），共检索" + resultNum + "个符合条件的结果（只显示前" + AppConst.MAX_COUNT_LIMIT + "条），耗时：" + workMark.TotalSeconds + "秒。";
 
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {

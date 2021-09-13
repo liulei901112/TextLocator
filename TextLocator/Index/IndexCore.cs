@@ -153,7 +153,7 @@ namespace TextLocator.Index
                 AppUtil.WriteIni("FileIndex", filePath, "1");
 
                 // 开始时间
-                var workMark = WorkTime.StartNew();
+                var taskMark = TaskTime.StartNew();
 
                 // 文件信息
                 FileInfo fileInfo = new FileInfo(filePath);
@@ -202,7 +202,7 @@ namespace TextLocator.Index
                     indexWriter.Optimize();
                 }
 
-                string msg = "索引：[" + finishCount * 1.0F + "/" + taskInfo.TotalCount + "] => 引擎：" + (int)fileType + "，文件：" + filePath + "，耗时：" + workMark.TotalSeconds + "秒";
+                string msg = "索引：[" + finishCount * 1.0F + "/" + taskInfo.TotalCount + "] => 引擎：" + (int)fileType + "，文件：" + filePath + "，耗时：" + taskMark.ConsumeTime + "秒";
 
                 // 执行状态回调
                 taskInfo.Callback(msg, CalcCompletionRatio(finishCount, taskInfo.TotalCount));

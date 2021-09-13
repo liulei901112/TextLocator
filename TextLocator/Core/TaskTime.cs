@@ -3,9 +3,9 @@
 namespace TextLocator.Core
 {
     /// <summary>
-    /// 工作时间对象，用于获取任务执行消耗时间
+    /// 任务时间
     /// </summary>
-    public class WorkTime
+    public class TaskTime
     {
         /// <summary>
         /// 开始时间
@@ -15,7 +15,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 构造函数
         /// </summary>
-        public WorkTime()
+        public TaskTime()
         {
             beginTime = DateTime.Now;
         }
@@ -24,7 +24,7 @@ namespace TextLocator.Core
         /// 消耗时间
         /// </summary>
         /// <returns></returns>
-        public double TotalSeconds
+        public double ConsumeTime
         {
             get
             {
@@ -36,9 +36,9 @@ namespace TextLocator.Core
         /// 开始新任务
         /// </summary>
         /// <returns></returns>
-        public static WorkTime StartNew()
+        public static TaskTime StartNew()
         {
-            return new WorkTime(); ;
+            return new TaskTime(); ;
         }
     }
 }

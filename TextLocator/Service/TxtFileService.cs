@@ -18,28 +18,25 @@ namespace TextLocator.Service
         {
             // 文件内容
             string content = "";
-            lock (locker)
+            try
             {
-                try
+                using (StreamReader reader = new StreamReader(filePath, Encoding.UTF8))
                 {
-                    using (StreamReader reader = new StreamReader(filePath, Encoding.UTF8))
+                    StringBuilder builder = new StringBuilder();
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        StringBuilder builder = new StringBuilder();
-                        string line;
-                        while ((line = reader.ReadLine()) != null)
-                        {
-                            builder.Append(line);
-                        }
-                        reader.Close();
-                        reader.Dispose();
-
-                        content = builder.ToString();
+                        builder.Append(line);
                     }
+                    reader.Close();
+                    reader.Dispose();
+
+                    content = builder.ToString();
                 }
-                catch (Exception ex)
-                {
-                    log.Error(ex.Message, ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message, ex);
             }
             return content;
         }

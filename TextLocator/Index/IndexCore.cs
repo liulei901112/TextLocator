@@ -51,7 +51,7 @@ namespace TextLocator.Index
             if (rebuild)
             {
                 create = rebuild;
-            } 
+            }
 
             // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
             Lucene.Net.Index.IndexWriter indexWriter = new Lucene.Net.Index.IndexWriter(
@@ -66,7 +66,7 @@ namespace TextLocator.Index
             // 每次初始化的时候完成数量都是0
             finishCount = 0;
 
-            using (var countDown = new MutipleThreadResetEvent(count))
+            using (MutipleThreadResetEvent resetEvent = new MutipleThreadResetEvent(count))
             {
                 // 遍历读取文件，并创建索引
                 for (int i = 0; i < count; i++)
@@ -78,15 +78,15 @@ namespace TextLocator.Index
                         Create = create,
                         IndexWriter = indexWriter,
                         Callback = callback,
-                        ResetEvent = countDown
+                        ResetEvent = resetEvent
                     });
                 }
 
                 // 等待所有线程结束
-                countDown.WaitAll();
+                resetEvent.WaitAll();
 
                 // 销毁
-                countDown.Dispose();
+                resetEvent.Dispose();
             }
 
             try
@@ -174,7 +174,7 @@ namespace TextLocator.Index
                     indexWriter.Optimize();
                 }
 
-                string msg = "索引：[" + finishCount * 1.0F + "/" + taskInfo.TotalCount + "] => 文件：" + filePath + "，耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
+                string msg = "索引：[" + finishCount * 1.0F + "/" + taskInfo.TotalCount + "] => 引擎：" + fileType + "，文件：" + filePath + "，耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
 
                 // 执行状态回调
                 taskInfo.Callback(msg, finishCount * 1.00F / taskInfo.TotalCount * 1.00F * 100.00F);

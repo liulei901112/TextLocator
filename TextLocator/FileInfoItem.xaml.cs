@@ -1,8 +1,6 @@
 ﻿using log4net;
 using System;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Media;
 using TextLocator.Util;
 
@@ -54,12 +52,11 @@ namespace TextLocator
 
             string fileName = fileInfo.FileName;
             // 显示文件名称
-            RichTextBoxUtil.FillingData(this.FileName, fileName.Length > 90 ? fileName.Substring(0, 90) : fileName, (Brush)new BrushConverter().ConvertFromString("#1A0DAB"), true);
+            RichTextBoxUtil.FillingData(this.FileName, fileName.Length > 55 ? fileName.Substring(0, 55) + "..." : fileName, (Brush)new BrushConverter().ConvertFromString("#1A0DAB"), true);
 
             string filePath = fileInfo.FilePath.Replace(fileInfo.FileName, "");
-            this.FileFolder.ToolTip = filePath;
             // 文件路径
-            RichTextBoxUtil.FillingData(this.FileFolder, filePath.Length > 100 ? filePath.Substring(0, 100) + "..." : filePath, (Brush)new BrushConverter().ConvertFromString("#006621"));
+            RichTextBoxUtil.FillingData(this.FileFolder, filePath.Length > 70 ? filePath.Substring(0, 70) + "..." : filePath, (Brush)new BrushConverter().ConvertFromString("#006621"));
 
             // 结果列表内容预览
             RichTextBoxUtil.FillingData(this.FileContent, fileInfo.Breviary, (Brush)new BrushConverter().ConvertFromString("#545454"));

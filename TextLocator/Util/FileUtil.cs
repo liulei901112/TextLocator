@@ -139,7 +139,7 @@ namespace TextLocator.Util
                 {
                     string du = dir.ToUpper();
                     // $开始、360REC开头、SYSTEM、TEMP
-                    if (du.StartsWith("$") || du.StartsWith("360REC") || du.Contains("SYSTEM") || du.Contains("TEMP"))
+                    if (du.Contains("$RECYCLE") || du.Contains("360REC") || du.Contains("SYSTEM") || du.Contains("TEMP"))
                     {
                         continue;
                     }

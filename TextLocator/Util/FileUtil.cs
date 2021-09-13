@@ -128,40 +128,46 @@ namespace TextLocator.Util
         /// <param name="filePaths">文档列表</param>
         public static void GetAllFiles(string rootPath, List<string> filePaths)
         {
-            DirectoryInfo dir = new DirectoryInfo(rootPath);
-            // 得到所有子目录
+            // 根目录
+            DirectoryInfo rootDir = new DirectoryInfo(rootPath);
+
+            // 文件夹处理
             try
             {
                 string[] dirs = Directory.GetDirectories(rootPath);
-                foreach (string di in dirs)
+                foreach (string dir in dirs)
                 {
+                    string du = dir.ToUpper();
+                    // $开始、360REC开头、SYSTEM、TEMP
+                    if (du.StartsWith("$") || du.StartsWith("360REC") || du.Contains("SYSTEM") || du.Contains("TEMP"))
+                    {
+                        continue;
+                    }
                     // 递归调用
-                    GetAllFiles(di, filePaths);
+                    GetAllFiles(dir, filePaths);
                 }
             }
-            catch (Exception ex)
-            {
-                log.Error(ex.Message, ex);
-            }
+            catch { }
 
+            // 文件处理
             try
             {
-                string regex = @"^.+\.(" + FileTypeUtil.GetFileTypeExts("|") + ")$";
-
                 // 查找word文件
-                string[] paths = Directory.GetFiles(dir.FullName)
-                    .Where(file => Regex.IsMatch(file, regex))
+                string[] paths = Directory.GetFiles(rootDir.FullName)
+                    .Where(file => AppConst.REGIX_FILE_EXT.IsMatch(file))
                     .ToArray();
                 // 遍历每个文档
                 foreach (string path in paths)
                 {
+                    string fileName = path.Substring(path.LastIndexOf("\\") + 1);
+                    if (fileName.StartsWith("`") || fileName.StartsWith("$"))
+                    {
+                        continue;
+                    }
                     filePaths.Add(path);
                 }
             }
-            catch (Exception ex)
-            {
-                log.Error(ex.Message, ex);
-            }
+            catch { }
         }
     }
 }

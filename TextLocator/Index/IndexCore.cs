@@ -109,12 +109,7 @@ namespace TextLocator.Index
             try
             {
                 string filePath = taskInfo.FilePath;
-                Lucene.Net.Index.IndexWriter indexWriter = taskInfo.IndexWriter;
-                // 临时文件跳过
-                if (filePath.IndexOf("~$") > 0)
-                {
-                    return;
-                }                
+                Lucene.Net.Index.IndexWriter indexWriter = taskInfo.IndexWriter;            
 
                 // 非重建 && 文件已经被索引过
                 bool isUpdate = !taskInfo.Create;

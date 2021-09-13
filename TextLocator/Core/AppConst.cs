@@ -55,5 +55,9 @@ namespace TextLocator.Core
         /// 匹配HTML和XML标签
         /// </summary>
         public static readonly Regex REGIX_TAG = new Regex("\\<.[^<>]*\\>");
+        /// <summary>
+        /// 匹配文件后缀
+        /// </summary>
+        public static readonly Regex REGIX_FILE_EXT = new Regex(@"^.+\.(" + FileTypeUtil.GetFileTypeExts("|") + ")$");
     }
 }

@@ -417,7 +417,22 @@ namespace TextLocator
         /// <param name="e"></param>
         private void SearchText_TextChanged(object sender, TextChangedEventArgs e)
         {
+            try
+            {
+                // 搜索关键词
+                string text = this.SearchText.Text;
 
+                // 清除开始和结尾空格
+                text = text.Trim();
+                // 替换特殊字符
+                text = AppConst.REGIX_SPECIAL_CHARACTER.Replace(text, "");
+
+                // 回写处理过的字符
+                this.SearchText.Text = text;
+
+                // 光标定位到最后
+                this.SearchText.SelectionStart = this.SearchText.Text.Length;
+            } catch { }
         }
 
         /// <summary>
@@ -682,16 +697,8 @@ namespace TextLocator
         private List<string> GetTextKeywords()
         {
             string text = this.SearchText.Text;
-            // 清除开始和结尾空格
-            text = text.Trim();
-            // 替换特殊字符
-            text = AppConst.REGIX_SPECIAL_CHARACTER.Replace(text, "");
             // 为空直接返回null
             if (string.IsNullOrEmpty(text)) return null;
-
-            // 回写处理过的字符
-            this.SearchText.Text = text;
-            this.SearchText.SelectionStart = this.SearchText.Text.Length;
 
             List<string> keywords = new List<string>();
             if (text.IndexOf(" ") != -1)

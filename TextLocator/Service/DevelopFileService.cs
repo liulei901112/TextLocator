@@ -22,29 +22,26 @@ namespace TextLocator.Service
             string extName = Path.GetExtension(filePath);
             // 文件内容
             string content = "";
-            lock (locker)
+            try
             {
-                try
+                using (StreamReader reader = new StreamReader(new FileStream(filePath, FileMode.Open), Encoding.UTF8))
                 {
-                    using (StreamReader reader = new StreamReader(new FileStream(filePath, FileMode.Open), Encoding.UTF8))
+                    StringBuilder builder = new StringBuilder();
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        StringBuilder builder = new StringBuilder();
-                        string line;
-                        while ((line = reader.ReadLine()) != null)
-                        {
-                            builder.Append(line);
-                        }
-
-                        content = AppConst.REGIX_TAG.Replace(builder.ToString(), "");
-
-                        reader.Close();
-                        reader.Dispose();
+                        builder.Append(line);
                     }
+
+                    content = AppConst.REGIX_TAG.Replace(builder.ToString(), "");
+
+                    reader.Close();
+                    reader.Dispose();
                 }
-                catch (Exception ex)
-                {
-                    log.Error(ex.Message, ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message, ex);
             }
             return content;
         }

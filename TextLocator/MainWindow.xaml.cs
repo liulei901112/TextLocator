@@ -67,6 +67,8 @@ namespace TextLocator
             {
                 AppUtil.WriteIni("AppConfig", "MaxCountLimit", AppConst.MAX_COUNT_LIMIT + "");
             }
+
+            // 软件每次启动时执行索引更新逻辑？
         }
         #region 初始化
 
@@ -594,6 +596,7 @@ namespace TextLocator
                 Message.ShowWarning("MessageContainer", "索引构建中，请稍等。");
                 return;
             }
+            build = true;
 
             ShowStatus("开始更新索引...");
 

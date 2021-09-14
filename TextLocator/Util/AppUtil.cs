@@ -180,16 +180,19 @@ namespace TextLocator.Util
         {
             Thread t = new Thread(() =>
             {
-                byte[] buffer = new byte[512000000];
-                GetPrivateProfileSection(section, buffer, buffer.Length, _AppIniFile);
-                string[] tmp = Encoding.Default.GetString(buffer).Trim('\0').Split('\0');
-                foreach (string entry in tmp)
+                try
                 {
-                    string[] v = entry.Split('=');
+                    byte[] buffer = new byte[512000000];
+                    GetPrivateProfileSection(section, buffer, buffer.Length, _AppIniFile);
+                    string[] tmp = Encoding.Default.GetString(buffer).Trim('\0').Split('\0');
+                    foreach (string entry in tmp)
+                    {
+                        string[] v = entry.Split('=');
 
-                    _AppIniCache[GetCacheKey(section, v[0])] = v[1];
-                }
-                log.Debug("加载" + section + "节点下全部键值，总数：" + _AppIniCache.Count);
+                        _AppIniCache[GetCacheKey(section, v[0])] = v[1];
+                    }
+                    log.Debug("加载" + section + "节点下全部键值，总数：" + _AppIniCache.Count);
+                } catch { }
             });
             t.Priority = ThreadPriority.AboveNormal;
             t.Start();

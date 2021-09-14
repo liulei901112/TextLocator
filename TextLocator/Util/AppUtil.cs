@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TextLocator.Util
@@ -29,6 +30,11 @@ namespace TextLocator.Util
         /// App.ini路径：_AppDir\\_AppName.ini
         /// </summary>
         private static readonly string _AppIniFile = _AppDir + "\\" + _AppName + ".ini";
+        
+        /// <summary>
+        /// Ini文件内容缓存
+        /// </summary>
+        private static readonly Dictionary<string, string> _AppIniCache = new Dictionary<string, string>();
 
         static AppUtil()
         {
@@ -51,6 +57,9 @@ namespace TextLocator.Util
             {
                 log.Error(ex.Message, ex);
             }
+
+            // 加载节点下全部Key-Value
+            LoadAllKeyValue("FileIndex", _AppIniCache);
         }
 
         #region {AppName}.ini文件
@@ -65,6 +74,7 @@ namespace TextLocator.Util
         {
             try
             {
+                _AppIniCache[GetCacheKey(section, key)] = value;
                 WritePrivateProfileString(section, key, value, _AppIniFile);
             }
             catch (Exception ex)
@@ -83,9 +93,12 @@ namespace TextLocator.Util
         {
             try
             {
+                if (_AppIniCache.ContainsKey(GetCacheKey(section, key)))
+                {
+                    return _AppIniCache[GetCacheKey(section, key)];
+                }
                 StringBuilder temp = new StringBuilder(255);
                 int i = GetPrivateProfileString(section, key, def, temp, 255, _AppIniFile);
-
                 return temp.ToString();
             }
             catch (Exception ex)
@@ -93,6 +106,41 @@ namespace TextLocator.Util
                 log.Error(ex.Message);
                 return def;
             }
+        }
+
+        /// <summary>
+        /// 加载节点下全部KeyValue
+        /// </summary>
+        /// <param name="section">节点</param>
+        /// <returns></returns>
+        private static void LoadAllKeyValue(string section, Dictionary<string, string> cacheDic)
+        {
+            Thread t = new Thread(() =>
+            {
+                byte[] buffer = new byte[512000000];
+                GetPrivateProfileSection(section, buffer, buffer.Length, _AppIniFile);
+                string[] tmp = Encoding.Default.GetString(buffer).Trim('\0').Split('\0');
+                foreach (string entry in tmp)
+                {
+                    string[] v = entry.Split('=');
+
+                    cacheDic[GetCacheKey(section, v[0])] = v[1];
+                }
+                log.Debug("加载" + section + "节点下全部键值，总数：" + cacheDic.Count);
+            });
+            t.Priority = ThreadPriority.AboveNormal;
+            t.Start();
+        }
+
+        /// <summary>
+        /// 获取缓存Key（节点名称 + Key）
+        /// </summary>
+        /// <param name="section"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        private static string GetCacheKey(string section, string key)
+        {
+            return section + "_" + key;
         }
         /// <summary>
         /// Win32API：写入配置
@@ -116,6 +164,17 @@ namespace TextLocator.Util
         /// <returns></returns>
         [DllImport("kernel32")] //返回取得字符串缓冲区的长度
         private static extern int GetPrivateProfileString(string section, string key, string def, StringBuilder retVal, int size, string filePath);
+
+        /// <summary>
+        /// Win32API：读取指定节点下全部键值
+        /// </summary>
+        /// <param name="lpAppName"></param>
+        /// <param name="lpszReturnBuffer"></param>
+        /// <param name="nSize"></param>
+        /// <param name="lpFileName"></param>
+        /// <returns></returns>
+        [DllImport("kernel32.dll")]
+        private static extern int GetPrivateProfileSection(string lpAppName, byte[] lpszReturnBuffer, int nSize, string lpFileName);
         #endregion
     }
 }

@@ -46,7 +46,7 @@ namespace TextLocator.Index
         public static void CreateIndex(List<string> filePaths, bool rebuild, Callback callback)
         {
             // 判断是创建索引还是增量索引（如果索引目录不存在，重建）
-            bool create = !Directory.Exists(AppConst.APP_INDEX_DIR);
+            bool create = !Directory.Exists(AppConst.APP_INDEX_BUILD_DIR);
             // 入参为true，表示重建
             if (rebuild)
             {
@@ -55,7 +55,7 @@ namespace TextLocator.Index
 
             // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
             Lucene.Net.Index.IndexWriter indexWriter = new Lucene.Net.Index.IndexWriter(
-                AppConst.INDEX_DIRECTORY, 
+                AppConst.INDEX_BUILD_DIRECTORY, 
                 AppConst.INDEX_ANALYZER, 
                 create, 
                 Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
@@ -72,51 +72,19 @@ namespace TextLocator.Index
                 for (int i = 0; i < totalCount; i++)
                 {
                     string filePath = filePaths[i];
-                    // 非重建 && 文件已经被索引过
-                    bool isUpdate = !create;
-                    bool isExists = !string.IsNullOrEmpty(AppUtil.ReadIni("FileIndex", filePath, ""));
-                    if (isUpdate && isExists)
+                    // 忽略已存在索引的文件
+                    if (SkipFile(create, filePath, totalCount, callback, resetEvent))
                     {
-                        string skipMsg = "跳过文件：" + filePath;
-
-                        callback(skipMsg, CalcCompletionRatio(finishCount, totalCount));
-
-                        lock (locker)
-                        {
-                            finishCount++;
-                        }
-
-                        try
-                        {
-                            resetEvent.SetOne();
-                        }
-                        catch { }
-
-#if !DEBUG
-                        log.Debug(skipMsg);
-#endif
                         continue;
                     }
                     // 加入线程池
                     ThreadPool.QueueUserWorkItem(new WaitCallback(CreateIndexTask), new TaskInfo() {
-                        Create = create,
                         TotalCount = totalCount,
                         FilePath = filePaths[i],
                         IndexWriter = indexWriter,
                         Callback = callback,
                         ResetEvent = resetEvent
                     });
-                    /*new Thread(()=> {
-                        CreateIndexTask(new TaskInfo()
-                        {
-                            Create = create,
-                            TotalCount = totalCount,
-                            FilePath = filePaths[i],
-                            IndexWriter = indexWriter,
-                            Callback = callback,
-                            ResetEvent = resetEvent
-                        });
-                    }).Start();*/
                 }
 
                 // 等待所有线程结束
@@ -128,12 +96,51 @@ namespace TextLocator.Index
 
             try
             {
+                // 索引写入器销毁
                 indexWriter.Dispose();
             }
             catch (Exception ex)
             {
                 log.Error(ex.Message, ex);
             }
+        }
+
+        /// <summary>
+        /// 忽略文件
+        /// </summary>
+        /// <param name="create">是否是创建，true为创建、false为更新</param>
+        /// <param name="filePath">文件路径</param>
+        /// <param name="totalCount">文件总数</param>
+        /// <param name="callback">状态回调函数</param>
+        /// <param name="resetEvent">多线程任务标记</param>
+        private static bool SkipFile(bool create, string filePath, int totalCount, Callback callback, MutipleThreadResetEvent resetEvent)
+        {
+            // 非重建 && 文件已经被索引过
+            bool isUpdate = !create;
+            bool isExists = !string.IsNullOrEmpty(AppUtil.ReadIni("FileIndex", filePath, ""));
+            if (isUpdate && isExists)
+            {
+                string skipMsg = "跳过文件：" + filePath;
+
+                callback(skipMsg, CalcCompletionRatio(finishCount, totalCount));
+
+                lock (locker)
+                {
+                    finishCount++;
+                }
+
+                try
+                {
+                    resetEvent.SetOne();
+                }
+                catch { }
+
+#if !DEBUG
+                log.Debug(skipMsg);
+#endif
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -248,11 +255,25 @@ namespace TextLocator.Index
         /// </summary>
         class TaskInfo
         {
-            public bool Create { get; set; }
+            /// <summary>
+            /// 文件总数
+            /// </summary>
             public int TotalCount { get; set; }
+            /// <summary>
+            /// 文件路径
+            /// </summary>
             public string FilePath { get; set; }
+            /// <summary>
+            /// 索引写入器
+            /// </summary>
             public Lucene.Net.Index.IndexWriter IndexWriter { get; set; }
+            /// <summary>
+            /// 回调函数
+            /// </summary>
             public Callback Callback { get; set; }
+            /// <summary>
+            /// 多线程重置
+            /// </summary>
             public MutipleThreadResetEvent ResetEvent { get; set; }
         }
     }

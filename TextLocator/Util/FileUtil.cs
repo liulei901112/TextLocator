@@ -114,11 +114,6 @@ namespace TextLocator.Util
         public static bool OutOfRange(long fileSize, int range = 10)
         {
             return false;
-            /*if (fileSize <= 0)
-            {
-                return false;
-            }
-            return fileSize / 1024 / 1024 > range;*/
         }
 
         /// <summary>
@@ -168,6 +163,72 @@ namespace TextLocator.Util
                 }
             }
             catch { }
+        }
+
+        /// <summary>
+        /// 删除目录下全部文件
+        /// </summary>
+        /// <param name="aPP_INDEX_DIR"></param>
+        public static void RemoveDirectory(string srcDir)
+        {
+            // 若目标文件夹不存在
+            if (!Directory.Exists(srcDir))
+            {
+                return;
+            }
+            // 获取源文件夹中的所有文件完整路径
+            FileInfo[] files = new DirectoryInfo(srcDir).GetFiles();
+            foreach (FileInfo fileInfo in files)
+            {
+                try
+                {
+                    File.Delete(fileInfo.FullName);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("索引清理失败：" + ex.Message, ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 拷贝源目录到新目录
+        /// </summary>
+        /// <param name="srcDir"></param>
+        /// <param name="destDir"></param>
+        public static void CopyDirectory(string srcDir, string destDir)
+        {
+            // 若目标文件夹不存在
+            if (!Directory.Exists(destDir))
+            {
+                // 创建目标文件夹
+                Directory.CreateDirectory(destDir);
+            }
+            string newPath;
+
+            // 获取源文件夹中的所有文件完整路径
+            FileInfo[] files = new DirectoryInfo(srcDir).GetFiles();
+            // 遍历文件
+            foreach (FileInfo fileInfo in files)
+            {
+                newPath = destDir + "\\" + fileInfo.Name;
+                try
+                {
+                    File.Copy(fileInfo.FullName, newPath, true);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("索引拷贝错误：" + ex.Message, ex);
+                }
+            }
+            string[] dirs = Directory.GetDirectories(srcDir);
+            // 遍历文件夹
+            foreach (string path in dirs)
+            {
+                DirectoryInfo directory = new DirectoryInfo(path);
+                string newDir = destDir + directory.Name;
+                CopyDirectory(path + "\\", newDir + "\\");
+            }
         }
     }
 }

@@ -24,10 +24,10 @@ namespace TextLocator
             {
                 // 清空
                 this.FolderList.Items.Clear();
-
+                FolderInfoItem folder;
                 foreach (string folderPath in folderPaths.Split(','))
                 {
-                    FolderInfoItem folder = new FolderInfoItem(folderPath);
+                    folder = new FolderInfoItem(folderPath);
                     folder.DeleteButton.Click += DeleteButton_Click;
                     folder.DeleteButton.Tag = folderPath;
 

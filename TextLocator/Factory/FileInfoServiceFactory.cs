@@ -43,6 +43,7 @@ namespace TextLocator.Factory
 		/// <param name="fileInfoService">服务实例</param>
 		public static void Register(FileType fileType, IFileInfoService fileInfoService)
 		{
+			log.Debug((int)fileType + "：" + fileType.ToString() + " 引擎注册");
 			services.Add(fileType, fileInfoService);
 		}
 	}

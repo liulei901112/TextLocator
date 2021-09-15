@@ -117,7 +117,7 @@ namespace TextLocator.Index
         {
             // 非重建 && 文件已经被索引过
             bool isUpdate = !create;
-            bool isExists = !string.IsNullOrEmpty(AppUtil.ReadIni("FileIndex", filePath, ""));
+            bool isExists = !string.IsNullOrEmpty(AppUtil.ReadValue("FileIndex", filePath, ""));
             if (isUpdate && isExists)
             {
                 string skipMsg = "跳过文件：" + filePath;
@@ -157,7 +157,7 @@ namespace TextLocator.Index
                 string filePath = taskInfo.FilePath;
 
                 // 写入
-                AppUtil.WriteIni("FileIndex", filePath, "1");
+                AppUtil.WriteValue("FileIndex", filePath, "1");
 
                 // 开始时间
                 var taskMark = TaskTime.StartNew();

@@ -61,9 +61,9 @@ namespace TextLocator
             CheckIndexExist();
 
             // 检查配置参数信息
-            if (string.IsNullOrEmpty(AppUtil.ReadIni("AppConfig", "MaxCountLimit", "")))
+            if (string.IsNullOrEmpty(AppUtil.ReadValue("AppConfig", "MaxCountLimit", "")))
             {
-                AppUtil.WriteIni("AppConfig", "MaxCountLimit", AppConst.MAX_COUNT_LIMIT + "");
+                AppUtil.WriteValue("AppConfig", "MaxCountLimit", AppConst.MAX_COUNT_LIMIT + "");
             }
 
             // 软件每次启动时执行索引更新逻辑？
@@ -108,7 +108,7 @@ namespace TextLocator
             // 初始化显示被索引的文件夹列表
             _IndexFolders.Clear();
             // 读取被索引文件夹配置信息，如果配置信息为空：默认为我的文档和我的桌面
-            string customFolders = AppUtil.ReadIni("AppConfig", "FolderPaths", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "," + Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+            string customFolders = AppUtil.ReadValue("AppConfig", "FolderPaths", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "," + Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
             // 配置信息不为空
             if (!string.IsNullOrEmpty(customFolders))
             {
@@ -153,6 +153,9 @@ namespace TextLocator
         /// <param name="rebuild">重建，默认是优化</param>
         private void BuildIndex(bool rebuild = false)
         {
+            // 重建时，删除全部已建索引的标记
+            AppUtil.DeleteSection("FileIndex");
+
             Task.Factory.StartNew(() =>
             {
                 var taskMark = TaskTime.StartNew();

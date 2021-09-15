@@ -18,6 +18,7 @@ namespace TextLocator.Util
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+
         /// <summary>
         /// 锁
         /// </summary>
@@ -125,21 +126,33 @@ namespace TextLocator.Util
         /// <param name="section">缓冲区</param>
         /// <param name="key">键</param>
         /// <param name="value">值</param>
-        public static void WriteIni(string section, string key, string value)
+        public static void WriteValue(string section, string key, string value)
         {
-            lock (locker)
+            try
             {
-                try
+                if (string.IsNullOrEmpty(section))
+                {
+                    throw new ArgumentException("必须指定节点名称", "section");
+                }
+
+                if (string.IsNullOrEmpty(key))
+                {
+                    throw new ArgumentException("必须指定键名称(key)", "key");
+                }
+                if (value == null)
+                {
+                    throw new ArgumentException("值不能为null", "value");
+                }
+
+                lock (locker)
                 {
                     _AppIniCache[GetCacheKey(section, key)] = value;
                     _AppIniUnsaved[GetCacheKey(section, key)] = true;
-
-                    // WritePrivateProfileString(section, key, value, _AppIniFile);
                 }
-                catch (Exception ex)
-                {
-                    log.Error(ex.Message);
-                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message);
             }
         }
 
@@ -149,10 +162,21 @@ namespace TextLocator.Util
         /// <param name="section">缓冲区</param>
         /// <param name="key">键</param>
         /// <returns></returns>
-        public static string ReadIni(string section, string key, string def = "")
+        public static string ReadValue(string section, string key, string def = "")
         {
             try
             {
+                const int SIZE = 1024 * 10;
+
+                if (string.IsNullOrEmpty(section))
+                {
+                    throw new ArgumentException("必须指定节点名称", "section");
+                }
+
+                if (string.IsNullOrEmpty(key))
+                {
+                    throw new ArgumentException("必须指定键名称(key)", "key");
+                }
                 lock (locker)
                 {
                     if (_AppIniCache.ContainsKey(GetCacheKey(section, key)))
@@ -160,14 +184,39 @@ namespace TextLocator.Util
                         return _AppIniCache[GetCacheKey(section, key)];
                     }
                 }
-                StringBuilder temp = new StringBuilder(255);
-                int i = GetPrivateProfileString(section, key, def, temp, 255, _AppIniFile);
-                return temp.ToString();
+                StringBuilder builder = new StringBuilder(SIZE);
+                uint bytesReturned = GetPrivateProfileString(section, key, def, builder, SIZE, _AppIniFile);
+                if (bytesReturned != 0)
+                {
+                    return builder.ToString();
+                }
+                return def;
             }
             catch (Exception ex)
             {
                 log.Error(ex.Message);
                 return def;
+            }
+        }
+
+        /// <summary>
+        /// 删除指定的节点。
+        /// </summary>
+        /// <param name="section">节点</param>
+        /// <returns>操作是否成功</returns>
+        public static void DeleteSection(string section)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(section))
+                {
+                    throw new ArgumentException("必须指定节点名称", "section");
+                }
+                WritePrivateProfileString(section, null, null, _AppIniFile);
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message);
             }
         }
 
@@ -182,10 +231,26 @@ namespace TextLocator.Util
             {
                 try
                 {
-                    byte[] buffer = new byte[512000000];
-                    GetPrivateProfileSection(section, buffer, buffer.Length, _AppIniFile);
-                    string[] tmp = Encoding.Default.GetString(buffer).Trim('\0').Split('\0');
-                    foreach (string entry in tmp)
+                    // 默认为32767
+                    uint MAX_BUFFER = 32767;
+                    // 返回值[返回值形式为 key=value,例如 Color=Red]
+                    string[] items = new string[0];      
+
+                    //分配内存
+                    IntPtr pReturnedString = Marshal.AllocCoTaskMem((int)MAX_BUFFER * sizeof(char));
+
+                    uint bytesReturned = GetPrivateProfileSection(section, pReturnedString, MAX_BUFFER, _AppIniFile);
+
+                    if (!(bytesReturned == MAX_BUFFER - 2) || (bytesReturned == 0))
+                    {
+                        string returnedString = Marshal.PtrToStringAuto(pReturnedString, (int)bytesReturned);
+                        items = returnedString.Split(new char[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
+                    }
+
+                    // 释放内存
+                    Marshal.FreeCoTaskMem(pReturnedString);
+
+                    foreach (string entry in items)
                     {
                         string[] v = entry.Split('=');
 
@@ -209,38 +274,47 @@ namespace TextLocator.Util
             return section + "_" + key;
         }
         /// <summary>
-        /// Win32API：写入配置
+        /// 将指定的键和值写到指定的节点，如果已经存在则替换
         /// </summary>
-        /// <param name="section"></param>
-        /// <param name="key"></param>
-        /// <param name="val"></param>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
-        [DllImport("kernel32")] //返回0表示失败，非0为成功
-        private static extern long WritePrivateProfileString(string section, string key, string val, string filePath);
+        /// <param name="lpAppName">节点名称</param>
+        /// <param name="lpKeyName">键名称。如果为null，则删除指定的节点及其所有的项目</param>
+        /// <param name="lpString">值内容。如果为null，则删除指定节点中指定的键。</param>
+        /// <param name="lpFileName">INI文件</param>
+        /// <returns>操作是否成功</returns>
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool WritePrivateProfileString(string lpAppName, string lpKeyName, string lpString, string lpFileName);
         /// <summary>
-        /// Win32API：读取配置
+        /// 读取INI文件中指定的Key的值
         /// </summary>
-        /// <param name="section"></param>
-        /// <param name="key"></param>
-        /// <param name="def"></param>
-        /// <param name="retVal"></param>
-        /// <param name="size"></param>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
-        [DllImport("kernel32")] //返回取得字符串缓冲区的长度
-        private static extern int GetPrivateProfileString(string section, string key, string def, StringBuilder retVal, int size, string filePath);
+        /// <param name="lpAppName">节点名称。如果为null,则读取INI中所有节点名称,每个节点名称之间用\0分隔</param>
+        /// <param name="lpKeyName">Key名称。如果为null,则读取INI中指定节点中的所有KEY,每个KEY之间用\0分隔</param>
+        /// <param name="lpDefault">读取失败时的默认值</param>
+        /// <param name="lpReturnedString">读取的内容缓冲区，读取之后，多余的地方使用\0填充</param>
+        /// <param name="nSize">内容缓冲区的长度</param>
+        /// <param name="lpFileName">INI文件名</param>
+        /// <returns>实际读取到的长度</returns>
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+        private static extern uint GetPrivateProfileString(string lpAppName, string lpKeyName, string lpDefault, [In, Out] char[] lpReturnedString, uint nSize, string lpFileName);
 
+        //另一种声明方式,使用 StringBuilder 作为缓冲区类型的缺点是不能接受\0字符，会将\0及其后的字符截断,
+        //所以对于lpAppName或lpKeyName为null的情况就不适用
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+        private static extern uint GetPrivateProfileString(string lpAppName, string lpKeyName, string lpDefault, StringBuilder lpReturnedString, uint nSize, string lpFileName);
+
+        //再一种声明，使用string作为缓冲区的类型同char[]
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+        private static extern uint GetPrivateProfileString(string lpAppName, string lpKeyName, string lpDefault, string lpReturnedString, uint nSize, string lpFileName);
         /// <summary>
-        /// Win32API：读取指定节点下全部键值
+        /// 获取某个指定节点(Section)中所有KEY和Value
         /// </summary>
-        /// <param name="lpAppName"></param>
-        /// <param name="lpszReturnBuffer"></param>
-        /// <param name="nSize"></param>
-        /// <param name="lpFileName"></param>
-        /// <returns></returns>
-        [DllImport("kernel32.dll")]
-        private static extern int GetPrivateProfileSection(string lpAppName, byte[] lpszReturnBuffer, int nSize, string lpFileName);
+        /// <param name="lpAppName">节点名称</param>
+        /// <param name="lpReturnedString">返回值的内存地址,每个之间用\0分隔</param>
+        /// <param name="nSize">内存大小(characters)</param>
+        /// <param name="lpFileName">Ini文件</param>
+        /// <returns>内容的实际长度,为0表示没有内容,为nSize-2表示内存大小不够</returns>
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+        private static extern uint GetPrivateProfileSection(string lpAppName, IntPtr lpReturnedString, uint nSize, string lpFileName);
         #endregion
 
         public void Dispose()

@@ -13,6 +13,14 @@ namespace TextLocator.Core
     public class AppConst
     {
         /// <summary>
+        /// 线程池最小数量
+        /// </summary>
+        public static readonly int THREAD_POOL_MIN_SIZE = int.Parse(AppUtil.ReadValue("AppConfig", "ThreadPoolMinSize", "8"));
+        /// <summary>
+        /// 线程池最大数量
+        /// </summary>
+        public static readonly int THREAD_POOL_MAX_SIZE = int.Parse(AppUtil.ReadValue("AppConfig", "ThreadPoolMaxSize", "64"));
+        /// <summary>
         /// 应用目录
         /// </summary>
         public static readonly string APP_DIR = AppDomain.CurrentDomain.BaseDirectory;
@@ -51,7 +59,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 搜索最大值限制
         /// </summary>
-        public static readonly int MAX_COUNT_LIMIT = int.Parse(AppUtil.ReadIni("AppConfig", "MaxCountLimit", "100"));
+        public static readonly int MAX_COUNT_LIMIT = int.Parse(AppUtil.ReadValue("AppConfig", "MaxCountLimit", "100"));
 
         /// <summary>
         /// 匹配特殊字符

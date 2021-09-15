@@ -431,8 +431,6 @@ namespace TextLocator
                 // 搜索关键词
                 string text = this.SearchText.Text;
 
-                // 清除开始和结尾空格
-                text = text.Trim();
                 // 替换特殊字符
                 text = AppConst.REGIX_SPECIAL_CHARACTER.Replace(text, "");
 
@@ -712,7 +710,7 @@ namespace TextLocator
         /// <returns></returns>
         private List<string> GetTextKeywords()
         {
-            string text = this.SearchText.Text;
+            string text = this.SearchText.Text.Trim();
             // 为空直接返回null
             if (string.IsNullOrEmpty(text)) return null;
 

@@ -53,6 +53,13 @@ namespace TextLocator.Index
                 create = rebuild;
             }
 
+            // 重建或创建
+            if (create)
+            {
+                // 重建时，删除全部已建索引的标记
+                AppUtil.DeleteSection("FileIndex");
+            }
+
             // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
             Lucene.Net.Index.IndexWriter indexWriter = new Lucene.Net.Index.IndexWriter(
                 AppConst.INDEX_BUILD_DIRECTORY, 

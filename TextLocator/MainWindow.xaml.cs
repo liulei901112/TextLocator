@@ -153,9 +153,6 @@ namespace TextLocator
         /// <param name="rebuild">重建，默认是优化</param>
         private void BuildIndex(bool rebuild = false)
         {
-            // 重建时，删除全部已建索引的标记
-            AppUtil.DeleteSection("FileIndex");
-
             Task.Factory.StartNew(() =>
             {
                 var taskMark = TaskTime.StartNew();

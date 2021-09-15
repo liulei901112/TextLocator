@@ -19,7 +19,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 线程池最大数量
         /// </summary>
-        public static readonly int THREAD_POOL_MAX_SIZE = int.Parse(AppUtil.ReadValue("AppConfig", "ThreadPoolMaxSize", "64"));
+        public static readonly int THREAD_POOL_MAX_SIZE = int.Parse(AppUtil.ReadValue("AppConfig", "ThreadPoolMaxSize", "32"));
         /// <summary>
         /// 应用目录
         /// </summary>

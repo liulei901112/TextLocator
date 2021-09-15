@@ -14,7 +14,7 @@ namespace TextLocator.Util
     /// <summary>
     /// 程序工具类
     /// </summary>
-    public class AppUtil : IDisposable
+    public class AppUtil
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -23,12 +23,6 @@ namespace TextLocator.Util
         /// 锁
         /// </summary>
         private static object locker = new object();
-
-        /// <summary>
-        /// 任务执行标记
-        /// </summary>
-        private static CancellationTokenSource tokenSource = new CancellationTokenSource();
-        private static CancellationToken token;
 
         /// <summary>
         /// 应用目录
@@ -47,26 +41,16 @@ namespace TextLocator.Util
         /// Ini文件内容缓存
         /// </summary>
         private static readonly Dictionary<string, string> _AppIniCache = new Dictionary<string, string>();
-        /// <summary>
-        /// Ini文件内容缓存未保存的
-        /// </summary>
-        private static readonly Dictionary<string, bool> _AppIniUnsaved = new Dictionary<string, bool>();
 
         static AppUtil()
         {
             log.Info("当前App的ini文件路径为：" + _AppIniFile);
-
-            // 获取Token
-            token = tokenSource.Token;
 
             // ini文件初始化
             Initialize();
 
             // 加载节点下全部Key-Value
             LoadAllKeyValue("FileIndex");
-
-            // 数据保存任务
-            TaskDataSave();
         }
 
         /// <summary>
@@ -91,31 +75,6 @@ namespace TextLocator.Util
             {
                 log.Error(ex.Message, ex);
             }
-        }
-
-        /// <summary>
-        /// 数据保存任务
-        /// </summary>
-        private static void TaskDataSave()
-        {
-            Task.Factory.StartNew(() => {
-                while (!token.IsCancellationRequested)
-                {
-                    lock(locker)
-                    {
-                        foreach (string cacheKey in _AppIniUnsaved.Keys.ToArray()) {
-                            string[] keys = cacheKey.Split('_');
-                            string section = keys[0];
-                            string key = keys[1];
-                            WritePrivateProfileString(section, key, _AppIniCache[cacheKey], _AppIniFile);
-                        }
-                        // 清理掉未保存的标记
-                        _AppIniUnsaved.Clear();
-                    }
-
-                    Thread.Sleep(TimeSpan.FromSeconds(10));
-                }
-            });
         }
 
         #region {AppName}.ini文件
@@ -147,7 +106,8 @@ namespace TextLocator.Util
                 lock (locker)
                 {
                     _AppIniCache[GetCacheKey(section, key)] = value;
-                    _AppIniUnsaved[GetCacheKey(section, key)] = true;
+
+                    WritePrivateProfileString(section, key, value, _AppIniFile);
                 }
             }
             catch (Exception ex)
@@ -316,10 +276,5 @@ namespace TextLocator.Util
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
         private static extern uint GetPrivateProfileSection(string lpAppName, IntPtr lpReturnedString, uint nSize, string lpFileName);
         #endregion
-
-        public void Dispose()
-        {
-            tokenSource.Cancel();
-        }
     }
 }

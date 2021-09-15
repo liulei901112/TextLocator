@@ -573,14 +573,17 @@ namespace TextLocator
                         CacheUtil.Add(fileInfo.FilePath, content);
                     }
 
-                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    // 填充数据
+                    this.Dispatcher.Invoke(new Action(() =>
                     {
-                        // 填充数据
                         RichTextBoxUtil.FillingData(this.PreviewFileContent, content, new SolidColorBrush(Colors.Black));
-
-                        // 关键词高亮
-                        RichTextBoxUtil.Highlighted(this.PreviewFileContent, Colors.Red, fileInfo.Keywords);
                     }));
+
+                    // 关键词高亮
+                    this.Dispatcher.InvokeAsync(() =>
+                    {
+                        RichTextBoxUtil.Highlighted(this.PreviewFileContent, Colors.Red, fileInfo.Keywords);
+                    });
                 }));
                 t.Priority = ThreadPriority.AboveNormal;
                 t.Start();

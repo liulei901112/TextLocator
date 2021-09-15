@@ -174,7 +174,7 @@ namespace TextLocator
                 // 索引拷贝：索引创建结束后拷贝新索引覆盖旧的索引，并删除write.lock
                 FileUtil.CopyDirectory(AppConst.APP_INDEX_BUILD_DIR, AppConst.APP_INDEX_DIR);
 
-                string msg = "索引执行结束，共用时：" + taskMark.ConsumeTime + "秒";
+                string msg = "索引完成。共用时：" + taskMark.ConsumeTime + "秒";
 
                 // 显示状态
                 ShowStatus(msg);
@@ -350,15 +350,18 @@ namespace TextLocator
                         fileInfo.Keywords = keywords;
 
                         Dispatcher.BeginInvoke(new Action(() => {
-                            SearchResultList.Items.Add(new FileInfoItem(fileInfo) { 
+                            SearchResultList.Items.Add(new FileInfoItem(fileInfo)
+                            {
                                 Tag = fileInfo
                             });
-                        }));                        
+                        }));
 
                         resultNum++;
                     }
 
-                    string msg = "检索完成：分词[" + text + "]，结果：" + resultNum + "个符合条件的结果（仅显示前" + AppConst.MAX_COUNT_LIMIT + "条），耗时：" + taskMark.ConsumeTime + "秒。";
+                    string msg = "检索完成。分词：( " + text + " )，结果：" + resultNum + "个符合条件的结果（仅显示前" + AppConst.MAX_COUNT_LIMIT + "条），耗时：" + taskMark.ConsumeTime + "秒。";
+
+                    log.Debug(msg);
 
                     Dispatcher.BeginInvoke(new Action(() => {
                         Message.ShowSuccess("MessageContainer", msg);
@@ -375,7 +378,8 @@ namespace TextLocator
 
                         if (reader != null)
                             reader.Dispose();
-                    } catch { }
+                    }
+                    catch { }
                 }
             });
             t.Priority = ThreadPriority.Highest;
@@ -627,7 +631,7 @@ namespace TextLocator
             }
             build = true;
 
-            ShowStatus("开始更新索引...");
+            ShowStatus("开始更新索引，请稍等...");
 
             BuildIndex(false);
         }
@@ -655,7 +659,7 @@ namespace TextLocator
             }
             build = true;
 
-            ShowStatus("开始重建索引...");
+            ShowStatus("开始重建索引，请稍等...");
 
             BuildIndex(true);
         }

@@ -176,9 +176,7 @@ namespace TextLocator.Index
                 // 文件大小
                 long fileSize = fileInfo.Length;
                 // 创建时间
-                string createTime = fileInfo.CreationTime.ToString("yyyy-MM-dd");
-                // 文件标记
-                string fileMark = fileInfo.DirectoryName + fileInfo.CreationTime.ToString();
+                string createTime = fileInfo.CreationTime.ToString("yyyy-MM-dd");                
 
                 // 根据文件路径获取文件类型（自定义文件类型分类）
                 FileType fileType = FileTypeUtil.GetFileType(filePath);
@@ -192,6 +190,9 @@ namespace TextLocator.Index
                 {
                     breviary = breviary.Substring(0, 150) + "...";
                 }
+
+                // 文件标记
+                string fileMark = MD5Util.GetMD5Hash(filePath); //fileInfo.DirectoryName + fileInfo.CreationTime.ToString();
 
                 lock (locker)
                 {

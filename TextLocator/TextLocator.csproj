@@ -191,6 +191,7 @@
     <Compile Include="Util\CacheUtil.cs" />
     <Compile Include="Util\FileTypeUtil.cs" />
     <Compile Include="Util\FileUtil.cs" />
+    <Compile Include="Util\MD5Util.cs" />
     <Compile Include="Util\RichTextBoxUtil.cs" />
     <Page Include="FileInfoItem.xaml">
       <SubType>Designer</SubType>

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -58,7 +59,16 @@ namespace TextLocator
             CleanSearchResult();
 
             // 检查索引是否存在
-            CheckIndexExist();
+            if (CheckIndexExist())
+            {
+                foreach(FileInfo fi in new DirectoryInfo(AppConst.APP_INDEX_DIR).GetFiles())
+                {
+                    using (StreamReader reader = new StreamReader(fi.FullName, Encoding.UTF8))
+                    {
+                        reader.ReadToEnd();
+                    }
+                }
+            }
 
             // 检查配置参数信息
             if (string.IsNullOrEmpty(AppUtil.ReadValue("AppConfig", "MaxCountLimit", "")))
@@ -67,6 +77,7 @@ namespace TextLocator
             }
 
             // 软件每次启动时执行索引更新逻辑？
+
         }
         #region 初始化
 

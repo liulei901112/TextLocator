@@ -39,8 +39,8 @@ namespace TextLocator
             log.Debug("修改线程池最大线程数量：" + AppConst.THREAD_POOL_MAX_SIZE + " => " + setMaxThread);
 
             // 保存线程池
-            AppUtil.WriteValue("AppConfig", "ThreadPoolMinSize", AppConst.THREAD_POOL_MIN_SIZE + "");
-            AppUtil.WriteValue("AppConfig", "ThreadPoolMaxSize", AppConst.THREAD_POOL_MAX_SIZE + "");
+            AppUtil.WriteValue("ThreadPool", "MinSize", AppConst.THREAD_POOL_MIN_SIZE + "");
+            AppUtil.WriteValue("ThreadPool", "MaxSize", AppConst.THREAD_POOL_MAX_SIZE + "");
         }
 
 

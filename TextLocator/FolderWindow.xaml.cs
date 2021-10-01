@@ -19,15 +19,15 @@ namespace TextLocator
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             // 获取已有搜索去
-            string folderPaths = AppUtil.ReadIni("AppConfig", "FolderPaths", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "," + Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+            string folderPaths = AppUtil.ReadValue("AppConfig", "FolderPaths", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "," + Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
             if (!string.IsNullOrEmpty(folderPaths))
             {
                 // 清空
                 this.FolderList.Items.Clear();
-
+                FolderInfoItem folder;
                 foreach (string folderPath in folderPaths.Split(','))
                 {
-                    FolderInfoItem folder = new FolderInfoItem(folderPath);
+                    folder = new FolderInfoItem(folderPath);
                     folder.DeleteButton.Click += DeleteButton_Click;
                     folder.DeleteButton.Tag = folderPath;
 
@@ -93,7 +93,7 @@ namespace TextLocator
             folderPaths = folderPaths.Substring(0, folderPaths.Length - 1);
 
             // 保存到配置文件
-            AppUtil.WriteIni("AppConfig", "FolderPaths", folderPaths);
+            AppUtil.WriteValue("AppConfig", "FolderPaths", folderPaths);
 
             this.DialogResult = true;
 

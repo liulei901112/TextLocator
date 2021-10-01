@@ -1,15 +1,14 @@
 ﻿using log4net;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using TextLocator.Core;
 using TextLocator.Enums;
 using TextLocator.Factory;
 using TextLocator.Service;
+using TextLocator.Util;
 
 namespace TextLocator
 {
@@ -22,8 +21,37 @@ namespace TextLocator
 
         public App()
         {
+            // 初始化线程池大小
+            InitThreadPoolSize();
+
+            // 初始化文件信息服务引擎
+            InitFileInfoServiceEngine();
+        }
+
+        /// <summary>
+        /// 初始化线程池大小
+        /// </summary>
+        private void InitThreadPoolSize()
+        {
+            bool setMinThread = ThreadPool.SetMinThreads(AppConst.THREAD_POOL_MIN_SIZE, AppConst.THREAD_POOL_MIN_SIZE);
+            log.Debug("修改线程池最小线程数量：" + AppConst.THREAD_POOL_MIN_SIZE + " => " + setMinThread);
+            bool setMaxThread = ThreadPool.SetMaxThreads(AppConst.THREAD_POOL_MAX_SIZE, AppConst.THREAD_POOL_MAX_SIZE);
+            log.Debug("修改线程池最大线程数量：" + AppConst.THREAD_POOL_MAX_SIZE + " => " + setMaxThread);
+
+            // 保存线程池
+            AppUtil.WriteValue("ThreadPool", "MinSize", AppConst.THREAD_POOL_MIN_SIZE + "");
+            AppUtil.WriteValue("ThreadPool", "MaxSize", AppConst.THREAD_POOL_MAX_SIZE + "");
+        }
+
+
+        /// <summary>
+        /// 初始化文件信息服务引擎
+        /// </summary>
+        private void InitFileInfoServiceEngine()
+        {
             try
             {
+                log.Debug("初始化文件引擎工厂");
                 // Word服务
                 FileInfoServiceFactory.Register(FileType.Word文档, new WordFileService());
                 // Excel服务

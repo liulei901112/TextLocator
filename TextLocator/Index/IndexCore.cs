@@ -46,57 +46,108 @@ namespace TextLocator.Index
         public static void CreateIndex(List<string> filePaths, bool rebuild, Callback callback)
         {
             // 判断是创建索引还是增量索引（如果索引目录不存在，重建）
-            bool create = !Directory.Exists(AppConst.APP_INDEX_DIR);
+            bool create = !Directory.Exists(AppConst.APP_INDEX_BUILD_DIR);
             // 入参为true，表示重建
             if (rebuild)
             {
                 create = rebuild;
-            } 
+            }
+
+            // 重建或创建
+            if (create)
+            {
+                // 重建时，删除全部已建索引的标记
+                AppUtil.DeleteSection("FileIndex");
+            }
 
             // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
             Lucene.Net.Index.IndexWriter indexWriter = new Lucene.Net.Index.IndexWriter(
-                AppConst.INDEX_DIRECTORY, 
+                AppConst.INDEX_BUILD_DIRECTORY, 
                 AppConst.INDEX_ANALYZER, 
                 create, 
                 Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
 
             // 文件总数
-            int count = filePaths.Count();
+            int totalCount = filePaths.Count();
 
             // 每次初始化的时候完成数量都是0
             finishCount = 0;
 
-            using (var countDown = new MutipleThreadResetEvent(count))
+            using (MutipleThreadResetEvent resetEvent = new MutipleThreadResetEvent(totalCount))
             {
                 // 遍历读取文件，并创建索引
-                for (int i = 0; i < count; i++)
+                for (int i = 0; i < totalCount; i++)
                 {
+                    string filePath = filePaths[i];
+                    // 忽略已存在索引的文件
+                    if (SkipFile(create, filePath, totalCount, callback, resetEvent))
+                    {
+                        continue;
+                    }
                     // 加入线程池
                     ThreadPool.QueueUserWorkItem(new WaitCallback(CreateIndexTask), new TaskInfo() {
-                        TotalCount = count,
+                        TotalCount = totalCount,
                         FilePath = filePaths[i],
-                        Create = create,
                         IndexWriter = indexWriter,
                         Callback = callback,
-                        ResetEvent = countDown
+                        ResetEvent = resetEvent
                     });
                 }
 
                 // 等待所有线程结束
-                countDown.WaitAll();
+                resetEvent.WaitAll();
 
                 // 销毁
-                countDown.Dispose();
+                resetEvent.Dispose();
             }
 
             try
             {
+                // 索引写入器销毁
                 indexWriter.Dispose();
             }
             catch (Exception ex)
             {
                 log.Error(ex.Message, ex);
             }
+        }
+
+        /// <summary>
+        /// 忽略文件
+        /// </summary>
+        /// <param name="create">是否是创建，true为创建、false为更新</param>
+        /// <param name="filePath">文件路径</param>
+        /// <param name="totalCount">文件总数</param>
+        /// <param name="callback">状态回调函数</param>
+        /// <param name="resetEvent">多线程任务标记</param>
+        private static bool SkipFile(bool create, string filePath, int totalCount, Callback callback, MutipleThreadResetEvent resetEvent)
+        {
+            // 非重建 && 文件已经被索引过
+            bool isUpdate = !create;
+            bool isExists = !string.IsNullOrEmpty(AppUtil.ReadValue("FileIndex", filePath, ""));
+            if (isUpdate && isExists)
+            {
+                string skipMsg = "跳过文件：" + filePath;
+
+                callback(skipMsg, CalcCompletionRatio(finishCount, totalCount));
+
+                lock (locker)
+                {
+                    finishCount++;
+                }
+
+                try
+                {
+                    resetEvent.SetOne();
+                }
+                catch { }
+
+#if !DEBUG
+                log.Debug(skipMsg);
+#endif
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -107,30 +158,16 @@ namespace TextLocator.Index
         {
             TaskInfo taskInfo = obj as TaskInfo;
             try
-            {
-                string filePath = taskInfo.FilePath;
+            {                
                 Lucene.Net.Index.IndexWriter indexWriter = taskInfo.IndexWriter;
-                // 临时文件跳过
-                if (filePath.IndexOf("~$") > 0)
-                {
-                    return;
-                }                
 
-                // 非重建 && 文件已经被索引过
-                bool isUpdate = !taskInfo.Create;
-                bool isExists = !string.IsNullOrEmpty(AppUtil.ReadIni("FileIndex", filePath, ""));
-                if (isUpdate && isExists)
-                {
-#if DEBUG
-                    log.Debug("非重建，索引存在 => 跳过：" + filePath);
-#endif
-                    return;
-                }
+                string filePath = taskInfo.FilePath;
+
                 // 写入
-                AppUtil.WriteIni("FileIndex", filePath, "1");
+                AppUtil.WriteValue("FileIndex", filePath, "1");
 
                 // 开始时间
-                DateTime beginMark = DateTime.Now;
+                var taskMark = TaskTime.StartNew();
 
                 // 文件信息
                 FileInfo fileInfo = new FileInfo(filePath);
@@ -139,9 +176,7 @@ namespace TextLocator.Index
                 // 文件大小
                 long fileSize = fileInfo.Length;
                 // 创建时间
-                string createTime = fileInfo.CreationTime.ToString("yyyy-MM-dd");
-                // 文件标记
-                string fileMark = fileInfo.DirectoryName + fileInfo.CreationTime.ToString();
+                string createTime = fileInfo.CreationTime.ToString("yyyy-MM-dd");                
 
                 // 根据文件路径获取文件类型（自定义文件类型分类）
                 FileType fileType = FileTypeUtil.GetFileType(filePath);
@@ -150,11 +185,14 @@ namespace TextLocator.Index
                 string content = FileInfoServiceFactory.GetFileInfoService(fileType).GetFileContent(filePath);
 
                 // 缩略信息
-                string breviary = new Regex(" |\r|\n|\\s").Replace(content, "");
+                string breviary = AppConst.REGIX_LINE_BREAKS_AND_WHITESPACE.Replace(content, "");
                 if (breviary.Length > 150)
                 {
                     breviary = breviary.Substring(0, 150) + "...";
                 }
+
+                // 文件标记
+                string fileMark = MD5Util.GetMD5Hash(filePath); //fileInfo.DirectoryName + fileInfo.CreationTime.ToString();
 
                 lock (locker)
                 {
@@ -179,10 +217,10 @@ namespace TextLocator.Index
                     indexWriter.Optimize();
                 }
 
-                string msg = "索引：[" + finishCount * 1.0F + "/" + taskInfo.TotalCount + "] => 文件：" + filePath + "，耗时：" + (DateTime.Now - beginMark).TotalSeconds + "秒";
+                string msg = "解析文件：[" + finishCount * 1.0F + "/" + taskInfo.TotalCount + "] => 引擎：" + (int)fileType + "，文件：" + filePath + "，耗时：" + taskMark.ConsumeTime + "秒";
 
                 // 执行状态回调
-                taskInfo.Callback(msg, finishCount * 1.00F / taskInfo.TotalCount * 1.00F * 100.00F);
+                taskInfo.Callback(msg, CalcCompletionRatio(finishCount, taskInfo.TotalCount));
 
                 log.Debug(msg);
             }
@@ -192,21 +230,32 @@ namespace TextLocator.Index
             }
             finally
             {
-
                 lock (locker)
                 {
                     finishCount++;
                 }
 
-                // 手动GC
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-
                 try
                 {
                     taskInfo.ResetEvent.SetOne();
-                } catch { }
+                }
+                catch { }
+
+                // 手动GC
+                GC.Collect();
+                GC.WaitForPendingFinalizers();                
             }
+        }
+
+        /// <summary>
+        /// 计算完成比例
+        /// </summary>
+        /// <param name="finishCount"></param>
+        /// <param name="totalCount"></param>
+        /// <returns></returns>
+        private static double CalcCompletionRatio(double finishCount, double totalCount)
+        {
+            return finishCount * 1.00F / totalCount * 1.00F * 100.00F;
         }
 
         /// <summary>
@@ -214,11 +263,25 @@ namespace TextLocator.Index
         /// </summary>
         class TaskInfo
         {
+            /// <summary>
+            /// 文件总数
+            /// </summary>
             public int TotalCount { get; set; }
+            /// <summary>
+            /// 文件路径
+            /// </summary>
             public string FilePath { get; set; }
-            public bool Create { get; set; }
+            /// <summary>
+            /// 索引写入器
+            /// </summary>
             public Lucene.Net.Index.IndexWriter IndexWriter { get; set; }
-            public IndexCore.Callback Callback { get; set; }
+            /// <summary>
+            /// 回调函数
+            /// </summary>
+            public Callback Callback { get; set; }
+            /// <summary>
+            /// 多线程重置
+            /// </summary>
             public MutipleThreadResetEvent ResetEvent { get; set; }
         }
     }

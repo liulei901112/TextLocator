@@ -94,38 +94,44 @@ namespace TextLocator.Service
                     }
                     catch
                     {
-                        // =========== Spire.XLS ===========
-                        // 创建Workbook对象
-                        using (Spire.Xls.Workbook workbook = new Spire.Xls.Workbook())
+                        try
                         {
-
-                            // 加载Excel文档
-                            workbook.LoadFromFile(filePath);
-
-                            StringBuilder builder = new StringBuilder();
-
-                            // 获取工作表
-                            for (int i = 0; i < workbook.Worksheets.Count; i++)
+                            // =========== Spire.XLS ===========
+                            // 创建Workbook对象
+                            using (Spire.Xls.Workbook workbook = new Spire.Xls.Workbook())
                             {
-                                Spire.Xls.Worksheet sheet = workbook.Worksheets[i];
+                                // 加载Excel文档
+                                workbook.LoadFromFile(filePath);
 
-                                // 行
-                                for (int j = sheet.FirstRow; j < sheet.LastRow; j++)
+                                StringBuilder builder = new StringBuilder();
+
+                                // 获取工作表
+                                for (int i = 0; i < workbook.Worksheets.Count; i++)
                                 {
-                                    Spire.Xls.CellRange row = sheet.Rows[j];
-                                    // 列
-                                    for (int k = 0; k < row.Columns.Length; k++)
-                                    {
-                                        builder.Append(row.Columns[k].Value2.ToString());
-                                    }
-                                    row.Dispose();
-                                    builder.AppendLine();
-                                }
-                                sheet.Dispose();
-                            }
-                            workbook.Dispose();
+                                    Spire.Xls.Worksheet sheet = workbook.Worksheets[i];
 
-                            content = builder.ToString();
+                                    // 行
+                                    for (int j = sheet.FirstRow; j < sheet.LastRow; j++)
+                                    {
+                                        Spire.Xls.CellRange row = sheet.Rows[j];
+                                        // 列
+                                        for (int k = 0; k < row.Columns.Length; k++)
+                                        {
+                                            builder.Append(row.Columns[k].Value2.ToString());
+                                        }
+                                        row.Dispose();
+                                        builder.AppendLine();
+                                    }
+                                    sheet.Dispose();
+                                }
+                                workbook.Dispose();
+
+                                content = builder.ToString();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error(ex.Message, ex);
                         }
                     }
                 }

@@ -12,7 +12,7 @@
         <Viewbox Stretch="Fill">
             <Canvas Width="1366" Height="768">
                 <!-- Grid布局 -->
-                <Grid Width="1366" Height="768">
+                <Grid Width="1366" Height="768">                    
                     <!-- 头部 -->
                     <StackPanel Orientation="Horizontal" Height="140" VerticalAlignment="Top">
                         <!-- 搜索条件区 -->

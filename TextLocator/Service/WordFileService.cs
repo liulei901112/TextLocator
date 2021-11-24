@@ -34,10 +34,10 @@ namespace TextLocator.Service
                                 builder.AppendLine(paragraph.Text);
                             }
                         }
-                        document.Close();
-                        document.Dispose();
-
                         content = builder.ToString();
+
+                        document.Close();
+                        document.Dispose();                        
                     }
                 }
                 catch (Exception ex)

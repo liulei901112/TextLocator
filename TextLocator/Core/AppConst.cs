@@ -15,11 +15,11 @@ namespace TextLocator.Core
         /// <summary>
         /// 线程池最小数量
         /// </summary>
-        public static readonly int THREAD_POOL_MIN_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MinSize", "4"));
+        public static readonly int THREAD_POOL_MIN_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MinSize", "16"));
         /// <summary>
         /// 线程池最大数量
         /// </summary>
-        public static readonly int THREAD_POOL_MAX_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MaxSize", "8"));
+        public static readonly int THREAD_POOL_MAX_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MaxSize", "32"));
         /// <summary>
         /// 应用目录
         /// </summary>

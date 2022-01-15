@@ -57,7 +57,7 @@ namespace TextLocator
                 // Excel服务
                 FileInfoServiceFactory.Register(FileType.Excel表格, new ExcelFileService());
                 // PowerPoint服务
-                FileInfoServiceFactory.Register(FileType.PPT演示文稿, new PowerPointFileService());
+                FileInfoServiceFactory.Register(FileType.PPT文稿, new PowerPointFileService());
                 // PDF服务
                 FileInfoServiceFactory.Register(FileType.PDF文档, new PdfFileService());
                 // HTML或XML服务

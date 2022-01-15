@@ -21,7 +21,7 @@ namespace TextLocator.Enums
         /// PowerPoint
         /// </summary>
         [Description("ppt,pptx")]
-        PPT演示文稿,
+        PPT文稿,
         /// <summary>
         /// PDF
         /// </summary>

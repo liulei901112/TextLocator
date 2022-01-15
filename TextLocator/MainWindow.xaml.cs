@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -31,7 +33,7 @@ namespace TextLocator
         /// 索引构建中
         /// </summary>
         private static volatile bool build = false;
-
+        private RadioButton radioButtonAll;
         /// <summary>
         /// 索引文件夹列表
         /// </summary>
@@ -87,14 +89,36 @@ namespace TextLocator
         private void InitializeFileTypeFilters()
         {
             // 文件类型筛选下拉框数据初始化
-            FileTypeFilter.Items.Clear();
-            FileTypeFilter.Items.Add("全部");
+            FileTypeFilter.Children.Clear();
             FileTypeNames.Children.Clear();
+
+            radioButtonAll = new RadioButton()
+            {
+                GroupName = "FileTypeFilter",
+                Margin = new Thickness(1),
+                Tag = "全部",
+                Content = "全部",
+                Name = "FileTypeAll",
+                IsChecked = true
+            };
+            radioButtonAll.Checked += FileType_Checked;
+            FileTypeFilter.Children.Add(radioButtonAll);
+            
 
             // 获取文件类型枚举，遍历并加入下拉列表
             foreach (FileType fileType in Enum.GetValues(typeof(FileType)))
             {
-                FileTypeFilter.Items.Add(fileType.ToString());
+                RadioButton radioButton = new RadioButton()
+                {
+                    GroupName = "FileTypeFilter",
+                    Margin = new Thickness(1),
+                    Tag = fileType.ToString(),
+                    Content = fileType.ToString(),
+                    Name = "FileType" + fileType.ToString(),
+                    IsChecked = false
+                };
+                radioButton.Checked += FileType_Checked;
+                FileTypeFilter.Children.Add(radioButton);
 
                 // 标签
                 FileTypeNames.Children.Add(new Button()
@@ -106,8 +130,6 @@ namespace TextLocator
                     Background = Brushes.Gray
                 });
             }
-            // 默认选中全部
-            FileTypeFilter.SelectedIndex = 0;
         }
 
         /// <summary>
@@ -229,10 +251,10 @@ namespace TextLocator
             {
                 return;
             }
-
+            
             Thread t = new Thread(() => {
                 // 清空搜索结果列表
-                Dispatcher.BeginInvoke(new Action(() => {
+                Dispatcher.Invoke(new Action(() => {
                     SearchResultList.Items.Clear();
                 }));
 
@@ -360,7 +382,7 @@ namespace TextLocator
                         fileInfo.CreateTime = createTimeField.StringValue;
                         fileInfo.Keywords = keywords;
 
-                        Dispatcher.BeginInvoke(new Action(() => {
+                        Dispatcher.Invoke(new Action(() => {
                             SearchResultList.Items.Add(new FileInfoItem(fileInfo)
                             {
                                 Tag = fileInfo
@@ -374,9 +396,9 @@ namespace TextLocator
 
                     log.Debug(msg);
 
-                    Dispatcher.BeginInvoke(new Action(() => {
+                    /*Dispatcher.BeginInvoke(new Action(() => {
                         Message.ShowSuccess("MessageContainer", msg);
-                    }));
+                    }));*/
 
                     ShowStatus(msg);
                 }
@@ -418,7 +440,7 @@ namespace TextLocator
             // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
             MatchWords.IsChecked = false;
             OnlyFileName.IsChecked = false;
-            FileTypeFilter.SelectedIndex = 0;
+            (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
 
             BeforeSearch();
         }
@@ -438,7 +460,7 @@ namespace TextLocator
                 // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
                 MatchWords.IsChecked = false;
                 OnlyFileName.IsChecked = false;
-                FileTypeFilter.SelectedIndex = 0;
+                (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
 
                 BeforeSearch();
 
@@ -467,16 +489,21 @@ namespace TextLocator
 
                 // 光标定位到最后
                 SearchText.SelectionStart = SearchText.Text.Length;
+
+                // 如果文本为空则隐藏清空按钮，如果不为空则显示清空按钮
+                CleanButton.Visibility = text.Length > 0 ? Visibility.Visible : Visibility.Hidden;
             } catch { }
         }
 
         /// <summary>
-        /// 文件类型过滤选中
+        /// 文件类型过滤器选中事件
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void FileTypeFilter_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void FileType_Checked(object sender, RoutedEventArgs e)
         {
+            FileTypeFilter.Tag = (sender as RadioButton).Content;
+            
             BeforeSearch();
         }
 
@@ -770,7 +797,6 @@ namespace TextLocator
         /// </summary>
         private void CleanSearchResult()
         {
-            FileTypeFilter.SelectedIndex = 0;
             SearchText.Text = "";
             SearchResultList.Items.Clear();
 
@@ -783,6 +809,10 @@ namespace TextLocator
             WorkStatus.Text = "就绪";
             OnlyFileName.IsChecked = false;
             MatchWords.IsChecked = false;
+
+            ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(radioButtonAll);
+            IToggleProvider toggleProvider = toggleButtonAutomationPeer.GetPattern(PatternInterface.Toggle) as IToggleProvider;
+            toggleProvider.Toggle();
         }
 
         /// <summary>
@@ -790,7 +820,7 @@ namespace TextLocator
         /// </summary>
         private void BeforeSearch()
         {
-            object filter = FileTypeFilter.SelectedValue;
+            object filter = FileTypeFilter.Tag;
             if (filter == null || filter.Equals("全部"))
             {
                 filter = null;

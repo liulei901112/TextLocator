@@ -31,4 +31,29 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- 文件类型筛选 -->
+    <Style x:Name="FileTypeFilter" TargetType="RadioButton">
+        <Setter Property="IsChecked" Value="False" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid Height="50" Background="{TemplateBinding Background}" ToolTip="{TemplateBinding Content}"  Width="{TemplateBinding Width}" Margin="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="11*"/>
+                            <RowDefinition Height="9*"/>
+                        </Grid.RowDefinitions>
+                        <Rectangle x:Name="_Rect" Grid.Row="1" Fill="#FFC2C2C5" HorizontalAlignment="Center" Height="5"  VerticalAlignment="Top" Width="88"/>
+                        <TextBlock DockPanel.Dock="Left" Margin="0 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}" Text="{TemplateBinding Content}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="true">
+                            <Setter TargetName="_Rect" Property="Fill" Value="#2196f3" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

@@ -35,7 +35,7 @@ namespace TextLocator.Util
                 case FileType.Excel表格:
                     bitmap = Properties.Resources.excel;
                     break;
-                case FileType.PPT演示文稿:
+                case FileType.PPT文稿:
                     bitmap = Properties.Resources.ppt;
                     break;
                 case FileType.PDF文档:

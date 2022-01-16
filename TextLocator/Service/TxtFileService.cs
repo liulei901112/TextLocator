@@ -22,16 +22,10 @@ namespace TextLocator.Service
             {
                 using (StreamReader reader = new StreamReader(filePath, Encoding.UTF8))
                 {
-                    StringBuilder builder = new StringBuilder();
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        builder.Append(line);
-                    }
+                    content = reader.ReadToEnd();
+
                     reader.Close();
                     reader.Dispose();
-
-                    content = builder.ToString();
                 }
             }
             catch (Exception ex)

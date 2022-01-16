@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using TextLocator.Core;
@@ -158,16 +159,18 @@ namespace TextLocator.Index
         {
             TaskInfo taskInfo = obj as TaskInfo;
             try
-            {                
+            {
+                // 开始时间1
+                var taskMark = TaskTime.StartNew();
+
+                // 索引写入
                 Lucene.Net.Index.IndexWriter indexWriter = taskInfo.IndexWriter;
 
+                // 文件路径
                 string filePath = taskInfo.FilePath;
 
                 // 写入
                 AppUtil.WriteValue("FileIndex", filePath, "1");
-
-                // 开始时间
-                var taskMark = TaskTime.StartNew();
 
                 // 文件信息
                 FileInfo fileInfo = new FileInfo(filePath);
@@ -181,8 +184,19 @@ namespace TextLocator.Index
                 // 根据文件路径获取文件类型（自定义文件类型分类）
                 FileType fileType = FileTypeUtil.GetFileType(filePath);
 
+                string filePathPadding = filePath;
+                try
+                {
+                    filePathPadding = filePath.Substring(0, 35) + "......" + filePath.Substring(filePath.Length - 35);
+                }
+                catch { }
+
+                StringBuilder msg = new StringBuilder("[" + finishCount * 1.0F + "/" + taskInfo.TotalCount + "] => 引擎：" + (int)fileType + "，文件：" + filePathPadding);
+
                 // 文件内容
                 string content = FileInfoServiceFactory.GetFileInfoService(fileType).GetFileContent(filePath);
+
+                msg.Append("，解析：" + taskMark.ConsumeTime + "秒");
 
                 // 缩略信息
                 string breviary = AppConst.REGIX_LINE_BREAKS_AND_WHITESPACE.Replace(content, "");
@@ -193,6 +207,9 @@ namespace TextLocator.Index
 
                 // 文件标记
                 string fileMark = MD5Util.GetMD5Hash(filePath); //fileInfo.DirectoryName + fileInfo.CreationTime.ToString();
+
+                // 开始时间2
+                taskMark = TaskTime.StartNew();
 
                 lock (locker)
                 {
@@ -216,11 +233,10 @@ namespace TextLocator.Index
                     // 优化索引
                     indexWriter.Optimize();
                 }
-
-                string msg = "解析文件：[" + finishCount * 1.0F + "/" + taskInfo.TotalCount + "] => 引擎：" + (int)fileType + "，文件：" + filePath + "，耗时：" + taskMark.ConsumeTime + "秒";
+                msg.Append("，索引：" + taskMark.ConsumeTime + "秒");
 
                 // 执行状态回调
-                taskInfo.Callback(msg, CalcCompletionRatio(finishCount, taskInfo.TotalCount));
+                taskInfo.Callback(msg.ToString(), CalcCompletionRatio(finishCount, taskInfo.TotalCount)); ;
 
                 log.Debug(msg);
             }

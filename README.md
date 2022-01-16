@@ -1,8 +1,11 @@
 # 文本定位器
-![主界面](https://images.gitee.com/uploads/images/2021/1001/193814_76bc7801_995027.png "主界面")
-![索引重建](https://images.gitee.com/uploads/images/2021/1001/193844_2bdbd85a_995027.png "索引重建")
-![预览](https://images.gitee.com/uploads/images/2021/1001/193954_8c7e90ce_995027.png "预览")
-![分词](https://images.gitee.com/uploads/images/2021/1001/194106_c65124b9_995027.png "分词")
+![主界面](%E4%B8%BB%E7%95%8C%E9%9D%A2.png)
+![预览](%E9%A2%84%E8%A7%88.png)
+![类型筛选](%E7%B1%BB%E5%9E%8B%E7%AD%9B%E9%80%89.png)
+![自动分词](%E8%87%AA%E5%8A%A8%E5%88%86%E8%AF%8D.png)
+![手动分词](%E6%89%8B%E5%8A%A8%E5%88%86%E8%AF%8D.png)
+![索引重建确认](%E7%B4%A2%E5%BC%95%E9%87%8D%E5%BB%BA%E7%A1%AE%E8%AE%A4.png)
+![重建索引](%E9%87%8D%E5%BB%BA%E7%B4%A2%E5%BC%95.png)
 
 #### 介绍
 基于.net实现的本地文档的全文索引定位器，根据关键词搜索定位本地文档内容。便于查找历史文档时节省时间。

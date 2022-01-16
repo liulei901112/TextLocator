@@ -1,5 +1,5 @@
 # 文本定位器
-![主界面](https://images.gitee.com/uploads/images/2021/1001/193814_76bc7801_995027.png "主界面")
+![主界面](%E4%B8%BB%E7%95%8C%E9%9D%A2.png)
 ![索引重建](https://images.gitee.com/uploads/images/2021/1001/193844_2bdbd85a_995027.png "索引重建")
 ![预览](https://images.gitee.com/uploads/images/2021/1001/193954_8c7e90ce_995027.png "预览")
 ![分词](https://images.gitee.com/uploads/images/2021/1001/194106_c65124b9_995027.png "分词")

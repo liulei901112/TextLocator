@@ -47,7 +47,7 @@ namespace TextLocator.Index
         public static void CreateIndex(List<string> filePaths, bool rebuild, Callback callback)
         {
             // 判断是创建索引还是增量索引（如果索引目录不存在，重建）
-            bool create = !Directory.Exists(AppConst.APP_INDEX_BUILD_DIR);
+            bool create = !Directory.Exists(AppConst.APP_INDEX_DIR);
             // 入参为true，表示重建
             if (rebuild)
             {
@@ -63,10 +63,13 @@ namespace TextLocator.Index
 
             // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
             Lucene.Net.Index.IndexWriter indexWriter = new Lucene.Net.Index.IndexWriter(
-                AppConst.INDEX_BUILD_DIRECTORY, 
+                AppConst.INDEX_DIRECTORY, 
                 AppConst.INDEX_ANALYZER, 
                 create, 
                 Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
+
+            indexWriter.SetRAMBufferSizeMB(512);
+            indexWriter.SetMaxBufferedDocs(1024);
 
             // 文件总数
             int totalCount = filePaths.Count();
@@ -104,8 +107,14 @@ namespace TextLocator.Index
 
             try
             {
+                // 索引优化
+                indexWriter.Optimize();
                 // 索引写入器销毁
                 indexWriter.Dispose();
+
+                // 手动GC
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
             }
             catch (Exception ex)
             {
@@ -230,8 +239,6 @@ namespace TextLocator.Index
                     doc.Add(new Lucene.Net.Documents.Field("Content", content, Lucene.Net.Documents.Field.Store.NO, Lucene.Net.Documents.Field.Index.ANALYZED));
 
                     indexWriter.AddDocument(doc);
-                    // 优化索引
-                    indexWriter.Optimize();
                 }
                 msg.Append("，索引：" + taskMark.ConsumeTime + "秒");
 
@@ -255,11 +262,7 @@ namespace TextLocator.Index
                 {
                     taskInfo.ResetEvent.SetOne();
                 }
-                catch { }
-
-                // 手动GC
-                GC.Collect();
-                GC.WaitForPendingFinalizers();                
+                catch { }              
             }
         }
 

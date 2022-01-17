@@ -49,7 +49,7 @@ namespace TextLocator.Service
                     log.Error(ex.Message, ex);
                 }
             }
-            return content.Replace("Evaluation Warning : The document was created with Spire.PDF for .NET. ", "");
+            return content.Replace("Evaluation Warning : The document was created with Spire.PDF文档 for .NET. ", "");
         }
     }
 }

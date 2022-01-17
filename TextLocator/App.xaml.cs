@@ -61,13 +61,13 @@ namespace TextLocator
                 // PDF服务
                 FileInfoServiceFactory.Register(FileType.PDF文档, new PdfFileService());
                 // HTML或XML服务
-                FileInfoServiceFactory.Register(FileType.HTML和XML, new XmlFileService());
+                FileInfoServiceFactory.Register(FileType.DOM文档, new DomFileService());
                 // 常用图片服务
-                FileInfoServiceFactory.Register(FileType.常用图片, new NoTextFileService());
+                FileInfoServiceFactory.Register(FileType.图片, new NoTextFileService());
                 // 程序员服务
-                FileInfoServiceFactory.Register(FileType.代码文件, new DevelopFileService());
+                FileInfoServiceFactory.Register(FileType.代码, new DevelopFileService());
                 // 纯文本服务
-                FileInfoServiceFactory.Register(FileType.文本文件, new TxtFileService());
+                FileInfoServiceFactory.Register(FileType.纯文本, new TxtFileService());
             }
             catch (Exception ex)
             {

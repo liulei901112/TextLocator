@@ -1,13 +1,16 @@
 # 文本定位器
-![主界面](%E4%B8%BB%E7%95%8C%E9%9D%A2.png)
-![预览](%E9%A2%84%E8%A7%88.png)
-![类型筛选](%E7%B1%BB%E5%9E%8B%E7%AD%9B%E9%80%89.png)
-![自动分词](%E8%87%AA%E5%8A%A8%E5%88%86%E8%AF%8D.png)
-![手动分词](%E6%89%8B%E5%8A%A8%E5%88%86%E8%AF%8D.png)
-![索引重建确认](%E7%B4%A2%E5%BC%95%E9%87%8D%E5%BB%BA%E7%A1%AE%E8%AE%A4.png)
-![重建索引](%E9%87%8D%E5%BB%BA%E7%B4%A2%E5%BC%95.png)
+![主界面](MainWindow.png)
+![搜索区域管理](SearchAreaManagement.png)
+![创建索引](BuildIndex.png)
+![创建索引完成](BuildIndexFinish.png)
+![搜索自动分词](Keywords1.png)
+![搜索手动分词](Keywords2.png)
+![文件类型筛选](FileFilter.png)
+![重建索引确认](RebuildIndexConfirm.png)
+![重建索引](RebuildIndex.png)
+![清空搜索结果](Clean.png)
 
-#### 介绍
+#### 软件介绍
 基于.net实现的本地文档的全文索引定位器，根据关键词搜索定位本地文档内容。便于查找历史文档时节省时间。
 
 #### 软件架构

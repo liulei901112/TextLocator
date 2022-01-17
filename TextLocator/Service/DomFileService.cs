@@ -8,9 +8,9 @@ using TextLocator.Core;
 namespace TextLocator.Service
 {
     /// <summary>
-    /// Xml文件文服务
+    /// Dom文件文服务
     /// </summary>
-    public class XmlFileService : IFileInfoService
+    public class DomFileService : IFileInfoService
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 

@@ -41,16 +41,16 @@ namespace TextLocator.Util
                 case FileType.PDF文档:
                     bitmap = Properties.Resources.pdf;
                     break;
-                case FileType.HTML和XML:
+                case FileType.DOM文档:
                     bitmap = Properties.Resources.html;
                     break;
-                case FileType.常用图片:
+                case FileType.图片:
                     bitmap = Properties.Resources.image;
                     break;
-                case FileType.代码文件:
+                case FileType.代码:
                     bitmap = Properties.Resources.code;
                     break;
-                case FileType.文本文件:
+                case FileType.纯文本:
                     bitmap = Properties.Resources.txt;
                     break;
                 default:

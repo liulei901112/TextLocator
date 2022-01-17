@@ -8,12 +8,12 @@ namespace TextLocator.Enums
     public enum FileType
     {
         /// <summary>
-        /// Word
+        /// Word文档
         /// </summary>
         [Description("doc,docx")]
         Word文档,
         /// <summary>
-        /// Excel
+        /// Excel表格
         /// </summary>
         [Description("xls,xlsx")]
         Excel表格,
@@ -23,7 +23,7 @@ namespace TextLocator.Enums
         [Description("ppt,pptx")]
         PPT文稿,
         /// <summary>
-        /// PDF
+        /// PDF文档
         /// </summary>
         [Description("pdf")]
         PDF文档,
@@ -31,21 +31,21 @@ namespace TextLocator.Enums
         /// XML和html
         /// </summary>
         [Description("html,xml")]
-        HTML和XML,
+        DOM文档,
         /// <summary>
-        /// 常用图片
+        /// 图片
         /// </summary>
         [Description("jpg,png,gif,jpeg")]
-        常用图片,
+        图片,
         /// <summary>
-        /// 代码文件
+        /// 代码
         /// </summary>
-        [Description("cs,java,js,css,md")]
-        代码文件,
+        [Description("cs,java,js,css,md,py")]
+        代码,
         /// <summary>
         /// 纯文本
         /// </summary>
         [Description("txt")]
-        文本文件
+        纯文本
     }
 }

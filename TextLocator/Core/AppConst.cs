@@ -15,11 +15,11 @@ namespace TextLocator.Core
         /// <summary>
         /// 线程池最小数量
         /// </summary>
-        public static readonly int THREAD_POOL_MIN_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MinSize", "8"));
+        public static readonly int THREAD_POOL_MIN_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MinSize", "16"));
         /// <summary>
         /// 线程池最大数量
         /// </summary>
-        public static readonly int THREAD_POOL_MAX_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MaxSize", "16"));
+        public static readonly int THREAD_POOL_MAX_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MaxSize", "32"));
         /// <summary>
         /// 应用目录
         /// </summary>
@@ -28,10 +28,6 @@ namespace TextLocator.Core
         /// App.ini路径：_AppDir\\_AppName\\Index\\
         /// </summary>
         public static readonly string APP_INDEX_DIR = Path.Combine(APP_DIR, "Index");
-        /// <summary>
-        /// App.ini路径：_AppDir\\_AppName\\Index_Build\\
-        /// </summary>
-        public static readonly string APP_INDEX_BUILD_DIR = Path.Combine(APP_DIR, "Index_Build");
         /// <summary>
         /// 分词器
         /// new Lucene.Net.Analysis.Cn.ChineseAnalyzer();
@@ -49,12 +45,6 @@ namespace TextLocator.Core
         /// 内存：new Lucene.Net.Store.RAMDirectory()
         /// </summary>
         public static readonly Lucene.Net.Store.FSDirectory INDEX_DIRECTORY = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(APP_INDEX_DIR));
-        /// <summary>
-        /// 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
-        /// 磁盘路径：Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(_AppIndexDir))
-        /// 内存：new Lucene.Net.Store.RAMDirectory()
-        /// </summary>
-        public static readonly Lucene.Net.Store.FSDirectory INDEX_BUILD_DIRECTORY = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(APP_INDEX_BUILD_DIR));
 
         /// <summary>
         /// 搜索最大值限制

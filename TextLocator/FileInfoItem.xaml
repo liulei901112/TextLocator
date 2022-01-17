@@ -5,10 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TextLocator"
              mc:Ignorable="d" 
-             d:DesignHeight="110" d:DesignWidth="870">
-    <Grid Width="870" Height="110" HorizontalAlignment="Left" VerticalAlignment="Top">
+             d:DesignWidth="1030" d:DesignHeight="90" >
+    <Grid Width="1030" Height="90" HorizontalAlignment="Left" VerticalAlignment="Top">
         <!-- 图标 -->
-        <Image x:Name="FileTypeIcon" Source="/Resource/ext/word.png" Width="60" HorizontalAlignment="Left"/>
+        <Image x:Name="FileTypeIcon" Source="/Resource/ext/word.png" Width="80" HorizontalAlignment="Left"/>
         
         <!-- 文件信息 -->
         <Grid Margin="80,0,0,0">

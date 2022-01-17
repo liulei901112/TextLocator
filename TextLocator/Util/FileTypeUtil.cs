@@ -22,7 +22,7 @@ namespace TextLocator.Util
         public static FileType GetFileType(string filePath)
         {
             // 默认为其他类型文件
-            FileType fileType = FileType.文本文件;
+            FileType fileType = FileType.纯文本;
             
             // 判断文件路径
             if (string.IsNullOrEmpty(filePath))

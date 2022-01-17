@@ -95,6 +95,7 @@ namespace TextLocator
             radioButtonAll = new RadioButton()
             {
                 GroupName = "FileTypeFilter",
+                Width = 80,
                 Margin = new Thickness(1),
                 Tag = "全部",
                 Content = "全部",
@@ -111,6 +112,7 @@ namespace TextLocator
                 RadioButton radioButton = new RadioButton()
                 {
                     GroupName = "FileTypeFilter",
+                    Width = 80,
                     Margin = new Thickness(1),
                     Tag = fileType.ToString(),
                     Content = fileType.ToString(),
@@ -126,8 +128,7 @@ namespace TextLocator
                     Content = fileType.ToString(),
                     Height = 25,
                     Margin = new Thickness(FileTypeNames.Children.Count == 0 ? 0 : 2, 0, 0, 0),
-                    ToolTip = fileType.GetDescription(),
-                    Background = Brushes.Gray
+                    ToolTip = fileType.GetDescription()
                 });
             }
         }
@@ -309,21 +310,21 @@ namespace TextLocator
                             Lucene.Net.Util.Version.LUCENE_30,
                             fields.ToArray(),
                             wrapper);
-                    Lucene.Net.Search.BooleanQuery Bquery = new Lucene.Net.Search.BooleanQuery();
+                    Lucene.Net.Search.BooleanQuery boolQuery = new Lucene.Net.Search.BooleanQuery();
                     for (int i = 0; i < keywords.Count; i++)
                     {
                         Lucene.Net.Search.Query query = parser.Parse(keywords[i]);
-                        Bquery.Add(query, matchWords ? Lucene.Net.Search.Occur.MUST : Lucene.Net.Search.Occur.SHOULD);
+                        boolQuery.Add(query, matchWords ? Lucene.Net.Search.Occur.MUST : Lucene.Net.Search.Occur.SHOULD);
                     }
 
                     // 文件类型筛选
                     if (!string.IsNullOrWhiteSpace(fileType))
                     {
-                        Bquery.Add(new Lucene.Net.Search.TermQuery(new Lucene.Net.Index.Term("FileType", fileType)), Lucene.Net.Search.Occur.MUST);
+                        boolQuery.Add(new Lucene.Net.Search.TermQuery(new Lucene.Net.Index.Term("FileType", fileType)), Lucene.Net.Search.Occur.MUST);
                     }
 
                     Lucene.Net.Search.TopScoreDocCollector collector = Lucene.Net.Search.TopScoreDocCollector.Create(AppConst.MAX_COUNT_LIMIT, true);
-                    searcher.Search(Bquery, collector);
+                    searcher.Search(boolQuery, collector);
                     // 以后就可以对获取到的collector数据进行操作
                     var hits = collector.TopDocs().ScoreDocs;
                     // 计算检索结果数量
@@ -373,7 +374,7 @@ namespace TextLocator
                         }
                         catch
                         {
-                            fileInfo.FileType = FileType.文本文件;
+                            fileInfo.FileType = FileType.纯文本;
                         }
                         fileInfo.FileName = fileNameField.StringValue;
                         fileInfo.FilePath = filePathField.StringValue;
@@ -586,7 +587,7 @@ namespace TextLocator
             string fileExt = Path.GetExtension(fileInfo.FilePath).Replace(".", "");
 
             // 图片文件
-            if (FileType.常用图片.GetDescription().Contains(fileExt))
+            if (FileType.图片.GetDescription().Contains(fileExt))
             {
                 PreviewFileContent.Visibility = Visibility.Hidden;
                 PreviewImage.Visibility = Visibility.Visible;
@@ -660,7 +661,7 @@ namespace TextLocator
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OptimizeButton_Click(object sender, RoutedEventArgs e)
+        private void IndexUpdateButton_Click(object sender, RoutedEventArgs e)
         {
             if (build)
             {
@@ -679,7 +680,7 @@ namespace TextLocator
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void RebuildButton_Click(object sender, RoutedEventArgs e)
+        private async void IndexRebuildButton_Click(object sender, RoutedEventArgs e)
         {
             if (CheckIndexExist(false))
             {

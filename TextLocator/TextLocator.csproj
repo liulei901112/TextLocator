@@ -187,7 +187,7 @@
     <Compile Include="Service\PowerPointFileService.cs" />
     <Compile Include="Service\TxtFileService.cs" />
     <Compile Include="Service\WordFileService.cs" />
-    <Compile Include="Service\XmlFileService.cs" />
+    <Compile Include="Service\DomFileService.cs" />
     <Compile Include="Util\AppUtil.cs" />
     <Compile Include="Util\CacheUtil.cs" />
     <Compile Include="Util\FileTypeUtil.cs" />

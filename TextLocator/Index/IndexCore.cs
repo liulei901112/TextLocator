@@ -68,6 +68,9 @@ namespace TextLocator.Index
                 create, 
                 Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
 
+            indexWriter.SetRAMBufferSizeMB(512);
+            indexWriter.SetMaxBufferedDocs(1024);
+
             // 文件总数
             int totalCount = filePaths.Count();
 
@@ -104,8 +107,14 @@ namespace TextLocator.Index
 
             try
             {
+                // 索引优化
+                indexWriter.Optimize();
                 // 索引写入器销毁
                 indexWriter.Dispose();
+
+                // 手动GC
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
             }
             catch (Exception ex)
             {
@@ -230,8 +239,6 @@ namespace TextLocator.Index
                     doc.Add(new Lucene.Net.Documents.Field("Content", content, Lucene.Net.Documents.Field.Store.NO, Lucene.Net.Documents.Field.Index.ANALYZED));
 
                     indexWriter.AddDocument(doc);
-                    // 优化索引
-                    indexWriter.Optimize();
                 }
                 msg.Append("，索引：" + taskMark.ConsumeTime + "秒");
 
@@ -255,11 +262,7 @@ namespace TextLocator.Index
                 {
                     taskInfo.ResetEvent.SetOne();
                 }
-                catch { }
-
-                // 手动GC
-                GC.Collect();
-                GC.WaitForPendingFinalizers();                
+                catch { }              
             }
         }
 

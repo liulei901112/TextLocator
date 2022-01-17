@@ -205,11 +205,11 @@ namespace TextLocator
                 // 创建索引方法
                 IndexCore.CreateIndex(filePaths, rebuild, ShowStatus);
 
-                // 索引拷贝前删除
+                /*// 索引拷贝前删除
                 FileUtil.RemoveDirectory(AppConst.APP_INDEX_DIR);
 
                 // 索引拷贝：索引创建结束后拷贝新索引覆盖旧的索引，并删除write.lock
-                FileUtil.CopyDirectory(AppConst.APP_INDEX_BUILD_DIR, AppConst.APP_INDEX_DIR);
+                FileUtil.CopyDirectory(AppConst.APP_INDEX_BUILD_DIR, AppConst.APP_INDEX_DIR);*/
 
                 string msg = "索引完成。共用时：" + taskMark.ConsumeTime + "秒";
 

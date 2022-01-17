@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("刘磊")]
 [assembly: AssemblyProduct("文本搜索定位器")]
-[assembly: AssemblyCopyright("Copyright © 2021 Liulei All rights reserved.")]
+[assembly: AssemblyCopyright("Copyright © 2021 - 2022 Liulei All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -50,7 +50,7 @@ using System.Windows;
 //通过使用 "*"，如下所示:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.1.1")]
-[assembly: AssemblyFileVersion("1.1.1.0")]
+[assembly: AssemblyFileVersion("1.1.1.1")]
 
 // log4net
 [assembly: log4net.Config.XmlConfigurator(Watch = true)]

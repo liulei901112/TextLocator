@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TextLocator"
              mc:Ignorable="d" 
-             d:DesignWidth="1030" d:DesignHeight="90" >
-    <Grid Width="1030" Height="90" HorizontalAlignment="Left" VerticalAlignment="Top">
+             d:DesignWidth="1000" d:DesignHeight="90" >
+    <Grid Width="1000" Height="90" HorizontalAlignment="Left" VerticalAlignment="Top">
         <!-- 图标 -->
         <Image x:Name="FileTypeIcon" Source="/Resource/ext/word.png" Width="80" HorizontalAlignment="Left"/>
         
@@ -44,7 +44,7 @@
             <RichTextBox x:Name="FileContent" Margin="-5,50,0,0" IsHitTestVisible="False" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="True">
                 <FlowDocument>
                     <Paragraph>
-                        <Run Foreground="#545454">项目1、乙方为甲方网站的服务器进行维护和管理，包括：病毒排查和清除、网站数据的备份，网站空间的定期清理和维护，服务器帐号的管理等服务，保证网站的正常运行和网站数据的完整性以及网站服务器帐号的安全。 项目2、乙方为甲方网站的系统程序进行维护和管理，包括：程序代码的整理和优化、排除程序代码的漏洞、排除因系统错误导致的故障、保证网站系统的正常运行。</Run>
+                        <Run Foreground="#545454">项目1、乙方为甲方网站的服务器进行维护和管理，包括：病毒排查和清除、网站数据的备份，网站空间的定期清理和维护，服务器帐号的管理等服务，保证网站的正常运行和网站数据的完整性以及网站服务器帐号的安全。 项目2、乙方为甲方网站的系统程序进行维护和管理......</Run>
                     </Paragraph>
                 </FlowDocument>
             </RichTextBox>

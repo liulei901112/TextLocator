@@ -199,6 +199,9 @@ namespace TextLocator
                     FileUtil.GetAllFiles(s, filePaths);
                 }
 
+                // 排序
+                filePaths.Sort();
+
                 // 创建索引方法
                 IndexCore.CreateIndex(filePaths, rebuild, ShowStatus);
 

@@ -23,7 +23,7 @@ namespace TextLocator
                 Refresh(fileInfo);
             }
             catch {
-                this.Dispatcher.InvokeAsync(() =>
+                this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     try
                     {
@@ -33,7 +33,7 @@ namespace TextLocator
                     {
                         log.Error(ex.Message, ex);
                     }
-                });
+                }));
             }
         }
 

@@ -160,6 +160,7 @@
     <Compile Include="Entity\FileInfo.cs" />
     <Compile Include="Enums\EnumExtension.cs" />
     <Compile Include="Enums\FileType.cs" />
+    <Compile Include="Enums\Percent.cs" />
     <Compile Include="Factory\FileInfoServiceFactory.cs" />
     <Compile Include="FileInfoItem.xaml.cs">
       <DependentUpon>FileInfoItem.xaml</DependentUpon>

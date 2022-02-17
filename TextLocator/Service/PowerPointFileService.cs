@@ -50,7 +50,7 @@ namespace TextLocator.Service
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex.Message, ex);
+                    log.Error(filePath + " -> " + ex.Message, ex);
                 }
             }
             return content;

@@ -62,18 +62,6 @@ namespace TextLocator
             // 清理事件
             CleanSearchResult();
 
-            // 检查索引是否存在
-            if (CheckIndexExist())
-            {
-                foreach(FileInfo fi in new DirectoryInfo(AppConst.APP_INDEX_DIR).GetFiles())
-                {
-                    using (StreamReader reader = new StreamReader(fi.FullName, Encoding.UTF8))
-                    {
-                        reader.ReadToEnd();
-                    }
-                }
-            }
-
             // 检查配置参数信息
             if (string.IsNullOrEmpty(AppUtil.ReadValue("AppConfig", "MaxCountLimit", "")))
             {
@@ -90,6 +78,7 @@ namespace TextLocator
         /// </summary>
         private void InitializeFileTypeFilters()
         {
+            TaskTime taskTime = TaskTime.StartNew();
             // 文件类型筛选下拉框数据初始化
             FileTypeFilter.Children.Clear();
             FileTypeNames.Children.Clear();
@@ -106,7 +95,7 @@ namespace TextLocator
             };
             radioButtonAll.Checked += FileType_Checked;
             FileTypeFilter.Children.Add(radioButtonAll);
-            
+
 
             // 获取文件类型枚举，遍历并加入下拉列表
             foreach (FileType fileType in Enum.GetValues(typeof(FileType)))
@@ -134,6 +123,7 @@ namespace TextLocator
                     Background = Brushes.DarkGray
                 });
             }
+            log.Debug("InitializeFileTypeFilters 耗时：" + taskTime.ConsumeTime);
         }
 
         /// <summary>
@@ -141,6 +131,7 @@ namespace TextLocator
         /// </summary>
         private void InitializeAppConfig()
         {
+            TaskTime taskTime = TaskTime.StartNew();
             // 初始化显示被索引的文件夹列表
             _IndexFolders.Clear();
             // 读取被索引文件夹配置信息，如果配置信息为空：默认为我的文档和我的桌面
@@ -161,6 +152,7 @@ namespace TextLocator
             }
             FolderPaths.Text = foldersText.Substring(0, foldersText.Length - 2);
             FolderPaths.ToolTip = FolderPaths.Text;
+            log.Debug("InitializeAppConfig 耗时：" + taskTime.ConsumeTime);
         }
 
         #endregion
@@ -203,7 +195,7 @@ namespace TextLocator
                 }
 
                 // 排序
-                filePaths.Sort();
+                //filePaths.Sort();
 
                 // 创建索引方法
                 IndexCore.CreateIndex(filePaths, rebuild, ShowStatus);
@@ -232,16 +224,20 @@ namespace TextLocator
         /// <summary>
         /// 显示状态
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="percent"></param>
-        private void ShowStatus(string text, double percent = 100)
+        /// <param name="text">消息</param>
+        /// <param name="percent">进度</param>
+        private void ShowStatus(string text, double percent = AppConst.MAX_PERCENT)
         {
             Dispatcher.BeginInvoke(new Action(() => {
+                
                 WorkStatus.Text = text;
-                if (percent > 0)
+                if (percent > AppConst.MIN_PERCENT)
                 {
                     WorkProgress.Value = percent;
-                }
+
+                    TaskbarItemInfo.ProgressState = percent < AppConst.MAX_PERCENT ? System.Windows.Shell.TaskbarItemProgressState.Normal : System.Windows.Shell.TaskbarItemProgressState.None;
+                    TaskbarItemInfo.ProgressValue = WorkProgress.Value / WorkProgress.Maximum;
+                }                
             }));
         }
 

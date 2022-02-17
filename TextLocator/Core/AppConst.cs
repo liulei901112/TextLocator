@@ -15,11 +15,11 @@ namespace TextLocator.Core
         /// <summary>
         /// 线程池最小数量
         /// </summary>
-        public static readonly int THREAD_POOL_MIN_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MinSize", "16"));
+        public static readonly int THREAD_POOL_MIN_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MinSize", "32"));
         /// <summary>
         /// 线程池最大数量
         /// </summary>
-        public static readonly int THREAD_POOL_MAX_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MaxSize", "32"));
+        public static readonly int THREAD_POOL_MAX_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MaxSize", "64"));
         /// <summary>
         /// 应用目录
         /// </summary>
@@ -67,5 +67,18 @@ namespace TextLocator.Core
         /// 匹配文件后缀
         /// </summary>
         public static readonly Regex REGIX_FILE_EXT = new Regex(@"^.+\.(" + FileTypeUtil.GetFileTypeExts("|") + ")$");
+
+        /// <summary>
+        /// 比例最小值
+        /// </summary>
+        public const int MIN_PERCENT = 0;
+        /// <summary>
+        /// 比例最大值
+        /// </summary>
+        public const int MAX_PERCENT = 100;
+        /// <summary>
+        /// 文件内容缩略信息截取值
+        /// </summary>
+        public const int FILE_CONTENT_SUB_LENGTH = 120;
     }
 }

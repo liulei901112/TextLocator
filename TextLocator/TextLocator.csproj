@@ -39,11 +39,11 @@
     <ApplicationIcon>Resource\App.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
-      <HintPath>..\packages\Portable.BouncyCastle.1.8.9\lib\net40\BouncyCastle.Crypto.dll</HintPath>
+    <Reference Include="BouncyCastle.Crypto, Version=1.9.0.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
+      <HintPath>..\packages\Portable.BouncyCastle.1.9.0\lib\net40\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib, Version=1.3.2.10, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpZipLib.1.3.2\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=1.3.3.11, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpZipLib.1.3.3\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="JiebaNet.Analyser, Version=0.42.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\jieba.NET.0.42.2\lib\net45\JiebaNet.Analyser.dll</HintPath>
@@ -87,47 +87,47 @@
     <Reference Include="Rubyer, Version=1.0.16.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Rubyer.1.0.16\lib\net46\Rubyer.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.Barcode, Version=5.7.1.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.Barcode.dll</HintPath>
+    <Reference Include="Spire.Barcode, Version=6.1.1.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.Barcode.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.DataExport, Version=4.1.9.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.DataExport.dll</HintPath>
+    <Reference Include="Spire.DataExport, Version=4.1.10.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.DataExport.dll</HintPath>
     </Reference>
     <Reference Include="Spire.DataExport.ResourceMgr, Version=2.1.0.0, Culture=neutral, PublicKeyToken=4bc1500157862925, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.DataExport.ResourceMgr.dll</HintPath>
+      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.DataExport.ResourceMgr.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.Doc, Version=9.8.7.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.Doc.dll</HintPath>
+    <Reference Include="Spire.Doc, Version=10.1.14.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.Doc.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.DocViewer.Forms, Version=6.6.0.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.DocViewer.Forms.dll</HintPath>
+    <Reference Include="Spire.DocViewer.Forms, Version=7.1.3.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.DocViewer.Forms.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.Email, Version=4.7.0.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.Email.dll</HintPath>
+    <Reference Include="Spire.Email, Version=5.1.0.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.Email.dll</HintPath>
     </Reference>
     <Reference Include="Spire.License, Version=1.4.0.40, Culture=neutral, PublicKeyToken=b1144360237c8b3f, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.License.dll</HintPath>
+      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.License.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.OfficeViewer.Forms, Version=6.8.2.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.OfficeViewer.Forms.dll</HintPath>
+    <Reference Include="Spire.OfficeViewer.Forms, Version=7.2.0.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.OfficeViewer.Forms.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.Pdf, Version=7.8.9.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.Pdf.dll</HintPath>
+    <Reference Include="Spire.Pdf, Version=8.1.8.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.Pdf.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.PdfViewer.Asp, Version=6.8.4.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.PdfViewer.Asp.dll</HintPath>
+    <Reference Include="Spire.PdfViewer.Asp, Version=7.1.6.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.PdfViewer.Asp.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.PdfViewer.Forms, Version=6.8.4.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.PdfViewer.Forms.dll</HintPath>
+    <Reference Include="Spire.PdfViewer.Forms, Version=7.1.6.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.PdfViewer.Forms.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.Presentation, Version=6.8.4.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.Presentation.dll</HintPath>
+    <Reference Include="Spire.Presentation, Version=7.1.6.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.Presentation.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.Spreadsheet, Version=5.6.1.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.Spreadsheet.dll</HintPath>
+    <Reference Include="Spire.Spreadsheet, Version=6.1.3.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.Spreadsheet.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.XLS, Version=11.8.4.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.XLS.dll</HintPath>
+    <Reference Include="Spire.XLS, Version=12.1.12.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.XLS.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />

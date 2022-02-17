@@ -123,7 +123,7 @@ namespace TextLocator
                     Background = Brushes.DarkGray
                 });
             }
-            log.Debug("InitializeFileTypeFilters 耗时：" + taskTime.ConsumeTime);
+            log.Debug("InitializeFileTypeFilters 耗时：" + taskTime.ConsumeTime + "秒");
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace TextLocator
             }
             FolderPaths.Text = foldersText.Substring(0, foldersText.Length - 2);
             FolderPaths.ToolTip = FolderPaths.Text;
-            log.Debug("InitializeAppConfig 耗时：" + taskTime.ConsumeTime);
+            log.Debug("InitializeAppConfig 耗时：" + taskTime.ConsumeTime + "秒");
         }
 
         #endregion

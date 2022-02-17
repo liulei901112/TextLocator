@@ -28,7 +28,7 @@ namespace TextLocator.Core
         {
             get
             {
-                return (DateTime.Now - beginTime).TotalSeconds;
+                return (DateTime.Now - beginTime).TotalMilliseconds;
             }
         }
 

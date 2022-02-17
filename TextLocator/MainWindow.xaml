@@ -6,7 +6,11 @@
         xmlns:local="clr-namespace:TextLocator"
         xmlns:rubyer="clr-namespace:Rubyer;assembly=Rubyer"
         mc:Ignorable="d"
-        Title="文本搜索定位器" Width="1600" Height="900" WindowStartupLocation="CenterScreen" Icon="Resource/App.ico" Loaded="Window_Loaded">
+        Title="文本搜索定位器" Width="1600" Height="900" Icon="Resource/App.ico"
+        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo/>
+    </Window.TaskbarItemInfo>
     <!-- DockPanel停靠容器 && Viewbox显示盒子 && Canvas画布 -->
     <DockPanel LastChildFill="True">
         <Viewbox Stretch="Fill">
@@ -776,7 +780,7 @@
                     <!-- 底部 -->
                     <Grid Height="25" VerticalAlignment="Bottom" Background="#C8C8C8">                        
                         <!-- 索引进度条 -->
-                        <ProgressBar x:Name="WorkProgress" Value="100"
+                        <ProgressBar x:Name="WorkProgress" Value="100" Maximum="100"
                                                 rubyer:ProgressBarHelper.Thickness="100"
                                                 rubyer:ProgressBarHelper.IsShowPercent="false"/>
                         <!-- 状态信息 -->

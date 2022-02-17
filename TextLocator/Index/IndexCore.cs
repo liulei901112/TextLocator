@@ -4,14 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using TextLocator.Core;
 using TextLocator.Enums;
 using TextLocator.Factory;
-using TextLocator.Index;
-using TextLocator.Jieba;
-using TextLocator.Service;
 using TextLocator.Util;
 
 namespace TextLocator.Index
@@ -94,6 +90,7 @@ namespace TextLocator.Index
                         FilePath = filePaths[i],
                         IndexWriter = indexWriter,
                         Callback = callback,
+                        Rebuild = rebuild,
                         ResetEvent = resetEvent
                     });
                 }
@@ -139,7 +136,8 @@ namespace TextLocator.Index
             {
                 string skipMsg = "跳过文件：" + filePath;
 
-                callback(skipMsg, CalcCompletionRatio(finishCount, totalCount));
+                // 跳过的文件闪烁
+                callback(skipMsg, CalcFinishRatio(finishCount, totalCount));
 
                 lock (locker)
                 {
@@ -169,7 +167,7 @@ namespace TextLocator.Index
             TaskInfo taskInfo = obj as TaskInfo;
             try
             {
-                // 开始时间1
+                // 解析时间
                 var taskMark = TaskTime.StartNew();
 
                 // 索引写入
@@ -196,7 +194,7 @@ namespace TextLocator.Index
                 string filePathPadding = filePath;
                 try
                 {
-                    filePathPadding = filePath.Substring(0, 35) + "......" + filePath.Substring(filePath.Length - 35);
+                    filePathPadding = filePath.Substring(0, 30) + "......" + filePath.Substring(filePath.Length - 30);
                 }
                 catch { }
 
@@ -209,15 +207,15 @@ namespace TextLocator.Index
 
                 // 缩略信息
                 string breviary = AppConst.REGIX_LINE_BREAKS_AND_WHITESPACE.Replace(content, "");
-                if (breviary.Length > 120)
+                if (breviary.Length > AppConst.FILE_CONTENT_SUB_LENGTH)
                 {
-                    breviary = breviary.Substring(0, 120) + "...";
+                    breviary = breviary.Substring(0, AppConst.FILE_CONTENT_SUB_LENGTH) + "...";
                 }
 
                 // 文件标记
                 string fileMark = MD5Util.GetMD5Hash(filePath); //fileInfo.DirectoryName + fileInfo.CreationTime.ToString();
 
-                // 开始时间2
+                // 索引时间
                 taskMark = TaskTime.StartNew();
 
                 lock (locker)
@@ -243,7 +241,7 @@ namespace TextLocator.Index
                 msg.Append("，索引：" + taskMark.ConsumeTime + "秒");
 
                 // 执行状态回调
-                taskInfo.Callback(msg.ToString(), CalcCompletionRatio(finishCount, taskInfo.TotalCount)); ;
+                taskInfo.Callback(msg.ToString(), CalcFinishRatio(finishCount, taskInfo.TotalCount));
 
                 log.Debug(msg);
             }
@@ -272,7 +270,7 @@ namespace TextLocator.Index
         /// <param name="finishCount"></param>
         /// <param name="totalCount"></param>
         /// <returns></returns>
-        private static double CalcCompletionRatio(double finishCount, double totalCount)
+        private static double CalcFinishRatio(double finishCount, double totalCount)
         {
             return finishCount * 1.00F / totalCount * 1.00F * 100.00F;
         }
@@ -298,6 +296,10 @@ namespace TextLocator.Index
             /// 回调函数
             /// </summary>
             public Callback Callback { get; set; }
+            /// <summary>
+            /// 重建
+            /// </summary>
+            public bool Rebuild { get; set; }
             /// <summary>
             /// 多线程重置
             /// </summary>

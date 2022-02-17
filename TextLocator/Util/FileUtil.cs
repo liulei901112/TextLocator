@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using TextLocator.Core;
 using TextLocator.Enums;
@@ -155,7 +156,7 @@ namespace TextLocator.Util
                 foreach (string path in paths)
                 {
                     string fileName = path.Substring(path.LastIndexOf("\\") + 1);
-                    if (fileName.StartsWith("`") || fileName.StartsWith("$"))
+                    if (fileName.StartsWith("`") || fileName.StartsWith("$") || fileName.StartsWith("~") || fileName.StartsWith("."))
                     {
                         continue;
                     }

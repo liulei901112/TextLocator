@@ -38,7 +38,7 @@
 #### 依赖组件
 1. [Rubyer](https://gitee.com/wuyanxin1028/rubyer-wpf)
 2. [Lucene.Net](http://lucenenet.apache.org)
-3. [PanGu.Lucene.Analyzer](https://github.com/NeverCL/PanGu.Lucene.Analyzer)
+3. [Jieba.NET](https://github.com/anderscui/jieba.NET)
 4. [NPOI](https://github.com/nissl-lab/npoi)
 5. [Spire.Office](https://www.e-iceblue.com/Introduce/spire-office-for-net.html)
 6. [Microsoft.Office.Interop.Excel](https://www.nuget.org/packages/Microsoft.Office.Interop.Excel/)

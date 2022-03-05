@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -33,12 +32,17 @@ namespace TextLocator
         /// 索引构建中
         /// </summary>
         private static volatile bool build = false;
+        /// <summary>
+        /// 全部
+        /// </summary>
         private RadioButton radioButtonAll;
         /// <summary>
         /// 索引文件夹列表
         /// </summary>
         private List<string> _IndexFolders = new List<string>();
-
+        /// <summary>
+        /// 当前页
+        /// </summary>
         private int pageNow = 1;
 
         public MainWindow()
@@ -403,10 +407,8 @@ namespace TextLocator
                         }
 
                         Dispatcher.Invoke(new Action(() => {
-                            SearchResultList.Items.Add(new FileInfoItem(fileInfo)
-                            {
-                                Tag = fileInfo
-                            });
+                            Entity.FileInfo fi = fileInfo;
+                            SearchResultList.Items.Add(new FileInfoItem(fi));
                         }));
                         // resultNum++;
                     }
@@ -561,7 +563,7 @@ namespace TextLocator
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SearchResultList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void SearchResultList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if(SearchResultList.SelectedIndex == -1)
             {
@@ -652,16 +654,18 @@ namespace TextLocator
                         CacheUtil.Add(fileInfo.FilePath, content);
                     }
 
-                    // 填充数据
-                    Dispatcher.Invoke(new Action(() =>
-                    {
-                        RichTextBoxUtil.FillingData(PreviewFileContent, content, new SolidColorBrush(Colors.Black));
-                    }));
-
-                    // 关键词高亮
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.Red, fileInfo.Keywords);
+                        // 填充数据
+                        RichTextBoxUtil.FillingData(PreviewFileContent, content, new SolidColorBrush(Colors.Black));
+
+                        ThreadPool.QueueUserWorkItem(_ => {
+                            Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                // 关键词高亮
+                                RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.Red, fileInfo.Keywords);
+                            }));
+                        });
                     }));
                 }));
                 t.Priority = ThreadPriority.AboveNormal;

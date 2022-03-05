@@ -17,6 +17,7 @@ namespace TextLocator
         {
             InitializeComponent();
 
+            this.Tag = fileInfo;
 
             try
             {

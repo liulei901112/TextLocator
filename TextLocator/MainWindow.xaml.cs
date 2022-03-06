@@ -64,6 +64,9 @@ namespace TextLocator
             // 初始化文件类型过滤器列表
             InitializeFileTypeFilters();
 
+            // 初始化排序类型列表
+            InitializeSortType();
+
             // 清理事件
             CleanSearchResult();
 
@@ -76,7 +79,23 @@ namespace TextLocator
             // 软件每次启动时执行索引更新逻辑？
 
         }
+
         #region 初始化
+
+        /// <summary>
+        /// 初始化排序类型列表
+        /// </summary>
+        private void InitializeSortType()
+        {
+            TaskTime taskTime = TaskTime.StartNew();
+            Array sorts = Enum.GetValues(typeof(SortType));
+            SortOptions.Items.Clear();
+            foreach(var sort in sorts)
+            {
+                SortOptions.Items.Add(sort);
+            }
+            log.Debug("InitializeSortType 耗时：" + taskTime.ConsumeTime + "秒");
+        }
 
         /// <summary>
         /// 初始化文件类型过滤器列表
@@ -251,9 +270,10 @@ namespace TextLocator
         /// </summary>
         /// <param name="keywords">关键词</param>
         /// <param name="fileType">文件类型</param>
+        /// <param name="sortType">排序类型</param>
         /// <param name="onlyFileName">仅文件名</param>
         /// <param name="matchWords">匹配全词</param>
-        private void Search(List<string> keywords, string fileType, bool onlyFileName = false, bool matchWords = false)
+        private void Search(List<string> keywords, string fileType, SortType sortType, bool onlyFileName = false, bool matchWords = false)
         {
             if (!CheckIndexExist())
             {
@@ -330,8 +350,29 @@ namespace TextLocator
                         boolQuery.Add(new Lucene.Net.Search.TermQuery(new Lucene.Net.Index.Term("FileType", fileType)), Lucene.Net.Search.Occur.MUST);
                     }
 
+                    // 排序
+                    Lucene.Net.Search.Sort sort = new Lucene.Net.Search.Sort();
+                    switch (sortType)
+                    {
+                        case SortType.默认排序:break;
+                        case SortType.从远到近:
+                            // 按照CreateTime字段排序，false表示升序
+                            sort.SetSort(new Lucene.Net.Search.SortField("CreateTime", Lucene.Net.Search.SortField.STRING_VAL, false));
+                            break;
+                        case SortType.从近到远:
+                            sort.SetSort(new Lucene.Net.Search.SortField("CreateTime", Lucene.Net.Search.SortField.STRING_VAL, true));
+                            break;
+                        case SortType.从小到大:
+                            sort.SetSort(new Lucene.Net.Search.SortField("FileSize", Lucene.Net.Search.SortField.INT, false));
+                            break;
+                        case SortType.从大到小:
+                            sort.SetSort(new Lucene.Net.Search.SortField("FileSize", Lucene.Net.Search.SortField.INT, true));
+                            break;
+                    }
+                    
+
                     // 查询数据分页
-                    Lucene.Net.Search.TopDocs topDocs = searcher.Search(boolQuery, pageNow * pageSize);
+                    Lucene.Net.Search.TopFieldDocs topDocs = searcher.Search(boolQuery, null, pageNow * pageSize, sort);
                     // 结果数组
                     Lucene.Net.Search.ScoreDoc[] scores = topDocs.ScoreDocs;
 
@@ -344,7 +385,7 @@ namespace TextLocator
                         this.PageBar.Total = totalHits > pageSize ? totalHits : 0;
                     }));
 
-                    string msg = "检索完成。分词：( " + text + " )，结果：" + totalHits + "个符合条件的结果(第 " + pageNow + " 页)，耗时：" + taskMark.ConsumeTime + "秒。";
+                    string msg = "检索完成。分词：( " + text + " )，结果：" + totalHits + "个符合条件的结果 (第 " + pageNow + " 页)，耗时：" + taskMark.ConsumeTime + "秒。";
 
                     log.Debug(msg);
 
@@ -459,6 +500,7 @@ namespace TextLocator
             MatchWords.IsChecked = false;
             OnlyFileName.IsChecked = false;
             (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
+            SortOptions.SelectedIndex = 0;
 
             BeforeSearch();
         }
@@ -479,6 +521,7 @@ namespace TextLocator
                 MatchWords.IsChecked = false;
                 OnlyFileName.IsChecked = false;
                 (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
+                SortOptions.SelectedIndex = 0;
 
                 BeforeSearch();
 
@@ -856,6 +899,9 @@ namespace TextLocator
                 this.PageBar.Total = 0;
                 this.PageBar.PageIndex = 1;
             }));
+
+            // 排序类型切换为默认
+            this.SortOptions.SelectedIndex = 0;
         }
 
         /// <summary>
@@ -904,7 +950,8 @@ namespace TextLocator
             // 搜索
             Search(
                 keywords, 
-                filter == null ? null : filter + "", 
+                filter == null ? null : filter + "",
+                (SortType)SortOptions.SelectedValue,
                 (bool)OnlyFileName.IsChecked, 
                 (bool)MatchWords.IsChecked
             );
@@ -959,6 +1006,7 @@ namespace TextLocator
         }
         #endregion
 
+        #region 排序
         /// <summary>
         /// 排序选中
         /// </summary>
@@ -966,7 +1014,8 @@ namespace TextLocator
         /// <param name="e"></param>
         private void SortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            BeforeSearch();
+            BeforeSearch(pageNow);
         }
+        #endregion
     }
 }

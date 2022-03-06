@@ -106,9 +106,9 @@
                             </StackPanel>
                             <StackPanel Margin="0,0,0,10" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
                                 <!-- 搜索按钮 -->
-                                <Button x:Name="IndexUpdateButton" Content="更新" ToolTip="增量更新索引" Margin="0,0,10,0" Width="80" Height="25" Background="Green" Click="IndexUpdateButton_Click"/>
+                                <Button x:Name="IndexUpdateButton" Content="索引更新" ToolTip="增量更新索引" Margin="0,0,10,0" Width="80" Height="25" Background="Green" Click="IndexUpdateButton_Click"/>
                                 <!-- 清空按钮 -->
-                                <Button x:Name="IndexRebuildButton" Content="重建" ToolTip="删除重建索引" Margin="0,0,10,0" Width="80" Height="25" Background="Red" Click="IndexRebuildButton_Click"/>
+                                <Button x:Name="IndexRebuildButton" Content="索引重建" ToolTip="删除索引并重建" Margin="0,0,10,0" Width="80" Height="25" Background="Red" Click="IndexRebuildButton_Click"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -141,11 +141,10 @@
                                 <Label Content="排序：" FontSize="14"  Margin="0,0,110,0"  Height="25" HorizontalAlignment="Right" VerticalContentAlignment="Center" />
                                 <ComboBox x:Name="SortOptions" Margin="0,0,10,0"  Width="100" Height="25" HorizontalAlignment="Right" SelectionChanged="SortOptions_SelectionChanged">
                                     <ComboBoxItem Content="默认排序" IsSelected="True"/>
-
-                                    <!-- <ComboBoxItem Content="时间正序"/>
-                                    <ComboBoxItem Content="时间倒叙"/>
+                                    <ComboBoxItem Content="从远到近"/>
+                                    <ComboBoxItem Content="从近到远"/>
                                     <ComboBoxItem Content="从小到大"/>
-                                    <ComboBoxItem Content="从大到小"/> -->
+                                    <ComboBoxItem Content="从大到小"/>
                                 </ComboBox>
                                 <!-- <TextBlock Text="排序：" Margin="0,0,280,0" HorizontalAlignment="Right"/>
                                 <Button x:Name="SortDefault" Content="默认" Margin="0,0,220,0"  Width="60" Height="20" HorizontalAlignment="Right"/>
@@ -204,13 +203,14 @@
                                 </ListBoxItem>
                             </ListBox>
                             <!-- 分页 -->
-                            <rubyer:PageBar x:Name="PageBar" Total="0" PageSize="{Binding PageSize}" VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                                    PageIndexChangedCommand="{Binding PageIndexChanged}"
+                            <rubyer:PageBar x:Name="PageBar" VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                    PageSize="{Binding PageSize}"
+                                    PageIndexChangedCommand="{Binding PageIndexChanged}" 
                                     PageSizeChangedCommand="{Binding PageSizeChanged}"
                                     PageIndexChanged="PageBar_PageIndexChanged"
                                     PageSizeChanged="PageBar_PageSizeChanged"
-                                    CurrentBackground="{DynamicResource Light}"
-                                    CurrentForeground="{DynamicResource LightForeground}"/>
+                                    CurrentBackground="{DynamicResource Accent}"
+                                    CurrentForeground="{DynamicResource AccentForeground}"/>
                         </Grid>
                         <!-- 分割线 -->
                         <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Center" ShowsPreview="False" Background="Gray" />

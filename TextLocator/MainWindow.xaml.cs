@@ -2,6 +2,7 @@
 using Rubyer;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -24,7 +25,7 @@ namespace TextLocator
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -43,7 +44,7 @@ namespace TextLocator
         /// <summary>
         /// 当前页
         /// </summary>
-        private int pageNow = 1;
+        public int pageNow = 1;
 
         public MainWindow()
         {
@@ -320,7 +321,7 @@ namespace TextLocator
                     for (int i = 0; i < keywords.Count; i++)
                     {
                         Lucene.Net.Search.Query query = parser.Parse(keywords[i]);
-                        boolQuery.Add(query, matchWords ? Lucene.Net.Search.Occur.MUST : Lucene.Net.Search.Occur.SHOULD);
+                        boolQuery.Add(query, onlyFileName || matchWords ? Lucene.Net.Search.Occur.MUST : Lucene.Net.Search.Occur.SHOULD);
                     }
 
                     // 文件类型筛选
@@ -330,14 +331,20 @@ namespace TextLocator
                     }
 
                     // 查询数据分页
-                    Lucene.Net.Search.TopDocs topDocs = searcher.Search(boolQuery, AppConst.MAX_COUNT_LIMIT);
+                    Lucene.Net.Search.TopDocs topDocs = searcher.Search(boolQuery, pageNow * pageSize);
                     // 结果数组
                     Lucene.Net.Search.ScoreDoc[] scores = topDocs.ScoreDocs;
 
                     // 查询到的条数
                     int totalHits = topDocs.TotalHits;
+                    
+                    // 设置分页标签总条数
+                    this.Dispatcher.BeginInvoke(new Action(() => {
+                        // 如果总条数小于等于分页条数，则不显示分页
+                        this.PageBar.Total = totalHits > pageSize ? totalHits : 0;
+                    }));
 
-                    string msg = "检索完成。分词：( " + text + " )，结果：" + totalHits + "个符合条件的结果（仅显示前" + AppConst.MAX_COUNT_LIMIT + "条），耗时：" + taskMark.ConsumeTime + "秒。";
+                    string msg = "检索完成。分词：( " + text + " )，结果：" + totalHits + "个符合条件的结果(第 " + pageNow + " 页)，耗时：" + taskMark.ConsumeTime + "秒。";
 
                     log.Debug(msg);
 
@@ -354,8 +361,8 @@ namespace TextLocator
                     Entity.FileInfo fileInfo;
 
                     // 计算显示数据
-                    int start = (pageNow - 1) * AppConst.MAX_COUNT_LIMIT;
-                    int end = AppConst.MAX_COUNT_LIMIT * pageNow;
+                    int start = (pageNow - 1) * pageSize;
+                    int end = pageSize * pageNow;
                     if (end > totalHits) end = totalHits;
                     // 获取并显示列表
                     for (int i = start; i < end; i++) 
@@ -842,13 +849,31 @@ namespace TextLocator
             ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(radioButtonAll);
             IToggleProvider toggleProvider = toggleButtonAutomationPeer.GetPattern(PatternInterface.Toggle) as IToggleProvider;
             toggleProvider.Toggle();
+
+            pageNow = 1;
+            // 设置分页标签总条数
+            this.Dispatcher.BeginInvoke(new Action(() => {
+                this.PageBar.Total = 0;
+                this.PageBar.PageIndex = 1;
+            }));
         }
 
         /// <summary>
         /// 搜索前
         /// </summary>
-        private void BeforeSearch()
+        /// <param name="page">指定页</param>
+        private void BeforeSearch(int page = 1)
         {
+            // 还原分页count
+            if (page != pageNow) {
+                pageNow = page;
+                // 设置分页标签总条数
+                this.Dispatcher.BeginInvoke(new Action(() => {
+                    this.PageBar.Total = 0;
+                    this.PageBar.PageIndex = pageNow;
+                }));
+            }
+
             object filter = FileTypeFilter.Tag;
             if (filter == null || filter.Equals("全部"))
             {
@@ -885,5 +910,63 @@ namespace TextLocator
             );
         }
         #endregion
+
+
+        #region 分页
+        /// <summary>
+        /// 实现INotifyPropertyChanged接口
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged(string propertyName)
+        {
+            if (this.PropertyChanged != null)
+            {
+                this.PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        /// <summary>
+        /// 每页显示数量
+        /// </summary>
+        public int pageSize = AppConst.MAX_COUNT_LIMIT;
+        public int PageSize
+        {
+            // 获取值时将私有字段传出；
+            get { return pageSize; } 
+            set
+            {
+                // 赋值时将值传给私有字段
+                pageSize = value; 
+                // 一旦执行了赋值操作说明其值被修改了，则立马通过INotifyPropertyChanged接口告诉UI(IntValue)被修改了
+                OnPropertyChanged("PageSize");
+            }
+        }
+
+        private void PageBar_PageIndexChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
+        {
+            log.Debug($"page index : {e.OldValue} => {e.NewValue}");
+
+            // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
+            MatchWords.IsChecked = false;
+            OnlyFileName.IsChecked = false;
+            (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
+
+            BeforeSearch(e.NewValue);
+        }
+
+        private void PageBar_PageSizeChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
+        {
+            log.Debug($"page size : {e.OldValue} => {e.NewValue}");
+        }
+        #endregion
+
+        /// <summary>
+        /// 排序选中
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            BeforeSearch();
+        }
     }
 }

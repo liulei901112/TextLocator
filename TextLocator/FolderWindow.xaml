@@ -9,7 +9,7 @@
     <Grid>
         <ListBox x:Name="FolderList" Margin="0,0,0,50">
             <ListBoxItem>
-                <Grid Width="455" Height="40">
+                <Grid Width="490" Height="40">
                     <TextBlock Text="D:\桌面文档" Margin="10,0,0,0" FontSize="16" HorizontalAlignment="Left"/>
                     <Button Content="删除" Margin="0,0,10,0" Background="Red" HorizontalAlignment="Right"/>
                     <!-- 分割线 -->

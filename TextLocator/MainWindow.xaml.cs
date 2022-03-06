@@ -30,17 +30,18 @@ namespace TextLocator
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
-        /// 索引构建中
-        /// </summary>
-        private static volatile bool build = false;
-        /// <summary>
         /// 全部
         /// </summary>
-        private RadioButton radioButtonAll;
+        private RadioButton _radioButtonAll;
         /// <summary>
         /// 索引文件夹列表
         /// </summary>
-        private List<string> _IndexFolders = new List<string>();
+        private List<string> _indexFolders = new List<string>();
+
+        /// <summary>
+        /// 索引构建中
+        /// </summary>
+        private static volatile bool build = false;
         /// <summary>
         /// 当前页
         /// </summary>
@@ -107,7 +108,7 @@ namespace TextLocator
             FileTypeFilter.Children.Clear();
             FileTypeNames.Children.Clear();
 
-            radioButtonAll = new RadioButton()
+            _radioButtonAll = new RadioButton()
             {
                 GroupName = "FileTypeFilter",
                 Width = 80,
@@ -117,8 +118,8 @@ namespace TextLocator
                 Name = "FileTypeAll",
                 IsChecked = true
             };
-            radioButtonAll.Checked += FileType_Checked;
-            FileTypeFilter.Children.Add(radioButtonAll);
+            _radioButtonAll.Checked += FileType_Checked;
+            FileTypeFilter.Children.Add(_radioButtonAll);
 
 
             // 获取文件类型枚举，遍历并加入下拉列表
@@ -157,7 +158,7 @@ namespace TextLocator
         {
             TaskTime taskTime = TaskTime.StartNew();
             // 初始化显示被索引的文件夹列表
-            _IndexFolders.Clear();
+            _indexFolders.Clear();
             // 读取被索引文件夹配置信息，如果配置信息为空：默认为我的文档和我的桌面
             string customFolders = AppUtil.ReadValue("AppConfig", "FolderPaths", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "," + Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
             // 配置信息不为空
@@ -166,11 +167,11 @@ namespace TextLocator
                 string[] customFolderArray = customFolders.Split(',');
                 foreach (string folderPath in customFolderArray)
                 {
-                    _IndexFolders.Add(folderPath);
+                    _indexFolders.Add(folderPath);
                 }
             }
             string foldersText = "";
-            foreach (string folder in _IndexFolders)
+            foreach (string folder in _indexFolders)
             {
                 foldersText += folder + ", ";
             }
@@ -211,7 +212,7 @@ namespace TextLocator
 
                 // 定义文件列表
                 List<string> filePaths = new List<string>();
-                foreach (string s in _IndexFolders)
+                foreach (string s in _indexFolders)
                 {
                     log.Debug("目录：" + s);
                     // 获取文件信息列表
@@ -220,6 +221,7 @@ namespace TextLocator
 
                 // 排序
                 //filePaths.Sort();
+                filePaths = ListUtil.Shuffle(filePaths);
 
                 // 创建索引方法
                 IndexCore.CreateIndex(filePaths, rebuild, ShowStatus);
@@ -889,7 +891,7 @@ namespace TextLocator
             OnlyFileName.IsChecked = false;
             MatchWords.IsChecked = false;
 
-            ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(radioButtonAll);
+            ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(_radioButtonAll);
             IToggleProvider toggleProvider = toggleButtonAutomationPeer.GetPattern(PatternInterface.Toggle) as IToggleProvider;
             toggleProvider.Toggle();
 

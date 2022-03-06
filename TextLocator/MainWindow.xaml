@@ -106,9 +106,9 @@
                             </StackPanel>
                             <StackPanel Margin="0,0,0,10" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
                                 <!-- 搜索按钮 -->
-                                <Button x:Name="IndexUpdateButton" Content="索引更新" ToolTip="增量更新索引" Margin="0,0,10,0" Width="80" Height="25" Background="Green" Click="IndexUpdateButton_Click"/>
+                                <Button x:Name="IndexUpdateButton" Content="更新" ToolTip="增量更新索引" Margin="0,0,10,0" Width="80" Height="25" Background="Green" Click="IndexUpdateButton_Click"/>
                                 <!-- 清空按钮 -->
-                                <Button x:Name="IndexRebuildButton" Content="索引重建" ToolTip="删除索引并重建" Margin="0,0,10,0" Width="80" Height="25" Background="Red" Click="IndexRebuildButton_Click"/>
+                                <Button x:Name="IndexRebuildButton" Content="重建" ToolTip="删除索引并重建" Margin="0,0,10,0" Width="80" Height="25" Background="Red" Click="IndexRebuildButton_Click"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>

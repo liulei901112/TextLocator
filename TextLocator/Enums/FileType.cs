@@ -35,12 +35,12 @@ namespace TextLocator.Enums
         /// <summary>
         /// 图片
         /// </summary>
-        [Description("jpg,png,gif,jpeg")]
+        [Description("jpg,png,gif,jpeg,bmp")]
         图片,
         /// <summary>
         /// 代码
         /// </summary>
-        [Description("cs,java,js,css,md,py")]
+        [Description("cs,java,js,css,md,py,c,cpp,lua,sql,jsp,json,php,rs,rb,yml,yaml,bat")]
         代码,
         /// <summary>
         /// 纯文本

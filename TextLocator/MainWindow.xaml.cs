@@ -2,9 +2,9 @@
 using Rubyer;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,7 +25,7 @@ namespace TextLocator
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -33,13 +33,18 @@ namespace TextLocator
         /// 索引构建中
         /// </summary>
         private static volatile bool build = false;
+        /// <summary>
+        /// 全部
+        /// </summary>
         private RadioButton radioButtonAll;
         /// <summary>
         /// 索引文件夹列表
         /// </summary>
         private List<string> _IndexFolders = new List<string>();
-
-        private int pageNow = 1;
+        /// <summary>
+        /// 当前页
+        /// </summary>
+        public int pageNow = 1;
 
         public MainWindow()
         {
@@ -59,6 +64,9 @@ namespace TextLocator
             // 初始化文件类型过滤器列表
             InitializeFileTypeFilters();
 
+            // 初始化排序类型列表
+            InitializeSortType();
+
             // 清理事件
             CleanSearchResult();
 
@@ -71,7 +79,23 @@ namespace TextLocator
             // 软件每次启动时执行索引更新逻辑？
 
         }
+
         #region 初始化
+
+        /// <summary>
+        /// 初始化排序类型列表
+        /// </summary>
+        private void InitializeSortType()
+        {
+            TaskTime taskTime = TaskTime.StartNew();
+            Array sorts = Enum.GetValues(typeof(SortType));
+            SortOptions.Items.Clear();
+            foreach(var sort in sorts)
+            {
+                SortOptions.Items.Add(sort);
+            }
+            log.Debug("InitializeSortType 耗时：" + taskTime.ConsumeTime + "秒");
+        }
 
         /// <summary>
         /// 初始化文件类型过滤器列表
@@ -246,9 +270,10 @@ namespace TextLocator
         /// </summary>
         /// <param name="keywords">关键词</param>
         /// <param name="fileType">文件类型</param>
+        /// <param name="sortType">排序类型</param>
         /// <param name="onlyFileName">仅文件名</param>
         /// <param name="matchWords">匹配全词</param>
-        private void Search(List<string> keywords, string fileType, bool onlyFileName = false, bool matchWords = false)
+        private void Search(List<string> keywords, string fileType, SortType sortType, bool onlyFileName = false, bool matchWords = false)
         {
             if (!CheckIndexExist())
             {
@@ -316,7 +341,7 @@ namespace TextLocator
                     for (int i = 0; i < keywords.Count; i++)
                     {
                         Lucene.Net.Search.Query query = parser.Parse(keywords[i]);
-                        boolQuery.Add(query, matchWords ? Lucene.Net.Search.Occur.MUST : Lucene.Net.Search.Occur.SHOULD);
+                        boolQuery.Add(query, onlyFileName || matchWords ? Lucene.Net.Search.Occur.MUST : Lucene.Net.Search.Occur.SHOULD);
                     }
 
                     // 文件类型筛选
@@ -325,15 +350,42 @@ namespace TextLocator
                         boolQuery.Add(new Lucene.Net.Search.TermQuery(new Lucene.Net.Index.Term("FileType", fileType)), Lucene.Net.Search.Occur.MUST);
                     }
 
+                    // 排序
+                    Lucene.Net.Search.Sort sort = new Lucene.Net.Search.Sort();
+                    switch (sortType)
+                    {
+                        case SortType.默认排序:break;
+                        case SortType.从远到近:
+                            // 按照CreateTime字段排序，false表示升序
+                            sort.SetSort(new Lucene.Net.Search.SortField("CreateTime", Lucene.Net.Search.SortField.STRING_VAL, false));
+                            break;
+                        case SortType.从近到远:
+                            sort.SetSort(new Lucene.Net.Search.SortField("CreateTime", Lucene.Net.Search.SortField.STRING_VAL, true));
+                            break;
+                        case SortType.从小到大:
+                            sort.SetSort(new Lucene.Net.Search.SortField("FileSize", Lucene.Net.Search.SortField.INT, false));
+                            break;
+                        case SortType.从大到小:
+                            sort.SetSort(new Lucene.Net.Search.SortField("FileSize", Lucene.Net.Search.SortField.INT, true));
+                            break;
+                    }
+                    
+
                     // 查询数据分页
-                    Lucene.Net.Search.TopDocs topDocs = searcher.Search(boolQuery, AppConst.MAX_COUNT_LIMIT);
+                    Lucene.Net.Search.TopFieldDocs topDocs = searcher.Search(boolQuery, null, pageNow * pageSize, sort);
                     // 结果数组
                     Lucene.Net.Search.ScoreDoc[] scores = topDocs.ScoreDocs;
 
                     // 查询到的条数
                     int totalHits = topDocs.TotalHits;
+                    
+                    // 设置分页标签总条数
+                    this.Dispatcher.BeginInvoke(new Action(() => {
+                        // 如果总条数小于等于分页条数，则不显示分页
+                        this.PageBar.Total = totalHits > pageSize ? totalHits : 0;
+                    }));
 
-                    string msg = "检索完成。分词：( " + text + " )，结果：" + totalHits + "个符合条件的结果（仅显示前" + AppConst.MAX_COUNT_LIMIT + "条），耗时：" + taskMark.ConsumeTime + "秒。";
+                    string msg = "检索完成。分词：( " + text + " )，结果：" + totalHits + "个符合条件的结果 (第 " + pageNow + " 页)，耗时：" + taskMark.ConsumeTime + "秒。";
 
                     log.Debug(msg);
 
@@ -350,8 +402,8 @@ namespace TextLocator
                     Entity.FileInfo fileInfo;
 
                     // 计算显示数据
-                    int start = (pageNow - 1) * AppConst.MAX_COUNT_LIMIT;
-                    int end = AppConst.MAX_COUNT_LIMIT * pageNow;
+                    int start = (pageNow - 1) * pageSize;
+                    int end = pageSize * pageNow;
                     if (end > totalHits) end = totalHits;
                     // 获取并显示列表
                     for (int i = start; i < end; i++) 
@@ -403,10 +455,8 @@ namespace TextLocator
                         }
 
                         Dispatcher.Invoke(new Action(() => {
-                            SearchResultList.Items.Add(new FileInfoItem(fileInfo)
-                            {
-                                Tag = fileInfo
-                            });
+                            Entity.FileInfo fi = fileInfo;
+                            SearchResultList.Items.Add(new FileInfoItem(fi));
                         }));
                         // resultNum++;
                     }
@@ -450,6 +500,7 @@ namespace TextLocator
             MatchWords.IsChecked = false;
             OnlyFileName.IsChecked = false;
             (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
+            SortOptions.SelectedIndex = 0;
 
             BeforeSearch();
         }
@@ -470,6 +521,7 @@ namespace TextLocator
                 MatchWords.IsChecked = false;
                 OnlyFileName.IsChecked = false;
                 (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
+                SortOptions.SelectedIndex = 0;
 
                 BeforeSearch();
 
@@ -561,7 +613,7 @@ namespace TextLocator
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SearchResultList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void SearchResultList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if(SearchResultList.SelectedIndex == -1)
             {
@@ -652,16 +704,18 @@ namespace TextLocator
                         CacheUtil.Add(fileInfo.FilePath, content);
                     }
 
-                    // 填充数据
-                    Dispatcher.Invoke(new Action(() =>
-                    {
-                        RichTextBoxUtil.FillingData(PreviewFileContent, content, new SolidColorBrush(Colors.Black));
-                    }));
-
-                    // 关键词高亮
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.Red, fileInfo.Keywords);
+                        // 填充数据
+                        RichTextBoxUtil.FillingData(PreviewFileContent, content, new SolidColorBrush(Colors.Black));
+
+                        ThreadPool.QueueUserWorkItem(_ => {
+                            Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                // 关键词高亮
+                                RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.Red, fileInfo.Keywords);
+                            }));
+                        });
                     }));
                 }));
                 t.Priority = ThreadPriority.AboveNormal;
@@ -838,13 +892,34 @@ namespace TextLocator
             ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(radioButtonAll);
             IToggleProvider toggleProvider = toggleButtonAutomationPeer.GetPattern(PatternInterface.Toggle) as IToggleProvider;
             toggleProvider.Toggle();
+
+            pageNow = 1;
+            // 设置分页标签总条数
+            this.Dispatcher.BeginInvoke(new Action(() => {
+                this.PageBar.Total = 0;
+                this.PageBar.PageIndex = 1;
+            }));
+
+            // 排序类型切换为默认
+            this.SortOptions.SelectedIndex = 0;
         }
 
         /// <summary>
         /// 搜索前
         /// </summary>
-        private void BeforeSearch()
+        /// <param name="page">指定页</param>
+        private void BeforeSearch(int page = 1)
         {
+            // 还原分页count
+            if (page != pageNow) {
+                pageNow = page;
+                // 设置分页标签总条数
+                this.Dispatcher.BeginInvoke(new Action(() => {
+                    this.PageBar.Total = 0;
+                    this.PageBar.PageIndex = pageNow;
+                }));
+            }
+
             object filter = FileTypeFilter.Tag;
             if (filter == null || filter.Equals("全部"))
             {
@@ -875,10 +950,71 @@ namespace TextLocator
             // 搜索
             Search(
                 keywords, 
-                filter == null ? null : filter + "", 
+                filter == null ? null : filter + "",
+                (SortType)SortOptions.SelectedValue,
                 (bool)OnlyFileName.IsChecked, 
                 (bool)MatchWords.IsChecked
             );
+        }
+        #endregion
+
+
+        #region 分页
+        /// <summary>
+        /// 实现INotifyPropertyChanged接口
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged(string propertyName)
+        {
+            if (this.PropertyChanged != null)
+            {
+                this.PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        /// <summary>
+        /// 每页显示数量
+        /// </summary>
+        public int pageSize = AppConst.MAX_COUNT_LIMIT;
+        public int PageSize
+        {
+            // 获取值时将私有字段传出；
+            get { return pageSize; } 
+            set
+            {
+                // 赋值时将值传给私有字段
+                pageSize = value; 
+                // 一旦执行了赋值操作说明其值被修改了，则立马通过INotifyPropertyChanged接口告诉UI(IntValue)被修改了
+                OnPropertyChanged("PageSize");
+            }
+        }
+
+        private void PageBar_PageIndexChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
+        {
+            log.Debug($"page index : {e.OldValue} => {e.NewValue}");
+
+            // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
+            MatchWords.IsChecked = false;
+            OnlyFileName.IsChecked = false;
+            (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
+
+            BeforeSearch(e.NewValue);
+        }
+
+        private void PageBar_PageSizeChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
+        {
+            log.Debug($"page size : {e.OldValue} => {e.NewValue}");
+        }
+        #endregion
+
+        #region 排序
+        /// <summary>
+        /// 排序选中
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            BeforeSearch(pageNow);
         }
         #endregion
     }

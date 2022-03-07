@@ -58,7 +58,6 @@ namespace TextLocator.Index
         {
             _callback = callback;
 
-
             // 判断是创建索引还是增量索引（如果索引目录不存在，重建）
             bool create = !Directory.Exists(AppConst.APP_INDEX_DIR);
             // 入参为true，表示重建

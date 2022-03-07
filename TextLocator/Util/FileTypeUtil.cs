@@ -40,10 +40,12 @@ namespace TextLocator.Util
             {
                 // 获取描述
                 string description = ft.GetDescription();
-                if (description.Contains(fileExt.Replace(".", "")))
+                foreach(var ext in description.Split(','))
                 {
-                    fileType = ft;
-                    break;
+                    if (ext.Equals(fileExt.Replace(".", ""))) {
+                        fileType = ft;
+                        break;
+                    }
                 }
             }
 

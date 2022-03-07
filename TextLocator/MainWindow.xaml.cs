@@ -37,6 +37,10 @@ namespace TextLocator
         /// 索引文件夹列表
         /// </summary>
         private List<string> _indexFolders = new List<string>();
+        /// <summary>
+        /// 时间戳
+        /// </summary>
+        private long _timestamp;
 
         /// <summary>
         /// 索引构建中
@@ -78,7 +82,7 @@ namespace TextLocator
             }
 
             // 软件每次启动时执行索引更新逻辑？
-
+            CheckingIndexUpdates();
         }
 
         #region 初始化
@@ -268,7 +272,7 @@ namespace TextLocator
         /// <param name="sortType">排序类型</param>
         /// <param name="onlyFileName">仅文件名</param>
         /// <param name="matchWords">匹配全词</param>
-        private void Search(List<string> keywords, string fileType, SortType sortType, bool onlyFileName = false, bool matchWords = false)
+        private void Search(List<string> keywords, string fileType, SortType sortType, long timestamp, bool onlyFileName = false, bool matchWords = false)
         {
             if (!CheckIndexExist())
             {
@@ -403,6 +407,10 @@ namespace TextLocator
                     // 获取并显示列表
                     for (int i = start; i < end; i++)
                     {
+                        if (_timestamp != timestamp)
+                        {
+                            continue;
+                        }
                         // 该文件的在索引里的文档号,Doc是该文档进入索引时Lucene的编号，默认按照顺序编的
                         int docId = scores[i].Doc;
                         // 获取文档对象
@@ -817,6 +825,20 @@ namespace TextLocator
 
         #region 辅助方法
         /// <summary>
+        /// 检查索引是否需要更新
+        /// </summary>
+        private void CheckingIndexUpdates()
+        {
+            string lastIndexTime = AppUtil.ReadValue("AppConfig", "LastIndexTime", "");
+            // 时间不存在 或 已经超过7天
+            if (string.IsNullOrEmpty(lastIndexTime) || (DateTime.Now - DateTime.Parse(lastIndexTime)).TotalDays > 7)
+            {
+                // 执行索引更新，扫描新文件。
+                BuildIndex(false);
+            }
+        }
+
+        /// <summary>
         /// 检查索引是否存在
         /// </summary>
         /// <returns></returns>
@@ -842,7 +864,6 @@ namespace TextLocator
             Task.Factory.StartNew(() =>
             {
                 var taskMark = TaskTime.StartNew();
-
 
                 var fileMark = TaskTime.StartNew();
                 // 定义文件列表
@@ -879,6 +900,8 @@ namespace TextLocator
                 {
                     Message.ShowSuccess("MessageContainer", msg);
                 }));
+
+                AppUtil.WriteValue("AppConfig", "LastIndexTime", DateTime.Now.ToString());
 
                 // 构建结束
                 build = false;
@@ -1022,11 +1045,15 @@ namespace TextLocator
             PreviewImage.Source = null;
             PreviewFileTypeIcon.Source = null;
 
+            // 记录时间戳
+            _timestamp = Convert.ToInt64((DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds);
+
             // 搜索
             Search(
                 keywords, 
                 filter == null ? null : filter + "",
                 (SortType)SortOptions.SelectedValue,
+                _timestamp,
                 (bool)OnlyFileName.IsChecked, 
                 (bool)MatchWords.IsChecked
             );

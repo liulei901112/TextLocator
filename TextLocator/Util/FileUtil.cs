@@ -21,6 +21,14 @@ namespace TextLocator.Util
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
+        /// 程序员节，文件大小单位换算常量
+        /// </summary>
+        private const long PROGRAMMERS_SECTION = 1024;
+        /// <summary>
+        /// 文件大小单位
+        /// </summary>
+        private static readonly string[] suffixes = new string[] { " B", " KB", " MB", " GB", " TB", " PB" };
+        /// <summary>
         /// 根据文件类型获取文件图标
         /// </summary>
         /// <param name="fileType"></param>
@@ -83,27 +91,39 @@ namespace TextLocator.Util
         /// <summary>
         /// 获取文件大小友好显示
         /// </summary>
-        /// <param name="fileSize"></param>
+        /// <param name="number"></param>
         /// <returns></returns>
-        public static string GetFileSizeFriendly(long fileSize)
+        public static string GetFileSizeFriendly(long number)
         {
-            string fileSizeUnit = "b";
-            if (fileSize > 1024)
+            /*string sizeUnit = "B";
+            if (fileSize > PROGRAMMERS_SECTION)
             {
-                fileSize = fileSize / 1024;
-                fileSizeUnit = "KB";
+                fileSize = fileSize / PROGRAMMERS_SECTION;
+                sizeUnit = "KB";
             }
-            if (fileSize > 1024)
+            if (fileSize > PROGRAMMERS_SECTION)
             {
-                fileSize = fileSize / 1024;
-                fileSizeUnit = "MB";
+                fileSize = fileSize / PROGRAMMERS_SECTION;
+                sizeUnit = "MB";
             }
-            if (fileSize > 1024)
+            if (fileSize > PROGRAMMERS_SECTION)
             {
-                fileSize = fileSize / 1024;
-                fileSizeUnit = "GB";
+                fileSize = fileSize / PROGRAMMERS_SECTION;
+                sizeUnit = "GB";
             }
-            return fileSize + "" + fileSizeUnit;
+            return fileSize + "" + sizeUnit;*/
+            double last = 1;
+            for (int i = 0; i < suffixes.Length; i++)
+            {
+                var current = Math.Pow(1024, i + 1);
+                var temp = number / current;
+                if (temp < 1)
+                {
+                    return (number / last).ToString("n2") + suffixes[i];
+                }
+                last = current;
+            }
+            return number.ToString();
         }
 
         /// <summary>

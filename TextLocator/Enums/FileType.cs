@@ -40,7 +40,7 @@ namespace TextLocator.Enums
         /// <summary>
         /// 代码
         /// </summary>
-        [Description("cs,java,js,css,md,py,c,cpp,lua,sql,jsp,json,php,rs,rb,yml,yaml,bat")]
+        [Description("cs,java,js,css,md,py,c,h,cpp,lua,sql,jsp,json,php,rs,rb,yml,yaml,bat")]
         代码,
         /// <summary>
         /// 纯文本

@@ -82,7 +82,7 @@ namespace TextLocator.Index
                 Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
 
             _indexWriter.SetRAMBufferSizeMB(512);
-            _indexWriter.SetMaxBufferedDocs(5120);
+            _indexWriter.SetMaxBufferedDocs(1024);
 
             // 文件总数
             _totalCount = filePaths.Count();

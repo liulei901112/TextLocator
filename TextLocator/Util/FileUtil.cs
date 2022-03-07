@@ -120,11 +120,11 @@ namespace TextLocator.Util
         /// <summary>
         /// 获取指定根目录下的子目录及其文档
         /// </summary>
-        /// <param name="rootPath">根目录路径</param>
         /// <param name="filePaths">文档列表</param>
-        public static void GetAllFiles(string rootPath, List<string> filePaths)
+        /// <param name="rootPath">根目录路径</param>
+        public static void GetAllFiles(List<string> filePaths, string rootPath)
         {
-            // 根目录
+            /*// 根目录
             DirectoryInfo rootDir = new DirectoryInfo(rootPath);
 
             // 文件夹处理
@@ -140,7 +140,7 @@ namespace TextLocator.Util
                         continue;
                     }
                     // 递归调用
-                    GetAllFiles(dir, filePaths);
+                    GetAllFiles(filePaths, dir);
                 }
             }
             catch { }
@@ -163,13 +163,36 @@ namespace TextLocator.Util
                     filePaths.Add(path);
                 }
             }
-            catch { }
+            catch { }*/
+            
+            try
+            {
+                string[] paths = Directory.GetFiles(rootPath, "*", SearchOption.AllDirectories)
+                    .Where(file => AppConst.REGIX_FILE_EXT.IsMatch(file))
+                    .ToArray();
+                foreach (string file in paths)
+                {
+                    string f = file.ToUpper();
+                    // 文件夹筛选：$开始、360REC开头、SYSTEM、TEMP
+                    if (f.Contains("$RECYCLE") || f.Contains("360REC") || f.Contains("SYSTEM") || f.Contains("TEMP"))
+                    {
+                        continue;
+                    }
+                    // 文件筛选：
+                    string n = file.Substring(file.LastIndexOf("\\") + 1);
+                    if (n.StartsWith("`") || n.StartsWith("$") || n.StartsWith("~") || n.StartsWith("."))
+                    {
+                        continue;
+                    }
+                    filePaths.Add(file);
+                }
+            } catch { }
         }
 
         /// <summary>
         /// 删除目录下全部文件
         /// </summary>
-        /// <param name="aPP_INDEX_DIR"></param>
+        /// <param name="srcDir"></param>
         public static void RemoveDirectory(string srcDir)
         {
             // 若目标文件夹不存在

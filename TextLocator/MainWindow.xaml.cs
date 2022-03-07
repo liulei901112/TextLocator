@@ -30,17 +30,18 @@ namespace TextLocator
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
-        /// 索引构建中
-        /// </summary>
-        private static volatile bool build = false;
-        /// <summary>
         /// 全部
         /// </summary>
-        private RadioButton radioButtonAll;
+        private RadioButton _radioButtonAll;
         /// <summary>
         /// 索引文件夹列表
         /// </summary>
-        private List<string> _IndexFolders = new List<string>();
+        private List<string> _indexFolders = new List<string>();
+
+        /// <summary>
+        /// 索引构建中
+        /// </summary>
+        private static volatile bool build = false;
         /// <summary>
         /// 当前页
         /// </summary>
@@ -107,7 +108,7 @@ namespace TextLocator
             FileTypeFilter.Children.Clear();
             FileTypeNames.Children.Clear();
 
-            radioButtonAll = new RadioButton()
+            _radioButtonAll = new RadioButton()
             {
                 GroupName = "FileTypeFilter",
                 Width = 80,
@@ -117,8 +118,8 @@ namespace TextLocator
                 Name = "FileTypeAll",
                 IsChecked = true
             };
-            radioButtonAll.Checked += FileType_Checked;
-            FileTypeFilter.Children.Add(radioButtonAll);
+            _radioButtonAll.Checked += FileType_Checked;
+            FileTypeFilter.Children.Add(_radioButtonAll);
 
 
             // 获取文件类型枚举，遍历并加入下拉列表
@@ -157,7 +158,7 @@ namespace TextLocator
         {
             TaskTime taskTime = TaskTime.StartNew();
             // 初始化显示被索引的文件夹列表
-            _IndexFolders.Clear();
+            _indexFolders.Clear();
             // 读取被索引文件夹配置信息，如果配置信息为空：默认为我的文档和我的桌面
             string customFolders = AppUtil.ReadValue("AppConfig", "FolderPaths", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "," + Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
             // 配置信息不为空
@@ -166,11 +167,11 @@ namespace TextLocator
                 string[] customFolderArray = customFolders.Split(',');
                 foreach (string folderPath in customFolderArray)
                 {
-                    _IndexFolders.Add(folderPath);
+                    _indexFolders.Add(folderPath);
                 }
             }
             string foldersText = "";
-            foreach (string folder in _IndexFolders)
+            foreach (string folder in _indexFolders)
             {
                 foldersText += folder + ", ";
             }
@@ -181,88 +182,82 @@ namespace TextLocator
 
         #endregion
 
-        #region 核心方法
+        #region 搜索
         /// <summary>
-        /// 检查索引是否存在
+        /// 搜索
         /// </summary>
-        /// <returns></returns>
-        private bool CheckIndexExist(bool showWarning = true)
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
-            bool exists = Directory.Exists(AppConst.APP_INDEX_DIR);
-            if (!exists)
+            // 获取搜索关键词列表
+            List<string> keywords = GetTextKeywords();
+
+            if (keywords == null || keywords.Count <= 0)
             {
-                if (showWarning)
-                {
-                    Message.ShowWarning("MessageContainer", "首次使用该软件，需先设置需要索引的文件夹。并点击右侧重建按钮进行初始化");
-                }
+                Message.ShowWarning("MessageContainer", "请输入搜索关键词");
+                return;
             }
-            return exists;
+
+            // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
+            MatchWords.IsChecked = false;
+            OnlyFileName.IsChecked = false;
+            (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
+            SortOptions.SelectedIndex = 0;
+
+            BeforeSearch();
         }
 
         /// <summary>
-        /// 构建索引
+        /// 回车搜索
         /// </summary>
-        /// <param name="rebuild">重建，默认是优化</param>
-        private void BuildIndex(bool rebuild = false)
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SearchText_PreviewKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            Task.Factory.StartNew(() =>
+            if (e.Key == Key.Enter)
             {
-                var taskMark = TaskTime.StartNew();
+                // 光标移除文本框
+                SearchText.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
 
-                // 定义文件列表
-                List<string> filePaths = new List<string>();
-                foreach (string s in _IndexFolders)
-                {
-                    log.Debug("目录：" + s);
-                    // 获取文件信息列表
-                    FileUtil.GetAllFiles(s, filePaths);
-                }
+                // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
+                MatchWords.IsChecked = false;
+                OnlyFileName.IsChecked = false;
+                (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
+                SortOptions.SelectedIndex = 0;
 
-                // 排序
-                //filePaths.Sort();
+                BeforeSearch();
 
-                // 创建索引方法
-                IndexCore.CreateIndex(filePaths, rebuild, ShowStatus);
-
-                /*// 索引拷贝前删除
-                FileUtil.RemoveDirectory(AppConst.APP_INDEX_DIR);
-
-                // 索引拷贝：索引创建结束后拷贝新索引覆盖旧的索引，并删除write.lock
-                FileUtil.CopyDirectory(AppConst.APP_INDEX_BUILD_DIR, AppConst.APP_INDEX_DIR);*/
-
-                string msg = "索引完成。共用时：" + taskMark.ConsumeTime + "秒";
-
-                // 显示状态
-                ShowStatus(msg);
-
-                Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    Message.ShowSuccess("MessageContainer", msg);
-                }));
-
-                // 构建结束
-                build = false;
-            });
+                // 光标聚焦
+                SearchText.Focus();
+            }
         }
 
         /// <summary>
-        /// 显示状态
+        /// 文本内容变化时
         /// </summary>
-        /// <param name="text">消息</param>
-        /// <param name="percent">进度</param>
-        private void ShowStatus(string text, double percent = AppConst.MAX_PERCENT)
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SearchText_TextChanged(object sender, TextChangedEventArgs e)
         {
-            Dispatcher.BeginInvoke(new Action(() => {
-                
-                WorkStatus.Text = text;
-                if (percent > AppConst.MIN_PERCENT)
-                {
-                    WorkProgress.Value = percent;
+            try
+            {
+                // 搜索关键词
+                string text = SearchText.Text;
 
-                    TaskbarItemInfo.ProgressState = percent < AppConst.MAX_PERCENT ? System.Windows.Shell.TaskbarItemProgressState.Normal : System.Windows.Shell.TaskbarItemProgressState.None;
-                    TaskbarItemInfo.ProgressValue = WorkProgress.Value / WorkProgress.Maximum;
-                }                
-            }));
+                // 替换特殊字符
+                text = AppConst.REGIX_SPECIAL_CHARACTER.Replace(text, "");
+
+                // 回写处理过的字符
+                SearchText.Text = text;
+
+                // 光标定位到最后
+                SearchText.SelectionStart = SearchText.Text.Length;
+
+                // 如果文本为空则隐藏清空按钮，如果不为空则显示清空按钮
+                CleanButton.Visibility = text.Length > 0 ? Visibility.Visible : Visibility.Hidden;
+            }
+            catch { }
         }
 
         /// <summary>
@@ -279,7 +274,7 @@ namespace TextLocator
             {
                 return;
             }
-            
+
             Thread t = new Thread(() => {
                 // 清空搜索结果列表
                 Dispatcher.Invoke(new Action(() => {
@@ -354,7 +349,7 @@ namespace TextLocator
                     Lucene.Net.Search.Sort sort = new Lucene.Net.Search.Sort();
                     switch (sortType)
                     {
-                        case SortType.默认排序:break;
+                        case SortType.默认排序: break;
                         case SortType.从远到近:
                             // 按照CreateTime字段排序，false表示升序
                             sort.SetSort(new Lucene.Net.Search.SortField("CreateTime", Lucene.Net.Search.SortField.STRING_VAL, false));
@@ -369,7 +364,7 @@ namespace TextLocator
                             sort.SetSort(new Lucene.Net.Search.SortField("FileSize", Lucene.Net.Search.SortField.INT, true));
                             break;
                     }
-                    
+
 
                     // 查询数据分页
                     Lucene.Net.Search.TopFieldDocs topDocs = searcher.Search(boolQuery, null, pageNow * pageSize, sort);
@@ -378,7 +373,7 @@ namespace TextLocator
 
                     // 查询到的条数
                     int totalHits = topDocs.TotalHits;
-                    
+
                     // 设置分页标签总条数
                     this.Dispatcher.BeginInvoke(new Action(() => {
                         // 如果总条数小于等于分页条数，则不显示分页
@@ -406,7 +401,7 @@ namespace TextLocator
                     int end = pageSize * pageNow;
                     if (end > totalHits) end = totalHits;
                     // 获取并显示列表
-                    for (int i = start; i < end; i++) 
+                    for (int i = start; i < end; i++)
                     {
                         // 该文件的在索引里的文档号,Doc是该文档进入索引时Lucene的编号，默认按照顺序编的
                         int docId = scores[i].Doc;
@@ -479,135 +474,112 @@ namespace TextLocator
         }
         #endregion
 
-        #region 功能按钮事件
+        #region 分页
         /// <summary>
-        /// 搜索
+        /// 实现INotifyPropertyChanged接口
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged(string propertyName)
         {
-            // 获取搜索关键词列表
-            List<string> keywords = GetTextKeywords();
-
-            if (keywords == null || keywords.Count <= 0)
+            if (this.PropertyChanged != null)
             {
-                Message.ShowWarning("MessageContainer", "请输入搜索关键词");
-                return;
+                this.PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+        /// <summary>
+        /// 每页显示数量
+        /// </summary>
+        public int pageSize = AppConst.MAX_COUNT_LIMIT;
+        public int PageSize
+        {
+            // 获取值时将私有字段传出；
+            get { return pageSize; }
+            set
+            {
+                // 赋值时将值传给私有字段
+                pageSize = value;
+                // 一旦执行了赋值操作说明其值被修改了，则立马通过INotifyPropertyChanged接口告诉UI(IntValue)被修改了
+                OnPropertyChanged("PageSize");
+            }
+        }
+
+        private void PageBar_PageIndexChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
+        {
+            log.Debug($"page index : {e.OldValue} => {e.NewValue}");
 
             // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
             MatchWords.IsChecked = false;
             OnlyFileName.IsChecked = false;
             (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
-            SortOptions.SelectedIndex = 0;
 
-            BeforeSearch();
+            BeforeSearch(e.NewValue);
         }
 
+        private void PageBar_PageSizeChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
+        {
+            log.Debug($"page size : {e.OldValue} => {e.NewValue}");
+        }
+        #endregion
+
+        #region 排序
         /// <summary>
-        /// 回车搜索
+        /// 排序选中
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SearchText_PreviewKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        private void SortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.Key == Key.Enter)
-            {
-                // 光标移除文本框
-                SearchText.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-
-                // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
-                MatchWords.IsChecked = false;
-                OnlyFileName.IsChecked = false;
-                (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
-                SortOptions.SelectedIndex = 0;
-
-                BeforeSearch();
-
-                // 光标聚焦
-                SearchText.Focus();
-            }
+            BeforeSearch(pageNow);
         }
+        #endregion
 
+        #region 清空
         /// <summary>
-        /// 文本内容变化时
+        /// 清空按钮
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SearchText_TextChanged(object sender, TextChangedEventArgs e)
+        private void CleanButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                // 搜索关键词
-                string text = SearchText.Text;
-
-                // 替换特殊字符
-                text = AppConst.REGIX_SPECIAL_CHARACTER.Replace(text, "");
-
-                // 回写处理过的字符
-                SearchText.Text = text;
-
-                // 光标定位到最后
-                SearchText.SelectionStart = SearchText.Text.Length;
-
-                // 如果文本为空则隐藏清空按钮，如果不为空则显示清空按钮
-                CleanButton.Visibility = text.Length > 0 ? Visibility.Visible : Visibility.Hidden;
-            } catch { }
+            CleanSearchResult();
         }
 
         /// <summary>
-        /// 文件类型过滤器选中事件
+        /// 清理查询结果
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FileType_Checked(object sender, RoutedEventArgs e)
+        private void CleanSearchResult()
         {
-            FileTypeFilter.Tag = (sender as RadioButton).Content;
-            
-            BeforeSearch();
-        }
+            SearchText.Text = "";
+            SearchResultList.Items.Clear();
 
-        /// <summary>
-        /// 仅文件名选中时
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnlyFileName_Checked(object sender, RoutedEventArgs e)
-        {
-            BeforeSearch();
-        }
+            OpenFile.Tag = null;
+            OpenFolder.Tag = null;
+            PreviewFileName.Text = "";
+            PreviewFileContent.Document.Blocks.Clear();
+            PreviewImage.Source = null;
+            PreviewFileTypeIcon.Source = null;
 
-        /// <summary>
-        /// 仅文件名取消选中时
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnlyFileName_Unchecked(object sender, RoutedEventArgs e)
-        {
-            BeforeSearch();
-        }
-        
-        /// <summary>
-        /// 匹配全瓷选中
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MatchWords_Checked(object sender, RoutedEventArgs e)
-        {
-            BeforeSearch();
-        }
+            WorkStatus.Text = "就绪";
+            OnlyFileName.IsChecked = false;
+            MatchWords.IsChecked = false;
 
-        /// <summary>
-        /// 匹配全瓷取消选中
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MatchWords_Unchecked(object sender, RoutedEventArgs e)
-        {
-            BeforeSearch();
-        }
+            ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(_radioButtonAll);
+            IToggleProvider toggleProvider = toggleButtonAutomationPeer.GetPattern(PatternInterface.Toggle) as IToggleProvider;
+            toggleProvider.Toggle();
 
+            pageNow = 1;
+            // 设置分页标签总条数
+            this.Dispatcher.BeginInvoke(new Action(() => {
+                this.PageBar.Total = 0;
+                this.PageBar.PageIndex = 1;
+            }));
+
+            // 排序类型切换为默认
+            this.SortOptions.SelectedIndex = 0;
+        }
+        #endregion
+
+        #region 列表
         /// <summary>
         /// 列表项被选中事件
         /// </summary>
@@ -615,7 +587,7 @@ namespace TextLocator
         /// <param name="e"></param>
         private void SearchResultList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(SearchResultList.SelectedIndex == -1)
+            if (SearchResultList.SelectedIndex == -1)
             {
                 return;
             }
@@ -722,16 +694,62 @@ namespace TextLocator
                 t.Start();
             }
         }
+        #endregion
 
+        #region 界面事件
         /// <summary>
-        /// 清空按钮
+        /// 文件类型过滤器选中事件
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void CleanButton_Click(object sender, RoutedEventArgs e)
+        private void FileType_Checked(object sender, RoutedEventArgs e)
         {
-            CleanSearchResult();
+            FileTypeFilter.Tag = (sender as RadioButton).Content;
+            
+            BeforeSearch();
         }
+
+        /// <summary>
+        /// 仅文件名选中时
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnlyFileName_Checked(object sender, RoutedEventArgs e)
+        {
+            BeforeSearch();
+        }
+
+        /// <summary>
+        /// 仅文件名取消选中时
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnlyFileName_Unchecked(object sender, RoutedEventArgs e)
+        {
+            BeforeSearch();
+        }
+        
+        /// <summary>
+        /// 匹配全瓷选中
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MatchWords_Checked(object sender, RoutedEventArgs e)
+        {
+            BeforeSearch();
+        }
+
+        /// <summary>
+        /// 匹配全瓷取消选中
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MatchWords_Unchecked(object sender, RoutedEventArgs e)
+        {
+            BeforeSearch();
+        }
+
+        
 
         /// <summary>
         /// 优化按钮
@@ -795,6 +813,97 @@ namespace TextLocator
             }
         }
 
+        #endregion
+
+        #region 辅助方法
+        /// <summary>
+        /// 检查索引是否存在
+        /// </summary>
+        /// <returns></returns>
+        private bool CheckIndexExist(bool showWarning = true)
+        {
+            bool exists = Directory.Exists(AppConst.APP_INDEX_DIR);
+            if (!exists)
+            {
+                if (showWarning)
+                {
+                    Message.ShowWarning("MessageContainer", "首次使用，需先设置搜索区，并重建索引");
+                }
+            }
+            return exists;
+        }
+
+        /// <summary>
+        /// 构建索引
+        /// </summary>
+        /// <param name="rebuild">重建，默认是优化</param>
+        private void BuildIndex(bool rebuild = false)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                var taskMark = TaskTime.StartNew();
+
+
+                var fileMark = TaskTime.StartNew();
+                // 定义文件列表
+                List<string> filePaths = new List<string>();
+                foreach (string s in _indexFolders)
+                {
+                    log.Debug("目录：" + s);
+                    // 获取文件信息列表
+                    FileUtil.GetAllFiles(filePaths, s);
+                }
+                log.Debug("GetFiles 耗时：" + fileMark.ConsumeTime + "秒");
+
+                // 排重
+                filePaths = filePaths.Distinct().ToList();
+
+                // 排序
+                filePaths = ListUtil.Shuffle(filePaths);
+
+                // 创建索引方法
+                IndexCore.CreateIndex(filePaths, rebuild, ShowStatus);
+
+                /*// 索引拷贝前删除
+                FileUtil.RemoveDirectory(AppConst.APP_INDEX_DIR);
+
+                // 索引拷贝：索引创建结束后拷贝新索引覆盖旧的索引，并删除write.lock
+                FileUtil.CopyDirectory(AppConst.APP_INDEX_BUILD_DIR, AppConst.APP_INDEX_DIR);*/
+
+                string msg = "索引完成。共用时：" + taskMark.ConsumeTime + "秒";
+
+                // 显示状态
+                ShowStatus(msg);
+
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    Message.ShowSuccess("MessageContainer", msg);
+                }));
+
+                // 构建结束
+                build = false;
+            });
+        }
+
+        /// <summary>
+        /// 显示状态
+        /// </summary>
+        /// <param name="text">消息</param>
+        /// <param name="percent">进度</param>
+        private void ShowStatus(string text, double percent = AppConst.MAX_PERCENT)
+        {
+            Dispatcher.BeginInvoke(new Action(() => {
+
+                WorkStatus.Text = text;
+                if (percent > AppConst.MIN_PERCENT)
+                {
+                    WorkProgress.Value = percent;
+
+                    TaskbarItemInfo.ProgressState = percent < AppConst.MAX_PERCENT ? System.Windows.Shell.TaskbarItemProgressState.Normal : System.Windows.Shell.TaskbarItemProgressState.None;
+                    TaskbarItemInfo.ProgressValue = WorkProgress.Value / WorkProgress.Maximum;
+                }
+            }));
+        }
         #endregion
 
         #region 右侧预览区域
@@ -871,40 +980,6 @@ namespace TextLocator
         }
 
         /// <summary>
-        /// 清理查询结果
-        /// </summary>
-        private void CleanSearchResult()
-        {
-            SearchText.Text = "";
-            SearchResultList.Items.Clear();
-
-            OpenFile.Tag = null;
-            OpenFolder.Tag = null;
-            PreviewFileName.Text = "";
-            PreviewFileContent.Document.Blocks.Clear();
-            PreviewImage.Source = null;
-            PreviewFileTypeIcon.Source = null;
-
-            WorkStatus.Text = "就绪";
-            OnlyFileName.IsChecked = false;
-            MatchWords.IsChecked = false;
-
-            ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(radioButtonAll);
-            IToggleProvider toggleProvider = toggleButtonAutomationPeer.GetPattern(PatternInterface.Toggle) as IToggleProvider;
-            toggleProvider.Toggle();
-
-            pageNow = 1;
-            // 设置分页标签总条数
-            this.Dispatcher.BeginInvoke(new Action(() => {
-                this.PageBar.Total = 0;
-                this.PageBar.PageIndex = 1;
-            }));
-
-            // 排序类型切换为默认
-            this.SortOptions.SelectedIndex = 0;
-        }
-
-        /// <summary>
         /// 搜索前
         /// </summary>
         /// <param name="page">指定页</param>
@@ -955,66 +1030,6 @@ namespace TextLocator
                 (bool)OnlyFileName.IsChecked, 
                 (bool)MatchWords.IsChecked
             );
-        }
-        #endregion
-
-
-        #region 分页
-        /// <summary>
-        /// 实现INotifyPropertyChanged接口
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged(string propertyName)
-        {
-            if (this.PropertyChanged != null)
-            {
-                this.PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-        /// <summary>
-        /// 每页显示数量
-        /// </summary>
-        public int pageSize = AppConst.MAX_COUNT_LIMIT;
-        public int PageSize
-        {
-            // 获取值时将私有字段传出；
-            get { return pageSize; } 
-            set
-            {
-                // 赋值时将值传给私有字段
-                pageSize = value; 
-                // 一旦执行了赋值操作说明其值被修改了，则立马通过INotifyPropertyChanged接口告诉UI(IntValue)被修改了
-                OnPropertyChanged("PageSize");
-            }
-        }
-
-        private void PageBar_PageIndexChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
-        {
-            log.Debug($"page index : {e.OldValue} => {e.NewValue}");
-
-            // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
-            MatchWords.IsChecked = false;
-            OnlyFileName.IsChecked = false;
-            (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
-
-            BeforeSearch(e.NewValue);
-        }
-
-        private void PageBar_PageSizeChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
-        {
-            log.Debug($"page size : {e.OldValue} => {e.NewValue}");
-        }
-        #endregion
-
-        #region 排序
-        /// <summary>
-        /// 排序选中
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            BeforeSearch(pageNow);
         }
         #endregion
     }

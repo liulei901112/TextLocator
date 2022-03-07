@@ -38,7 +38,7 @@ namespace TextLocator.Core
         /// <returns></returns>
         public static TaskTime StartNew()
         {
-            return new TaskTime(); ;
+            return new TaskTime();
         }
     }
 }

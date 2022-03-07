@@ -27,21 +27,38 @@ namespace TextLocator.Index
         public delegate void Callback(string msg, double percent);
 
         /// <summary>
-        /// 锁
+        /// 锁对象
         /// </summary>
         private static object locker = new object();
 
         /// <summary>
         /// 已完成数量
         /// </summary>
-        private static volatile int finishCount = 0;
+        private static volatile int _finishCount = 0;
+        /// <summary>
+        /// 总数
+        /// </summary>
+        private static volatile int _totalCount = 0;
+        /// <summary>
+        /// 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
+        /// </summary>
+        private static volatile Lucene.Net.Index.IndexWriter _indexWriter;
+        /// <summary>
+        /// 回调函数
+        /// </summary>
+        private static volatile Callback _callback;
 
         /// <summary>
         /// 创建索引
         /// </summary>
-        /// <param name="filePaths">获得的文档包</param>
+        /// <param name="filePaths">文件列表</param>
+        /// <param name="rebuild">是否重建</param>
+        /// <param name="callback">消息回调</param>
         public static void CreateIndex(List<string> filePaths, bool rebuild, Callback callback)
         {
+            _callback = callback;
+
+
             // 判断是创建索引还是增量索引（如果索引目录不存在，重建）
             bool create = !Directory.Exists(AppConst.APP_INDEX_DIR);
             // 入参为true，表示重建
@@ -58,39 +75,35 @@ namespace TextLocator.Index
             }
 
             // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
-            Lucene.Net.Index.IndexWriter indexWriter = new Lucene.Net.Index.IndexWriter(
+            _indexWriter = new Lucene.Net.Index.IndexWriter(
                 AppConst.INDEX_DIRECTORY, 
                 AppConst.INDEX_ANALYZER, 
                 create, 
                 Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
 
-            indexWriter.SetRAMBufferSizeMB(512);
-            indexWriter.SetMaxBufferedDocs(1024);
+            _indexWriter.SetRAMBufferSizeMB(512);
+            _indexWriter.SetMaxBufferedDocs(1024);
 
             // 文件总数
-            int totalCount = filePaths.Count();
+            _totalCount = filePaths.Count();
 
             // 每次初始化的时候完成数量都是0
-            finishCount = 0;
+            _finishCount = 0;
 
-            using (MutipleThreadResetEvent resetEvent = new MutipleThreadResetEvent(totalCount))
+            using (MutipleThreadResetEvent resetEvent = new MutipleThreadResetEvent(_totalCount))
             {
                 // 遍历读取文件，并创建索引
-                for (int i = 0; i < totalCount; i++)
+                for (int i = 0; i < _totalCount; i++)
                 {
                     string filePath = filePaths[i];
                     // 忽略已存在索引的文件
-                    if (SkipFile(create, filePath, totalCount, callback, resetEvent))
+                    if (SkipFile(create, filePath, resetEvent))
                     {
                         continue;
                     }
                     // 加入线程池
                     ThreadPool.QueueUserWorkItem(new WaitCallback(CreateIndexTask), new TaskInfo() {
-                        TotalCount = totalCount,
                         FilePath = filePaths[i],
-                        IndexWriter = indexWriter,
-                        Callback = callback,
-                        Rebuild = rebuild,
                         ResetEvent = resetEvent
                     });
                 }
@@ -105,9 +118,9 @@ namespace TextLocator.Index
             try
             {
                 // 索引优化
-                indexWriter.Optimize();
+                _indexWriter.Optimize();
                 // 索引写入器销毁
-                indexWriter.Dispose();
+                _indexWriter.Dispose();
 
                 // 手动GC
                 GC.Collect();
@@ -124,10 +137,8 @@ namespace TextLocator.Index
         /// </summary>
         /// <param name="create">是否是创建，true为创建、false为更新</param>
         /// <param name="filePath">文件路径</param>
-        /// <param name="totalCount">文件总数</param>
-        /// <param name="callback">状态回调函数</param>
         /// <param name="resetEvent">多线程任务标记</param>
-        private static bool SkipFile(bool create, string filePath, int totalCount, Callback callback, MutipleThreadResetEvent resetEvent)
+        private static bool SkipFile(bool create, string filePath, MutipleThreadResetEvent resetEvent)
         {
             // 非重建 && 文件已经被索引过
             bool isUpdate = !create;
@@ -137,11 +148,11 @@ namespace TextLocator.Index
                 string skipMsg = "跳过文件：" + filePath;
 
                 // 跳过的文件闪烁
-                callback(skipMsg, CalcFinishRatio(finishCount, totalCount));
+                _callback(skipMsg, CalcFinishRatio(_finishCount, _totalCount));
 
                 lock (locker)
                 {
-                    finishCount++;
+                    _finishCount++;
                 }
 
                 try
@@ -170,9 +181,6 @@ namespace TextLocator.Index
                 // 解析时间
                 var taskMark = TaskTime.StartNew();
 
-                // 索引写入
-                Lucene.Net.Index.IndexWriter indexWriter = taskInfo.IndexWriter;
-
                 // 文件路径
                 string filePath = taskInfo.FilePath;
 
@@ -198,7 +206,7 @@ namespace TextLocator.Index
                 }
                 catch { }
 
-                StringBuilder msg = new StringBuilder("[" + finishCount * 1.0F + "/" + taskInfo.TotalCount + "] => 引擎：" + (int)fileType + "，文件：" + filePathPadding);
+                StringBuilder msg = new StringBuilder("[" + _finishCount * 1.0F + "/" + _totalCount + "] => 引擎：" + (int)fileType + "，文件：" + filePathPadding);
 
                 // 文件内容
                 string content = FileInfoServiceFactory.GetFileInfoService(fileType).GetFileContent(filePath);
@@ -221,7 +229,7 @@ namespace TextLocator.Index
                 lock (locker)
                 {
                     // 当索引文件中含有与filemark相等的field值时，会先删除再添加，以防出现重复
-                    indexWriter.DeleteDocuments(new Lucene.Net.Index.Term("FileMark", fileMark));
+                    _indexWriter.DeleteDocuments(new Lucene.Net.Index.Term("FileMark", fileMark));
 
                     Lucene.Net.Documents.Document doc = new Lucene.Net.Documents.Document();
                     // 不分词建索引
@@ -236,12 +244,13 @@ namespace TextLocator.Index
                     doc.Add(new Lucene.Net.Documents.Field("FilePath", filePath, Lucene.Net.Documents.Field.Store.YES, Lucene.Net.Documents.Field.Index.ANALYZED));
                     doc.Add(new Lucene.Net.Documents.Field("Content", content, Lucene.Net.Documents.Field.Store.NO, Lucene.Net.Documents.Field.Index.ANALYZED));
 
-                    indexWriter.AddDocument(doc);
+                    _indexWriter.AddDocument(doc);
                 }
                 msg.Append("，索引：" + taskMark.ConsumeTime + "秒");
 
                 // 执行状态回调
-                taskInfo.Callback(msg.ToString(), CalcFinishRatio(finishCount, taskInfo.TotalCount));
+                // taskInfo.Callback(msg.ToString(), CalcFinishRatio(_finishCount, taskInfo.TotalCount));
+                _callback(msg.ToString(), CalcFinishRatio(_finishCount, _totalCount));
 
                 log.Debug(msg);
             }
@@ -253,7 +262,7 @@ namespace TextLocator.Index
             {
                 lock (locker)
                 {
-                    finishCount++;
+                    _finishCount++;
                 }
 
                 try
@@ -281,25 +290,9 @@ namespace TextLocator.Index
         class TaskInfo
         {
             /// <summary>
-            /// 文件总数
-            /// </summary>
-            public int TotalCount { get; set; }
-            /// <summary>
             /// 文件路径
             /// </summary>
             public string FilePath { get; set; }
-            /// <summary>
-            /// 索引写入器
-            /// </summary>
-            public Lucene.Net.Index.IndexWriter IndexWriter { get; set; }
-            /// <summary>
-            /// 回调函数
-            /// </summary>
-            public Callback Callback { get; set; }
-            /// <summary>
-            /// 重建
-            /// </summary>
-            public bool Rebuild { get; set; }
             /// <summary>
             /// 多线程重置
             /// </summary>

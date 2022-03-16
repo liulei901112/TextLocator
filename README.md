@@ -6,8 +6,8 @@
 ![自动分词](images/Keywords1.png)
 ![手动分词](images/Keywords2.png)
 ![类型筛选](images/FileFilter.png)
-![重建确认](images/RebuildIndexConfirm.png)
 ![搜索分页](images/Page.png)
+![重建确认](images/RebuildIndexConfirm.png)
 ![清空按钮](images/Clean.png)
 
 #### 软件介绍

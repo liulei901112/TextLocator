@@ -16,7 +16,7 @@
 #### 软件架构
 本地单机软件。
 * WPF实现的UI（RubyerUI组件）
-* Lucene.Net实现的索引（PanGu.Lucene.Analyzer分词器）
+* Lucene.Net实现的索引（Jieba.NET分词器）
 * NPOI、Spire、Microsoft.Office实现的文档内容读取
 
 #### 安装教程

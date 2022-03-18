@@ -105,6 +105,8 @@
                                 </StackPanel>
                             </StackPanel>
                             <StackPanel Margin="0,0,0,10" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                                <!-- 搜索区按钮 -->
+                                <Button x:Name="SearchAreaButton" Content="设置搜索区" ToolTip="增量更新索引" Margin="0,0,300,0" Width="80" Height="25" Background="Blue" Click="SearchAreaButton_Click"/>
                                 <!-- 搜索按钮 -->
                                 <Button x:Name="IndexUpdateButton" Content="更新" ToolTip="增量更新索引" Margin="0,0,10,0" Width="80" Height="25" Background="Green" Click="IndexUpdateButton_Click"/>
                                 <!-- 清空按钮 -->

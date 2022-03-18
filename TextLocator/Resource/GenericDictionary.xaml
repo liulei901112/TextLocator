@@ -33,7 +33,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
-                    <Grid Height="50" Background="{TemplateBinding Background}" ToolTip="{TemplateBinding Content}"  Width="{TemplateBinding Width}" Margin="0">
+                    <Grid Height="50" Background="{TemplateBinding Background}" ToolTip="{TemplateBinding ToolTip}"  Width="{TemplateBinding Width}" Margin="0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="11*"/>
                             <RowDefinition Height="9*"/>

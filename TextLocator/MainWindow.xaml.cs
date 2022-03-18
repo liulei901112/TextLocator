@@ -120,7 +120,8 @@ namespace TextLocator
                 Tag = "全部",
                 Content = "全部",
                 Name = "FileTypeAll",
-                IsChecked = true
+                IsChecked = true,
+                ToolTip = "All"
             };
             _radioButtonAll.Checked += FileType_Checked;
             FileTypeFilter.Children.Add(_radioButtonAll);
@@ -137,7 +138,8 @@ namespace TextLocator
                     Tag = fileType.ToString(),
                     Content = fileType.ToString(),
                     Name = "FileType" + fileType.ToString(),
-                    IsChecked = false
+                    IsChecked = false,
+                    ToolTip = fileType.GetDescription()
                 };
                 radioButton.Checked += FileType_Checked;
                 FileTypeFilter.Children.Add(radioButton);
@@ -813,9 +815,24 @@ namespace TextLocator
         /// <param name="e"></param>
         private void FolderPaths_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            FolderWindow folderDialog = new FolderWindow();
-            folderDialog.ShowDialog();
-            if (folderDialog.DialogResult == true)
+            SearchAreaWindow searchArea = new SearchAreaWindow();
+            searchArea.ShowDialog();
+            if (searchArea.DialogResult == true)
+            {
+                InitializeAppConfig();
+            }
+        }
+
+        /// <summary>
+        /// 设置按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SearchAreaButton_Click(object sender, RoutedEventArgs e)
+        {
+            SearchAreaWindow searchArea = new SearchAreaWindow();
+            searchArea.ShowDialog();
+            if (searchArea.DialogResult == true)
             {
                 InitializeAppConfig();
             }

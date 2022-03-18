@@ -172,8 +172,8 @@
       <DependentUpon>FolderInfoItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Index\IndexCore.cs" />
-    <Compile Include="FolderWindow.xaml.cs">
-      <DependentUpon>FolderWindow.xaml</DependentUpon>
+    <Compile Include="SearchAreaWindow.xaml.cs">
+      <DependentUpon>SearchAreaWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Index\MutipleThreadResetEvent.cs" />
     <Compile Include="Jieba\JiebaAnalyzer.cs" />
@@ -221,7 +221,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="FolderWindow.xaml">
+    <Page Include="SearchAreaWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

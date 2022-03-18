@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Hardcodet.Wpf.TaskbarNotification;
+using log4net;
 using System;
 using System.Text;
 using System.Threading;
@@ -18,6 +19,8 @@ namespace TextLocator
     public partial class App : Application
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        private TaskbarIcon _taskbar;
 
         public App()
         {
@@ -77,6 +80,9 @@ namespace TextLocator
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            // 托盘图标
+            _taskbar = (TaskbarIcon)FindResource("Taskbar");
+
             base.OnStartup(e);            
 
             // UI线程未捕获异常处理事件

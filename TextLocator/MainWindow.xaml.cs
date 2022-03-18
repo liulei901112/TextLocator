@@ -1059,5 +1059,11 @@ namespace TextLocator
             );
         }
         #endregion
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true;
+        }
     }
 }

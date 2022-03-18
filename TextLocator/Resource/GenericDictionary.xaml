@@ -1,36 +1,30 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:notify="clr-namespace:TextLocator.NotifyIcon"
+                    xmlns:tb="http://www.hardcodet.net/taskbar">
     <!-- 资源字典合并 -->
     <ResourceDictionary.MergedDictionaries>
         <!-- Rubyer -->
         <ResourceDictionary Source="pack://application:,,,/Rubyer;component/Themes/Generic.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <!-- 文件列表项 -->
-    <Style x:Key="FileInfoStyle" TargetType="{x:Type ListBoxItem}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                    <Grid Height="50" x:Name="grid">
-                        <Border Background="{Binding UserBackground}" Width="40" Height="40" CornerRadius="4" HorizontalAlignment="Left" Margin="5 0 0 0">
-                            <TextBlock Text="{Binding Header}" FontSize="23" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        </Border>
-                        <TextBlock Text="{Binding FileName}" Margin="55 7 0 0" FontSize="13"/>
-                        <TextBlock Text="{Binding Info}" Foreground="#808080" Margin="55 30 0 0"/>
-                        <TextBlock Text="{Binding Count,StringFormat={}{0}人}" Foreground="#808080" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                    </Grid>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="true">
-                            <Setter TargetName="grid" Property="Background" Value="#fceeb9"/>
-                        </Trigger>
-                        <Trigger Property="Selector.IsSelected" Value="true">
-                            <Setter TargetName="grid" Property="Background" Value="#fae388"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+    <!-- 托盘图标菜单 -->
+    <ContextMenu x:Key="SysTrayMenu">
+        <MenuItem Header="显示窗口" Command="{Binding ShowWindowCommand}" />
+        <MenuItem Header="隐藏窗口" Command="{Binding HideWindowCommand}" />
+        <Separator />
+        <MenuItem Header="退出" Command="{Binding ExitApplicationCommand}" />
+    </ContextMenu>
+    <!-- 托盘图标 -->
+    <tb:TaskbarIcon x:Key="Taskbar" 
+                    ToolTipText="文本搜索定位器"
+                    IconSource="/Resource/App.ico"
+                    DoubleClickCommand="{Binding ShowWindowCommand}"
+                    ContextMenu="{StaticResource SysTrayMenu}">
+        <tb:TaskbarIcon.DataContext>
+            <notify:NotifyIconViewModel/>
+        </tb:TaskbarIcon.DataContext>
+    </tb:TaskbarIcon>
 
     <!-- 文件类型筛选 -->
     <Style x:Name="FileTypeFilter" TargetType="RadioButton">

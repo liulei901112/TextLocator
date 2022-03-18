@@ -10,8 +10,10 @@
 
     <!-- 托盘图标菜单 -->
     <ContextMenu x:Key="SysTrayMenu">
-        <MenuItem Header="显示窗口" Command="{Binding ShowWindowCommand}" />
-        <MenuItem Header="隐藏窗口" Command="{Binding HideWindowCommand}" />
+        <MenuItem Header="设置" Command="{Binding ShowSettingWindowCommand}" />
+        <Separator />
+        <MenuItem Header="显示" Command="{Binding ShowWindowCommand}" />
+        <MenuItem Header="隐藏" Command="{Binding HideWindowCommand}" />        
         <Separator />
         <MenuItem Header="退出" Command="{Binding ExitApplicationCommand}" />
     </ContextMenu>

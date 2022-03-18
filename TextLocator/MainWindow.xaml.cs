@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -37,6 +38,14 @@ namespace TextLocator
         /// 索引文件夹列表
         /// </summary>
         private List<string> _indexFolders = new List<string>();
+        /// <summary>
+        /// 排除文件夹列表
+        /// </summary>
+        private List<string> _exclusionFolders = new List<string>();
+        /// <summary>
+        /// 
+        /// </summary>
+        private Regex _regexExclusionFolder;
         /// <summary>
         /// 时间戳
         /// </summary>
@@ -83,6 +92,17 @@ namespace TextLocator
 
             // 软件每次启动时执行索引更新逻辑？
             CheckingIndexUpdates();
+        }
+        
+        /// <summary>
+        /// 窗口关闭中，改为隐藏
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true;
         }
 
         #region 初始化
@@ -165,24 +185,35 @@ namespace TextLocator
             TaskTime taskTime = TaskTime.StartNew();
             // 初始化显示被索引的文件夹列表
             _indexFolders.Clear();
+
             // 读取被索引文件夹配置信息，如果配置信息为空：默认为我的文档和我的桌面
-            string customFolders = AppUtil.ReadValue("AppConfig", "FolderPaths", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "," + Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+            string folderPaths = AppUtil.ReadValue("AppConfig", "FolderPaths", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "," + Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
             // 配置信息不为空
-            if (!string.IsNullOrEmpty(customFolders))
+            if (!string.IsNullOrEmpty(folderPaths))
             {
-                string[] customFolderArray = customFolders.Split(',');
-                foreach (string folderPath in customFolderArray)
+                string[] folderPathArray = folderPaths.Split(',');
+                foreach (string folderPath in folderPathArray)
                 {
                     _indexFolders.Add(folderPath);
                 }
             }
-            string foldersText = "";
-            foreach (string folder in _indexFolders)
-            {
-                foldersText += folder + ", ";
-            }
-            FolderPaths.Text = foldersText.Substring(0, foldersText.Length - 2);
+            FolderPaths.Text = folderPaths;
             FolderPaths.ToolTip = FolderPaths.Text;
+
+            // 读取排除文件夹，
+            string exclusionPaths = AppUtil.ReadValue("AppConfig", "ExclusionPaths", "");
+            if (!string.IsNullOrEmpty(exclusionPaths))
+            {
+                string[] exclusionPathArray = exclusionPaths.Split(',');
+                foreach(string exclusionPath in exclusionPathArray)
+                {
+                    _exclusionFolders.Add(exclusionPath);
+                }
+                _regexExclusionFolder = new Regex(@"(" + exclusionPaths.Replace("\\", "\\\\").Replace(',', '|') + ")");
+            }
+            ExclusionPaths.Text = exclusionPaths;
+            ExclusionPaths.ToolTip = ExclusionPaths.Text;            
+
             log.Debug("InitializeAppConfig 耗时：" + taskTime.ConsumeTime + "秒");
         }
 
@@ -252,7 +283,7 @@ namespace TextLocator
                 string text = SearchText.Text;
 
                 // 替换特殊字符
-                text = AppConst.REGIX_SPECIAL_CHARACTER.Replace(text, "");
+                text = AppConst.REGEX_SPECIAL_CHARACTER.Replace(text, "");
 
                 // 回写处理过的字符
                 SearchText.Text = text;
@@ -815,24 +846,9 @@ namespace TextLocator
         /// <param name="e"></param>
         private void FolderPaths_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            SearchAreaWindow searchArea = new SearchAreaWindow();
-            searchArea.ShowDialog();
-            if (searchArea.DialogResult == true)
-            {
-                InitializeAppConfig();
-            }
-        }
-
-        /// <summary>
-        /// 设置按钮
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SearchAreaButton_Click(object sender, RoutedEventArgs e)
-        {
-            SearchAreaWindow searchArea = new SearchAreaWindow();
-            searchArea.ShowDialog();
-            if (searchArea.DialogResult == true)
+            AreaWindow areaDialog = new AreaWindow();
+            areaDialog.ShowDialog();
+            if (areaDialog.DialogResult == true)
             {
                 InitializeAppConfig();
             }
@@ -889,7 +905,7 @@ namespace TextLocator
                 {
                     log.Debug("目录：" + s);
                     // 获取文件信息列表
-                    FileUtil.GetAllFiles(filePaths, s);
+                    FileUtil.GetAllFiles(filePaths, _regexExclusionFolder, s);
                 }
                 log.Debug("GetFiles 耗时：" + fileMark.ConsumeTime + "秒");
 
@@ -1076,11 +1092,5 @@ namespace TextLocator
             );
         }
         #endregion
-
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            this.Hide();
-            e.Cancel = true;
-        }
     }
 }

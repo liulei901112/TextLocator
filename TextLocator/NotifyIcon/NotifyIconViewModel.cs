@@ -28,6 +28,25 @@ namespace TextLocator.NotifyIcon
         }
 
         /// <summary>
+        /// 系统设置
+        /// </summary>
+        public ICommand ShowSettingWindowCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = () =>
+                    {
+                        // Application.Current.MainWindow.Show();
+                        SettingWindow setting = new SettingWindow();
+                        setting.Show();
+                    }
+                };
+            }
+        }
+
+        /// <summary>
         /// 隐藏窗口
         /// </summary>
         public ICommand HideWindowCommand

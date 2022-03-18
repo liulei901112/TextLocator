@@ -20,7 +20,9 @@ namespace TextLocator
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private TaskbarIcon _taskbar;
+        private static TaskbarIcon _taskbar;
+
+        public static TaskbarIcon Taskbar { get => _taskbar; set => _taskbar = value; }
 
         public App()
         {

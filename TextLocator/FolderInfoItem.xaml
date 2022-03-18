@@ -8,8 +8,8 @@
              d:DesignWidth="455" d:DesignHeight="40">
     <Grid Width="455" Height="40">
         <TextBlock x:Name="FolderPath" Text="D:\桌面文档" Margin="10,0,0,0" FontSize="16" HorizontalAlignment="Left"/>
-        <Button x:Name="DeleteButton" Content="删除" Margin="0,0,10,0" Background="Red" HorizontalAlignment="Right"/>
+        <Button x:Name="DeleteButton" Content="删除" Margin="0,0,10,0" Background="OrangeRed" HorizontalAlignment="Right"/>
         <!-- 分割线 -->
-        <GridSplitter Margin="0,1,0,0" Grid.Column="1" Height="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
+        <Line X1="0" Y1="0" X2="455" Y2="0" VerticalAlignment="Bottom" Stroke="Gray" StrokeThickness="1"></Line>
     </Grid>
 </UserControl>

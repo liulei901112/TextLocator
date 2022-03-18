@@ -157,6 +157,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="SettingWindow.xaml.cs">
+      <DependentUpon>SettingWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Core\AppConst.cs" />
     <Compile Include="Core\AppCore.cs" />
     <Compile Include="Core\TaskTime.cs" />
@@ -172,8 +175,8 @@
       <DependentUpon>FolderInfoItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Index\IndexCore.cs" />
-    <Compile Include="SearchAreaWindow.xaml.cs">
-      <DependentUpon>SearchAreaWindow.xaml</DependentUpon>
+    <Compile Include="AreaWindow.xaml.cs">
+      <DependentUpon>AreaWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Index\MutipleThreadResetEvent.cs" />
     <Compile Include="Jieba\JiebaAnalyzer.cs" />
@@ -201,6 +204,10 @@
     <Compile Include="Util\ListUtil.cs" />
     <Compile Include="Util\MD5Util.cs" />
     <Compile Include="Util\RichTextBoxUtil.cs" />
+    <Page Include="SettingWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="FileInfoItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -221,7 +228,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="SearchAreaWindow.xaml">
+    <Page Include="AreaWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

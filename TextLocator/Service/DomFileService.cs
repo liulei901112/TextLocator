@@ -24,7 +24,7 @@ namespace TextLocator.Service
             {
                 using (StreamReader reader = new StreamReader(new FileStream(filePath, FileMode.Open), Encoding.UTF8))
                 {
-                    content = AppConst.REGIX_TAG.Replace(reader.ReadToEnd(), "");
+                    content = AppConst.REGEX_TAG.Replace(reader.ReadToEnd(), "");
 
                     reader.Close();
                     reader.Dispose();

@@ -21,10 +21,6 @@ namespace TextLocator.Util
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
-        /// 程序员节，文件大小单位换算常量
-        /// </summary>
-        private const long PROGRAMMERS_SECTION = 1024;
-        /// <summary>
         /// 文件大小单位
         /// </summary>
         private static readonly string[] suffixes = new string[] { " B", " KB", " MB", " GB", " TB", " PB" };
@@ -134,6 +130,7 @@ namespace TextLocator.Util
         /// <returns></returns>
         public static bool OutOfRange(long fileSize, int range = 10)
         {
+            if (fileSize > range) { }
             return false;
         }
 
@@ -141,72 +138,68 @@ namespace TextLocator.Util
         /// 获取指定根目录下的子目录及其文档
         /// </summary>
         /// <param name="filePaths">文档列表</param>
+        /// <param name="regexExclude">过滤列表</param>
         /// <param name="rootPath">根目录路径</param>
-        public static void GetAllFiles(List<string> filePaths, string rootPath)
+        public static void GetAllFiles(List<string> filePaths, Regex regexExclude, string rootPath)
         {
-            /*// 根目录
+            // 根目录
             DirectoryInfo rootDir = new DirectoryInfo(rootPath);
-
             // 文件夹处理
             try
             {
-                string[] dirs = Directory.GetDirectories(rootPath);
-                foreach (string dir in dirs)
+                var dirs = rootDir.EnumerateDirectories();
+                foreach (DirectoryInfo dir in dirs)
                 {
-                    string du = dir.ToUpper();
-                    // $开始、360REC开头、SYSTEM、TEMP
-                    if (du.Contains("$RECYCLE") || du.Contains("360REC") || du.Contains("SYSTEM") || du.Contains("TEMP"))
+                    // 判断权限
+                    if ((dir.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden)
+                    {
+                        continue;
+                    }
+                    string dirPath = dir.FullName;
+                    // 系统过滤：$RECYCLE|360REC|SYSTEM|TEMP|SYSTEM VOLUME INFOMATION
+                    // 自定义过滤：
+                    if (AppConst.REGEX_EXCLUDE_KEYWORD.IsMatch(dirPath.ToUpper()) || regexExclude.IsMatch(dirPath))
                     {
                         continue;
                     }
                     // 递归调用
-                    GetAllFiles(filePaths, dir);
+                    GetAllFiles(filePaths, regexExclude, dirPath);
                 }
             }
-            catch { }
+            catch (UnauthorizedAccessException ex) {
+                log.Warn(ex.Message, ex);
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message, ex);
+            }
 
             // 文件处理
             try
             {
                 // 查找word文件
-                string[] paths = Directory.GetFiles(rootDir.FullName)
-                    .Where(file => AppConst.REGIX_FILE_EXT.IsMatch(file))
+                string[] paths = Directory.GetFiles(rootPath)
+                    .Where(file => AppConst.REGEX_FILE_EXT.IsMatch(file))
                     .ToArray();
                 // 遍历每个文档
                 foreach (string path in paths)
                 {
                     string fileName = path.Substring(path.LastIndexOf("\\") + 1);
-                    if (fileName.StartsWith("`") || fileName.StartsWith("$") || fileName.StartsWith("~") || fileName.StartsWith("."))
+                    //if (fileName.StartsWith("`") || fileName.StartsWith("$") || fileName.StartsWith("~") || fileName.StartsWith("."))
+                    if (AppConst.REGEX_START_WITH.IsMatch(fileName))
                     {
                         continue;
                     }
                     filePaths.Add(path);
                 }
             }
-            catch { }*/
-            
-            try
+            catch (UnauthorizedAccessException ex)
             {
-                string[] paths = Directory.GetFiles(rootPath, "*", SearchOption.AllDirectories)
-                    .Where(file => AppConst.REGIX_FILE_EXT.IsMatch(file))
-                    .ToArray();
-                foreach (string file in paths)
-                {
-                    string f = file.ToUpper();
-                    // 文件夹筛选：$开始、360REC开头、SYSTEM、TEMP
-                    if (f.Contains("$RECYCLE") || f.Contains("360REC") || f.Contains("SYSTEM") || f.Contains("TEMP"))
-                    {
-                        continue;
-                    }
-                    // 文件筛选：
-                    string n = file.Substring(file.LastIndexOf("\\") + 1);
-                    if (n.StartsWith("`") || n.StartsWith("$") || n.StartsWith("~") || n.StartsWith("."))
-                    {
-                        continue;
-                    }
-                    filePaths.Add(file);
-                }
-            } catch { }
+                log.Warn(ex.Message, ex);
+            }
+            catch (Exception ex) {
+                log.Warn(ex.Message, ex);
+            }
         }
 
         /// <summary>

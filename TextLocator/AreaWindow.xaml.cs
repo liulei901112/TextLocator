@@ -1,17 +1,28 @@
 ﻿using Rubyer;
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using TextLocator.Util;
 
 namespace TextLocator
 {
     /// <summary>
-    /// SearchAreaWindow.xaml 的交互逻辑
+    /// AreaWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class SearchAreaWindow : Window
+    public partial class AreaWindow : Window
     {
-        public SearchAreaWindow()
+        /// <summary>
+        /// 索引区文件夹
+        /// </summary>
+        private List<string> _indexFolder = new List<string>();
+        /// <summary>
+        /// 排除区文件夹
+        /// </summary>
+        private List<string> _exclusionFolder = new List<string>();
+
+        public AreaWindow()
         {
             InitializeComponent();
         }
@@ -32,6 +43,8 @@ namespace TextLocator
                     folder.DeleteButton.Tag = folderPath;
 
                     this.FolderList.Items.Add(folder);
+
+                    _indexFolder.Add(folderPath);
                 }
             }
 
@@ -45,10 +58,13 @@ namespace TextLocator
                 foreach (string folderPath in exclusionPaths.Split(','))
                 {
                     exclusion = new FolderInfoItem(folderPath);
+                    exclusion.FolderPath.Foreground = new SolidColorBrush(Colors.Gray);
                     exclusion.DeleteButton.Click += DeleteExclusionButton_Click;
                     exclusion.DeleteButton.Tag = folderPath;
 
                     this.ExclusionList.Items.Add(exclusion);
+
+                    _exclusionFolder.Add(folderPath);
                 }
             }
         }
@@ -83,11 +99,21 @@ namespace TextLocator
             {
                 string folderPath = browserDialog.SelectedPath;
 
+                // 判断是否已选过
+                if (_indexFolder.Contains(folderPath))
+                {
+                    Message.ShowWarning("MessageContainer", "选定目录已存在");
+                    return;
+                }
+
+                // 加入列表
                 FolderInfoItem folder = new FolderInfoItem(folderPath);
                 folder.DeleteButton.Click += DeleteButton_Click;
                 folder.DeleteButton.Tag = folderPath;
 
                 this.FolderList.Items.Add(folder);
+
+                _indexFolder.Add(folderPath);
             }
         }
         #endregion
@@ -119,17 +145,37 @@ namespace TextLocator
             System.Windows.Forms.FolderBrowserDialog browserDialog = new System.Windows.Forms.FolderBrowserDialog();
             if (browserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
+                // 获得选定文件夹
                 string folderPath = browserDialog.SelectedPath;
 
+                // 判断是否已选过
+                if (_exclusionFolder.Contains(folderPath))
+                {
+                    Message.ShowWarning("MessageContainer", "选定目录已存在");
+                    return;
+                }
+
+                // 判断是否存在于搜索区
+                if (_indexFolder.Contains(folderPath))
+                {
+                    Message.ShowWarning("MessageContainer", "不能排除搜索区目录");
+                    return;
+                }
+
+                // 加入列表
                 FolderInfoItem folder = new FolderInfoItem(folderPath);
+                folder.FolderPath.Foreground = new SolidColorBrush(Colors.Gray);
                 folder.DeleteButton.Click += DeleteExclusionButton_Click;
                 folder.DeleteButton.Tag = folderPath;
 
                 this.ExclusionList.Items.Add(folder);
+
+                _exclusionFolder.Add(folderPath);
             }
         }
         #endregion
 
+        #region 保存并关闭
         /// <summary>
         /// 保存并关闭
         /// </summary>
@@ -166,5 +212,6 @@ namespace TextLocator
 
             this.Close();
         }
+        #endregion
     }
 }

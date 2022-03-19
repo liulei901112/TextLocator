@@ -9,6 +9,7 @@
 ![搜索分页](images/Page.png)
 ![重建确认](images/RebuildIndexConfirm.png)
 ![清空按钮](images/Clean.png)
+![热键设置](images/HotKey.png)
 
 #### 软件介绍
 基于.net实现的本地文档的全文索引定位器，根据关键词搜索定位本地文档内容。便于查找历史文档时节省时间，本地文本搜索神器！

@@ -320,9 +320,7 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resource\btn_last.png" />
     <Resource Include="Resource\btn_left.png" />
-    <Resource Include="Resource\btn_next.png" />
     <Resource Include="Resource\btn_right.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

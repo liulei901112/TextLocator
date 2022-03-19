@@ -24,6 +24,8 @@ namespace TextLocator
 
         public static TaskbarIcon Taskbar { get => _taskbar; set => _taskbar = value; }
 
+        System.Threading.Mutex mutex;
+
         public App()
         {
             // 初始化线程池大小
@@ -82,6 +84,16 @@ namespace TextLocator
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            bool ret;
+            mutex = new Mutex(true, "TextLocator", out ret);
+            if (!ret)
+            {
+                MessageBox.Show("程序已经在运行");
+                log.Warn("程序已经在运行");
+                AppCore.Shutdown();
+                return;
+            }
+
             // 托盘图标
             _taskbar = (TaskbarIcon)FindResource("Taskbar");
 

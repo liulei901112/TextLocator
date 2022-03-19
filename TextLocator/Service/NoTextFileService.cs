@@ -22,7 +22,7 @@ namespace TextLocator.Service
                     System.Diagnostics.FileVersionInfo info = System.Diagnostics.FileVersionInfo.GetVersionInfo(filePath);
                     StringBuilder builder = new StringBuilder();
                     builder.Append("文件名称：" + info.FileName.Substring(info.FileName.LastIndexOf("\\") + 1));
-                    builder.Append("；更新时间：" + fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                    builder.Append("；更新时间：" + fileInfo.LastWriteTime.ToString("yyyy-MM-dd　HH:mm:ss"));
                     builder.Append("；文件大小：" + Math.Ceiling(fileInfo.Length / 1024.0) + " KB");
 
                     return builder.ToString();

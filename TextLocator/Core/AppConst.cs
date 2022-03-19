@@ -54,19 +54,27 @@ namespace TextLocator.Core
         /// <summary>
         /// 匹配特殊字符
         /// </summary>
-        public static readonly Regex REGIX_SPECIAL_CHARACTER = new Regex("`|~|!|@|#|\\$|%|\\^|&|\\*|\\(|\\)|_|\\-|\\+|\\=|\\[|\\]|\\{|\\}|\\\\|\\||;|:|'|\"|,|\\<|\\.|\\>|\\/|\\?|");
+        public static readonly Regex REGEX_SPECIAL_CHARACTER = new Regex("`|~|!|@|#|\\$|%|\\^|&|\\*|\\(|\\)|_|\\-|\\+|\\=|\\[|\\]|\\{|\\}|\\\\|\\||;|:|'|\"|,|\\<|\\.|\\>|\\/|\\?|");
         /// <summary>
         /// 匹配空白和换行
         /// </summary>
-        public static readonly Regex REGIX_LINE_BREAKS_AND_WHITESPACE = new Regex(" |\r|\n|\\s");
+        public static readonly Regex REGEX_LINE_BREAKS_AND_WHITESPACE = new Regex(" |\r|\n|\\s");
         /// <summary>
         /// 匹配HTML和XML标签
         /// </summary>
-        public static readonly Regex REGIX_TAG = new Regex("\\<.[^<>]*\\>");
+        public static readonly Regex REGEX_TAG = new Regex("\\<.[^<>]*\\>");
         /// <summary>
         /// 匹配文件后缀
         /// </summary>
-        public static readonly Regex REGIX_FILE_EXT = new Regex(@"^.+\.(" + FileTypeUtil.GetFileTypeExts("|") + ")$");
+        public static readonly Regex REGEX_FILE_EXT = new Regex(@"^.+\.(" + FileTypeUtil.GetFileTypeExts("|") + ")$");
+        /// <summary>
+        /// 匹配排除关键词
+        /// </summary>
+        public static readonly Regex REGEX_EXCLUDE_KEYWORD = new Regex(@"(\$RECYCLE|360REC|SYSTEM|TEMP|SYSTEM VOLUME INFOMATION)");
+        /// <summary>
+        /// 匹配开始字符
+        /// </summary>
+        public static readonly Regex REGEX_START_WITH = new Regex(@"^(\`|\$|\~|\.)");
 
         /// <summary>
         /// 比例最小值

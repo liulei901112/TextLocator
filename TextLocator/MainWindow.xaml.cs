@@ -2,9 +2,11 @@
 using Rubyer;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,11 +14,13 @@ using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TextLocator.Core;
 using TextLocator.Enums;
 using TextLocator.Factory;
+using TextLocator.HotKey;
 using TextLocator.Index;
 using TextLocator.Util;
 
@@ -38,6 +42,14 @@ namespace TextLocator
         /// </summary>
         private List<string> _indexFolders = new List<string>();
         /// <summary>
+        /// 排除文件夹列表
+        /// </summary>
+        private List<string> _exclusionFolders = new List<string>();
+        /// <summary>
+        /// 
+        /// </summary>
+        private Regex _regexExclusionFolder;
+        /// <summary>
         /// 时间戳
         /// </summary>
         private long _timestamp;
@@ -51,9 +63,45 @@ namespace TextLocator
         /// </summary>
         public int pageNow = 1;
 
+        #region 热键
+        /// <summary>
+        /// 当前窗口句柄
+        /// </summary>
+        private IntPtr _hwnd = new IntPtr();
+        /// <summary>
+        /// 记录快捷键注册项的唯一标识符
+        /// </summary>
+        private Dictionary<HotKeySetting, int> _hotKeySettings = new Dictionary<HotKeySetting, int>();
+        #endregion
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        /// <summary>
+        /// WPF窗体的资源初始化完成，并且可以通过WindowInteropHelper获得该窗体的句柄用来与Win32交互后调用
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            // 获取窗体句柄
+            _hwnd = new WindowInteropHelper(this).Handle;
+            HwndSource hWndSource = HwndSource.FromHwnd(_hwnd);
+            // 添加处理程序
+            if (hWndSource != null) hWndSource.AddHook(WndProc);
+        }
+
+        /// <summary>
+        /// 所有控件初始化完成后调用
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
+            // 注册热键
+            InitHotKey();
         }
 
         /// <summary>
@@ -83,6 +131,20 @@ namespace TextLocator
 
             // 软件每次启动时执行索引更新逻辑？
             CheckingIndexUpdates();
+
+            // 注册全局热键时间
+            HotKeySettingManager.Instance.RegisterGlobalHotKeyEvent += Instance_RegisterGlobalHotKeyEvent;
+        }
+
+        /// <summary>
+        /// 窗口关闭中，改为隐藏
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true;
         }
 
         #region 初始化
@@ -120,7 +182,8 @@ namespace TextLocator
                 Tag = "全部",
                 Content = "全部",
                 Name = "FileTypeAll",
-                IsChecked = true
+                IsChecked = true,
+                ToolTip = "All"
             };
             _radioButtonAll.Checked += FileType_Checked;
             FileTypeFilter.Children.Add(_radioButtonAll);
@@ -137,7 +200,8 @@ namespace TextLocator
                     Tag = fileType.ToString(),
                     Content = fileType.ToString(),
                     Name = "FileType" + fileType.ToString(),
-                    IsChecked = false
+                    IsChecked = false,
+                    ToolTip = fileType.GetDescription()
                 };
                 radioButton.Checked += FileType_Checked;
                 FileTypeFilter.Children.Add(radioButton);
@@ -163,27 +227,148 @@ namespace TextLocator
             TaskTime taskTime = TaskTime.StartNew();
             // 初始化显示被索引的文件夹列表
             _indexFolders.Clear();
+
             // 读取被索引文件夹配置信息，如果配置信息为空：默认为我的文档和我的桌面
-            string customFolders = AppUtil.ReadValue("AppConfig", "FolderPaths", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "," + Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+            string folderPaths = AppUtil.ReadValue("AppConfig", "FolderPaths", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "," + Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
             // 配置信息不为空
-            if (!string.IsNullOrEmpty(customFolders))
+            if (!string.IsNullOrEmpty(folderPaths))
             {
-                string[] customFolderArray = customFolders.Split(',');
-                foreach (string folderPath in customFolderArray)
+                string[] folderPathArray = folderPaths.Split(',');
+                foreach (string folderPath in folderPathArray)
                 {
                     _indexFolders.Add(folderPath);
                 }
             }
-            string foldersText = "";
-            foreach (string folder in _indexFolders)
-            {
-                foldersText += folder + ", ";
-            }
-            FolderPaths.Text = foldersText.Substring(0, foldersText.Length - 2);
+            FolderPaths.Text = folderPaths;
             FolderPaths.ToolTip = FolderPaths.Text;
+
+            // 读取排除文件夹，
+            string exclusionPaths = AppUtil.ReadValue("AppConfig", "ExclusionPaths", "");
+            if (!string.IsNullOrEmpty(exclusionPaths))
+            {
+                string[] exclusionPathArray = exclusionPaths.Split(',');
+                foreach (string exclusionPath in exclusionPathArray)
+                {
+                    _exclusionFolders.Add(exclusionPath);
+                }
+                _regexExclusionFolder = new Regex(@"(" + exclusionPaths.Replace("\\", "\\\\").Replace(',', '|') + ")");
+            }
+            else
+            {
+                _regexExclusionFolder = null;
+            }
+            ExclusionPaths.Text = exclusionPaths;
+            ExclusionPaths.ToolTip = ExclusionPaths.Text;            
+
             log.Debug("InitializeAppConfig 耗时：" + taskTime.ConsumeTime + "秒");
         }
 
+        #endregion
+
+        #region 热键
+        /// <summary>
+        /// 通知注册系统快捷键事件处理函数
+        /// </summary>
+        /// <param name="hotKeyModelList"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        private bool Instance_RegisterGlobalHotKeyEvent(System.Collections.ObjectModel.ObservableCollection<HotKeyModel> hotKeyModelList)
+        {
+            InitHotKey(hotKeyModelList);
+            return true;
+        }
+
+        /// <summary>
+        /// 初始化注册快捷键
+        /// </summary>
+        /// <param name="hotKeyModelList">待注册热键的项</param>
+        /// <returns>true:保存快捷键的值；false:弹出设置窗体</returns>
+        private async Task<bool> InitHotKey(ObservableCollection<HotKeyModel> hotKeyModelList = null)
+        {
+            var list = hotKeyModelList ?? HotKeySettingManager.Instance.LoadDefaultHotKey();
+            // 注册全局快捷键
+            string failList = HotKeyHelper.RegisterGlobalHotKey(list, _hwnd, out _hotKeySettings);
+            if (string.IsNullOrEmpty(failList))
+                return true;
+
+            var result = await MessageBoxR.ConfirmInContainer("DialogContaioner", string.Format("无法注册下列快捷键\n\r{0}是否要改变这些快捷键？", failList), "提示", MessageBoxButton.YesNo);
+            // 弹出热键设置窗体
+            var win = HotkeyWindow.CreateInstance();
+            if (result == MessageBoxResult.Yes)
+            {
+                if (!win.IsVisible)
+                {
+                    win.ShowDialog();
+                }
+                else
+                {
+                    win.Activate();
+                }
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 窗体回调函数，接收所有窗体消息的事件处理函数
+        /// </summary>
+        /// <param name="hWnd">窗口句柄</param>
+        /// <param name="msg">消息</param>
+        /// <param name="wideParam">附加参数1</param>
+        /// <param name="longParam">附加参数2</param>
+        /// <param name="handled">是否处理</param>
+        /// <returns>返回句柄</returns>
+        private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wideParam, IntPtr longParam, ref bool handled)
+        {
+            var hotKeySetting = new HotKeySetting();
+            switch (msg)
+            {
+                case HotKeyManager.WM_HOTKEY:
+                    int sid = wideParam.ToInt32();
+                    // 显示
+                    if (sid == _hotKeySettings[HotKeySetting.显示])
+                    {
+                        hotKeySetting = HotKeySetting.显示;
+                        
+                        this.Show();
+                        this.WindowState = WindowState.Normal;
+                    }
+                    // 隐藏
+                    else if (sid == _hotKeySettings[HotKeySetting.隐藏])
+                    {
+                        hotKeySetting = HotKeySetting.隐藏;
+                        this.Hide();
+                    }
+                    // 清空
+                    else if (sid == _hotKeySettings[HotKeySetting.清空])
+                    {
+                        hotKeySetting = HotKeySetting.清空;
+                        CleanSearchResult();
+                    }
+                    // 退出
+                    else if (sid == _hotKeySettings[HotKeySetting.退出])
+                    {
+                        hotKeySetting = HotKeySetting.退出;
+                        AppCore.Shutdown();
+                    }
+                    // 上一项
+                    else if (sid == _hotKeySettings[HotKeySetting.上一个])
+                    {
+                        hotKeySetting = HotKeySetting.上一个;
+                        Switch2Preview(false);
+                    }
+                    // 下一项
+                    else if (sid == _hotKeySettings[HotKeySetting.下一个])
+                    {
+                        hotKeySetting = HotKeySetting.下一个;
+                        Switch2Preview(true);
+                    }
+                    log.Debug(string.Format("触发【{0}】快捷键", hotKeySetting));
+                    handled = true;
+                    break;
+            }
+            return IntPtr.Zero;
+        }
         #endregion
 
         #region 搜索
@@ -250,7 +435,7 @@ namespace TextLocator
                 string text = SearchText.Text;
 
                 // 替换特殊字符
-                text = AppConst.REGIX_SPECIAL_CHARACTER.Replace(text, "");
+                text = AppConst.REGEX_SPECIAL_CHARACTER.Replace(text, "");
 
                 // 回写处理过的字符
                 SearchText.Text = text;
@@ -382,6 +567,9 @@ namespace TextLocator
                     this.Dispatcher.BeginInvoke(new Action(() => {
                         // 如果总条数小于等于分页条数，则不显示分页
                         this.PageBar.Total = totalHits > pageSize ? totalHits : 0;
+
+                        // 上一个和下一个切换面板是否显示
+                        this.SwitchPreview.Visibility = totalHits > 0 ? Visibility.Visible : Visibility.Hidden;
                     }));
 
                     string msg = "检索完成。分词：( " + text + " )，结果：" + totalHits + "个符合条件的结果 (第 " + pageNow + " 页)，耗时：" + taskMark.ConsumeTime + "秒。";
@@ -556,25 +744,36 @@ namespace TextLocator
         /// 清理查询结果
         /// </summary>
         private void CleanSearchResult()
-        {
-            SearchText.Text = "";
+        {   
+            // 搜索结果列表清空
             SearchResultList.Items.Clear();
 
+            // 右侧预览区，打开文件和文件夹标记清空
             OpenFile.Tag = null;
             OpenFolder.Tag = null;
+
+            // 预览文件名清空
             PreviewFileName.Text = "";
+            
+            // 预览文件内容清空
             PreviewFileContent.Document.Blocks.Clear();
+
+            // 预览图片清空
             PreviewImage.Source = null;
+
+            // 预览文件类型图标清空
             PreviewFileTypeIcon.Source = null;
 
-            WorkStatus.Text = "就绪";
+            // 仅文件名 和 全词匹配取消选中
             OnlyFileName.IsChecked = false;
             MatchWords.IsChecked = false;
 
+            // 文件类型筛选取消选中
             ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(_radioButtonAll);
             IToggleProvider toggleProvider = toggleButtonAutomationPeer.GetPattern(PatternInterface.Toggle) as IToggleProvider;
             toggleProvider.Toggle();
 
+            // 还原为第一页
             pageNow = 1;
             // 设置分页标签总条数
             this.Dispatcher.BeginInvoke(new Action(() => {
@@ -584,6 +783,19 @@ namespace TextLocator
 
             // 排序类型切换为默认
             this.SortOptions.SelectedIndex = 0;
+
+            // 隐藏上一个和下一个切换面板
+            this.SwitchPreview.Visibility = Visibility.Collapsed;
+
+
+            SearchText.Text = "";
+            // 光标移除文本框
+            SearchText.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+            // 光标聚焦
+            SearchText.Focus();
+
+            // 工作状态更新为就绪
+            WorkStatus.Text = "就绪";
         }
         #endregion
 
@@ -599,6 +811,9 @@ namespace TextLocator
             {
                 return;
             }
+
+            // 预览切换索引标记
+            this.SwitchPreview.Tag = SearchResultList.SelectedIndex;
 
             // 手动GC
             GC.Collect();
@@ -813,11 +1028,58 @@ namespace TextLocator
         /// <param name="e"></param>
         private void FolderPaths_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            FolderWindow folderDialog = new FolderWindow();
-            folderDialog.ShowDialog();
-            if (folderDialog.DialogResult == true)
+            AreaWindow areaDialog = new AreaWindow();
+            areaDialog.ShowDialog();
+            if (areaDialog.DialogResult == true)
             {
                 InitializeAppConfig();
+            }
+        }
+
+        /// <summary>
+        /// 上一个
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnLast_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Switch2Preview(false);
+        }
+
+        /// <summary>
+        /// 下一个
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnNext_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Switch2Preview(true);
+        }
+
+        /// <summary>
+        /// 切换预览，next为true，下一个；next为false，上一个
+        /// </summary>
+        /// <param name="next"></param>
+        private void Switch2Preview(bool next)
+        {
+            // 当前索引 = 预览标记不为空 ? 使用标记 ： 默认值0
+            int index = this.SwitchPreview.Tag != null ? int.Parse(this.SwitchPreview.Tag + "") : -1;
+
+            // 搜索结果列表为空时，不能执行切换
+            if (this.SearchResultList.Items.Count <= 0)
+            {
+                return;
+            }
+
+            // 下一个
+            if (next && index < this.SearchResultList.Items.Count)
+            {
+                this.SearchResultList.SelectedIndex = index + 1;
+            }
+            // 上一个
+            else if (!next && index > 0)
+            {
+                this.SearchResultList.SelectedIndex = index - 1;
             }
         }
 
@@ -872,7 +1134,7 @@ namespace TextLocator
                 {
                     log.Debug("目录：" + s);
                     // 获取文件信息列表
-                    FileUtil.GetAllFiles(filePaths, s);
+                    FileUtil.GetAllFiles(filePaths, _regexExclusionFolder, s);
                 }
                 log.Debug("GetFiles 耗时：" + fileMark.ConsumeTime + "秒");
 
@@ -1037,13 +1299,24 @@ namespace TextLocator
                 return;
             }*/
 
-            // 清空预览信息
+            // 预览区打开文件和文件夹标记清空
             OpenFile.Tag = null;
             OpenFolder.Tag = null;
+
+            // 预览文件名清空
             PreviewFileName.Text = "";
+
+            // 预览文件内容清空
             PreviewFileContent.Document.Blocks.Clear();
+
+            // 预览图标清空
             PreviewImage.Source = null;
+
+            // 预览文件类型图标清空
             PreviewFileTypeIcon.Source = null;
+
+            // 预览切换标记清空
+            SwitchPreview.Tag = null;
 
             // 记录时间戳
             _timestamp = Convert.ToInt64((DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds);

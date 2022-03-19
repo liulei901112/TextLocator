@@ -213,7 +213,7 @@ namespace TextLocator.Index
                 msg.Append("，解析：" + taskMark.ConsumeTime + "秒");
 
                 // 缩略信息
-                string breviary = AppConst.REGIX_LINE_BREAKS_AND_WHITESPACE.Replace(content, "");
+                string breviary = AppConst.REGEX_LINE_BREAKS_AND_WHITESPACE.Replace(content, "");
                 if (breviary.Length > AppConst.FILE_CONTENT_SUB_LENGTH)
                 {
                     breviary = breviary.Substring(0, AppConst.FILE_CONTENT_SUB_LENGTH) + "...";

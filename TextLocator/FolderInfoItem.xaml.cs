@@ -17,6 +17,7 @@ namespace TextLocator
         private void Refresh(string folderPath)
         {
             this.FolderPath.Text = folderPath;
+            this.ToolTip = folderPath;
         }
     }
 }

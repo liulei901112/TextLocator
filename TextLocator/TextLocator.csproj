@@ -42,6 +42,9 @@
     <Reference Include="BouncyCastle.Crypto, Version=1.9.0.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
       <HintPath>..\packages\Portable.BouncyCastle.1.9.0\lib\net40\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
+    <Reference Include="Hardcodet.NotifyIcon.Wpf, Version=1.1.0.0, Culture=neutral, PublicKeyToken=682384a853a08aad, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hardcodet.NotifyIcon.Wpf.1.1.0\lib\net45\Hardcodet.NotifyIcon.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=1.3.3.11, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpZipLib.1.3.3\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
@@ -154,6 +157,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="HotkeyWindow.xaml.cs">
+      <DependentUpon>HotkeyWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Core\AppConst.cs" />
     <Compile Include="Core\AppCore.cs" />
     <Compile Include="Core\TaskTime.cs" />
@@ -168,13 +174,21 @@
     <Compile Include="FolderInfoItem.xaml.cs">
       <DependentUpon>FolderInfoItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HotKey\HotKeyHelper.cs" />
+    <Compile Include="HotKey\HotKeyManager.cs" />
+    <Compile Include="HotKey\HotKeyModel.cs" />
+    <Compile Include="HotKey\HotKeySetting.cs" />
+    <Compile Include="HotKey\HotKeySettingManager.cs" />
+    <Compile Include="HotKey\HotKey.cs" />
     <Compile Include="Index\IndexCore.cs" />
-    <Compile Include="FolderWindow.xaml.cs">
-      <DependentUpon>FolderWindow.xaml</DependentUpon>
+    <Compile Include="AreaWindow.xaml.cs">
+      <DependentUpon>AreaWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Index\MutipleThreadResetEvent.cs" />
     <Compile Include="Jieba\JiebaAnalyzer.cs" />
     <Compile Include="Jieba\JiebaTokenizer.cs" />
+    <Compile Include="NotifyIcon\DelegateCommand.cs" />
+    <Compile Include="NotifyIcon\NotifyIconViewModel.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -196,6 +210,10 @@
     <Compile Include="Util\ListUtil.cs" />
     <Compile Include="Util\MD5Util.cs" />
     <Compile Include="Util\RichTextBoxUtil.cs" />
+    <Page Include="HotkeyWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="FileInfoItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -216,7 +234,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="FolderWindow.xaml">
+    <Page Include="AreaWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -300,6 +318,10 @@
     <Resource Include="Dict\stopwords.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\btn_left.png" />
+    <Resource Include="Resource\btn_right.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

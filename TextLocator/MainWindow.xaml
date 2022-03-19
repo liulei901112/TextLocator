@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="文本搜索定位器" Width="1600" Height="900" Icon="Resource/App.ico"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
+        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing">
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo/>
     </Window.TaskbarItemInfo>
@@ -17,7 +17,7 @@
         <Viewbox Stretch="Fill">
             <Canvas Width="1600" Height="900">
                 <!-- 最外层限定狂 -->
-                <Grid Width="1600" Height="900">                    
+                <Grid Width="1600" Height="900">
                     <!-- 头部 -->
                     <StackPanel Orientation="Horizontal" Height="115" VerticalAlignment="Top">
                         <!-- 搜索条件区 -->
@@ -56,7 +56,7 @@
                                 <!-- 清空按钮 -->
                                 <Button x:Name="CleanButton" Content="X" Margin="-36,0,0,0" Width="35" Height="35" Background="Red" Click="CleanButton_Click" Visibility="Hidden"/>
                                 <!-- 搜索按钮 -->
-                                <Button x:Name="SearchButton" Content="搜索" Margin="10,0,0,0" Width="100" Height="35" Click="SearchButton_Click"/>                                
+                                <Button x:Name="SearchButton" Content="搜索" Margin="10,0,0,0" Width="100" Height="35" Click="SearchButton_Click"/>
                             </StackPanel>
 
                             <!-- 条件和排序 -->
@@ -82,25 +82,30 @@
                             <StackPanel Margin="0,10,10,0" Orientation="Horizontal" >
                                 <!-- 扩展信息 -->
                                 <StackPanel>
-                                    <Grid>
-                                        <TextBlock Text="文件类型：" HorizontalAlignment="Left"/>
+                                    <Grid Visibility="Collapsed">
+                                        <TextBlock Text="文件类型：" HorizontalAlignment="Left" Margin="0,5,0,0"/>
                                         <Border Width="485" Height="25" Margin="65,5,0,0" HorizontalAlignment="Left" BorderBrush="Gray" BorderThickness="1">
                                             <StackPanel x:Name="FileTypeNames" Orientation="Horizontal">
-                                                <Button Content="Word文档" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="Excel表格" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="PPT文稿" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="PDF文档" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="DOM文档" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="图片" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="代码" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="纯文本" Height="20" Margin="2,0,0,0"/>
+                                                <Button Content="Word文档" Background="Gray" Height="20" Margin="2,0,0,0"/>
+                                                <Button Content="Excel表格" Background="Gray" Height="20" Margin="2,0,0,0"/>
+                                                <Button Content="PPT文稿" Background="Gray" Height="20" Margin="2,0,0,0"/>
+                                                <Button Content="PDF文档" Background="Gray" Height="20" Margin="2,0,0,0"/>
+                                                <Button Content="DOM文档" Background="Gray" Height="20" Margin="2,0,0,0"/>
+                                                <Button Content="图片" Background="Gray" Height="20" Margin="2,0,0,0"/>
+                                                <Button Content="代码" Background="Gray" Height="20" Margin="2,0,0,0"/>
+                                                <Button Content="纯文本" Background="Gray" Height="20" Margin="2,0,0,0"/>
                                             </StackPanel>
                                         </Border>
                                     </Grid>
+                                    <!-- 搜索区域 -->
                                     <Grid>
                                         <TextBlock Text="搜索区域：" Margin="0,5,0,0" HorizontalAlignment="Left"/>
-                                        <!-- 搜索区域 -->
                                         <TextBox x:Name="FolderPaths" Text="C:\Users\{User}\Document" IsReadOnly="true" Width="485" Height="25" Margin="65,5,0,0" HorizontalAlignment="Left" MouseDoubleClick="FolderPaths_MouseDoubleClick"/>
+                                    </Grid>
+                                    <!-- 排除区域 -->
+                                    <Grid>
+                                        <TextBlock Text="排除区域：" Margin="0,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                        <TextBox x:Name="ExclusionPaths" Text="" Foreground="Gray" IsReadOnly="true" Width="485" Height="25" Margin="65,5,0,0" HorizontalAlignment="Left" MouseDoubleClick="FolderPaths_MouseDoubleClick" Grid.ColumnSpan="2" Cursor="IBeam"/>
                                     </Grid>
                                 </StackPanel>
                             </StackPanel>
@@ -223,7 +228,7 @@
                                 <!-- 打开文件夹 -->
                                 <Image x:Name="OpenFolder" Source="/Resource/btn_folder.png" ToolTip="打开文件夹" HorizontalAlignment="Left" Margin="50,5,0,5" MouseUp="OpenFolder_MouseUp"/>
 
-                                
+
                                 <!-- 文件信息 -->
                                 <Grid Margin="0,0,10,0" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right">
                                     <!-- 图标 -->
@@ -234,7 +239,7 @@
                                 <!-- 分割线 -->
                                 <GridSplitter Grid.Column="1" Height="1" Cursor="Arrow" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
                             </Grid>
-                            
+
                             <!-- 内容预览 -->
                             <ScrollViewer Margin="0,40,0,0">
                                 <Grid>
@@ -245,7 +250,7 @@
                                         <FlowDocument>
                                             <Paragraph>
                                                 <Run>
---------[ 概览 ]----------------------------------------------------------------------------------
+                                                    --------[ 概览 ]----------------------------------------------------------------------------------
 
   电脑型号            X64 兼容 台式电脑
   操作系统            Windows 10 专业版 64位 ( Version 2004 / DirectX 12 )
@@ -791,12 +796,18 @@
                                     </RichTextBox>
                                 </Grid>
                             </ScrollViewer>
+                            
+                            <!-- 功能键 -->
+                            <Grid x:Name="SwitchPreview" VerticalAlignment="Bottom" Visibility="Collapsed">
+                                <Image x:Name="BtnLeft" ToolTip="上一个" Source="/Resource/btn_left.png" Width="30" HorizontalAlignment="Left" Margin="10,0,0,0"  MouseUp="BtnLast_MouseUp"/>
+                                <Image x:Name="BtnRight" ToolTip="下一个" Source="/Resource/btn_right.png" Width="30" HorizontalAlignment="Left" Margin="50,0,0,0" MouseUp="BtnNext_MouseUp"/>
+                            </Grid>
                         </Grid>
                     </Grid>
                     <!-- 分割线 -->
                     <GridSplitter Grid.Column="1" Height="1" VerticalAlignment="Bottom" Margin="0,0,0,25" HorizontalAlignment="Stretch" Background="Gray" />
                     <!-- 底部 -->
-                    <Grid Height="25" VerticalAlignment="Bottom" Background="#C8C8C8">                        
+                    <Grid Height="25" VerticalAlignment="Bottom" Background="#C8C8C8">
                         <!-- 索引进度条 -->
                         <ProgressBar x:Name="WorkProgress" Value="100" Maximum="100"
                                                 rubyer:ProgressBarHelper.Thickness="100"

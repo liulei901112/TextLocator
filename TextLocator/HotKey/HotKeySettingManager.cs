@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.ObjectModel;
 using TextLocator.Enums;
 using TextLocator.Util;
@@ -10,13 +11,15 @@ namespace TextLocator.HotKey
     /// </summary>
     public class HotKeySettingManager
     {
-        private static HotKeySettingManager m_Instance;
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        private static HotKeySettingManager _instance;
         /// <summary>
         /// 单例实例
         /// </summary>
         public static HotKeySettingManager Instance
         {
-            get { return m_Instance ?? (m_Instance = new HotKeySettingManager()); }
+            get { return _instance ?? (_instance = new HotKeySettingManager()); }
         }
 
         /// <summary>
@@ -30,20 +33,16 @@ namespace TextLocator.HotKey
             {
                 // 读取配置
                 string config = AppUtil.ReadValue("HotKey", keySetting.ToString(), "");
-                HotKeyModel keyModel = null;
-                if (string.IsNullOrEmpty(config))
+                HotKeyModel keyModel = new HotKeyModel
                 {
-                    keyModel = new HotKeyModel
-                    {
-                        Name = keySetting.ToString(),
-                        IsUsable = true,
-                        IsSelectCtrl = true,
-                        IsSelectAlt = true,
-                        IsSelectShift = false,
-                        SelectKey = (HotKey)Enum.Parse(typeof(HotKey), keySetting.GetDescription())
-                    };
-                }
-                else
+                    Name = keySetting.ToString(),
+                    IsUsable = true,
+                    IsSelectCtrl = true,
+                    IsSelectAlt = true,
+                    IsSelectShift = false,
+                    SelectKey = (HotKey)Enum.Parse(typeof(HotKey), keySetting.GetDescription())
+                };
+                if (!string.IsNullOrEmpty(config))
                 {
                     var tmp = config.Split('_');
                     keyModel = new HotKeyModel
@@ -56,6 +55,7 @@ namespace TextLocator.HotKey
                         SelectKey = (HotKey)Enum.Parse(typeof(HotKey), tmp[4])
                     };
                 }
+                log.Debug(string.Format("热键注册：{0}，{1}", keySetting.ToString(), Newtonsoft.Json.JsonConvert.SerializeObject(keyModel)));
                 hotKeyList.Add(keyModel);
             }
             return hotKeyList;

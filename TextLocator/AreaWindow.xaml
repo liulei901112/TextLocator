@@ -31,7 +31,7 @@
                     <ListBox x:Name="ExclusionList" Margin="0,0,10,50">
                         <ListBoxItem>
                             <Grid Width="430" Height="40">
-                                <TextBlock Text="C:\Users\{User}\Document" Margin="10,0,0,0" FontSize="16" HorizontalAlignment="Left"/>
+                                <TextBlock Text="C:\Users\{User}\Document" Margin="10,0,0,0" Foreground="Gray" FontSize="16" HorizontalAlignment="Left"/>
                                 <Button Content="删除" Margin="0,0,10,0" Background="Red" HorizontalAlignment="Right"/>
                                 <!-- 分割线 -->
                                 <Line X1="0" Y1="0" X2="455" Y2="0" VerticalAlignment="Bottom" Stroke="Gray" StrokeThickness="1"></Line>
@@ -39,7 +39,7 @@
                         </ListBoxItem>
                     </ListBox>
                     <!-- 功能按钮 -->
-                    <Button x:Name="AddExclusionFolder" Content="增加排除" Width="100" VerticalAlignment="Bottom" Margin="10,0,10,10" Click="AddExclusionFolder_Click" Tag=""/>
+                    <Button x:Name="AddExclusionFolder" Content="增加排除" Background="DarkGray" Width="100" VerticalAlignment="Bottom" Margin="10,0,10,10" Click="AddExclusionFolder_Click" Tag=""/>
                 </Grid>
             </GroupBox>
         </StackPanel>

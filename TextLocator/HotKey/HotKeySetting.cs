@@ -32,5 +32,15 @@ namespace TextLocator.HotKey
         /// </summary>
         [Description("E")]
         退出 = 3,
+        /// <summary>
+        /// 上一个
+        /// </summary>
+        [Description("Left")]
+        上一个 = 4,
+        /// <summary>
+        /// 下一个
+        /// </summary>
+        [Description("Right")] 
+        下一个 = 5
     }
 }

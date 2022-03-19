@@ -325,29 +325,43 @@ namespace TextLocator
             {
                 case HotKeyManager.WM_HOTKEY:
                     int sid = wideParam.ToInt32();
+                    // 显示
                     if (sid == _hotKeySettings[HotKeySetting.显示])
                     {
                         hotKeySetting = HotKeySetting.显示;
-                        // 执行显示操作
+                        
                         this.Show();
                         this.WindowState = WindowState.Normal;
                     }
+                    // 隐藏
                     else if (sid == _hotKeySettings[HotKeySetting.隐藏])
                     {
                         hotKeySetting = HotKeySetting.隐藏;
-                        // 执行隐藏操作
                         this.Hide();
                     }
+                    // 清空
                     else if (sid == _hotKeySettings[HotKeySetting.清空])
                     {
                         hotKeySetting = HotKeySetting.清空;
-                        // 执行清空搜索结果操作
                         CleanSearchResult();
                     }
+                    // 退出
                     else if (sid == _hotKeySettings[HotKeySetting.退出])
                     {
                         hotKeySetting = HotKeySetting.退出;
                         AppCore.Shutdown();
+                    }
+                    // 上一项
+                    else if (sid == _hotKeySettings[HotKeySetting.上一个])
+                    {
+                        hotKeySetting = HotKeySetting.上一个;
+                        Switch2Preview(false);
+                    }
+                    // 下一项
+                    else if (sid == _hotKeySettings[HotKeySetting.下一个])
+                    {
+                        hotKeySetting = HotKeySetting.下一个;
+                        Switch2Preview(true);
                     }
                     log.Debug(string.Format("触发【{0}】快捷键", hotKeySetting));
                     handled = true;
@@ -553,6 +567,9 @@ namespace TextLocator
                     this.Dispatcher.BeginInvoke(new Action(() => {
                         // 如果总条数小于等于分页条数，则不显示分页
                         this.PageBar.Total = totalHits > pageSize ? totalHits : 0;
+
+                        // 上一个和下一个切换面板是否显示
+                        this.SwitchPreview.Visibility = totalHits > 0 ? Visibility.Visible : Visibility.Hidden;
                     }));
 
                     string msg = "检索完成。分词：( " + text + " )，结果：" + totalHits + "个符合条件的结果 (第 " + pageNow + " 页)，耗时：" + taskMark.ConsumeTime + "秒。";
@@ -727,24 +744,36 @@ namespace TextLocator
         /// 清理查询结果
         /// </summary>
         private void CleanSearchResult()
-        {            
+        {   
+            // 搜索结果列表清空
             SearchResultList.Items.Clear();
 
+            // 右侧预览区，打开文件和文件夹标记清空
             OpenFile.Tag = null;
             OpenFolder.Tag = null;
+
+            // 预览文件名清空
             PreviewFileName.Text = "";
+            
+            // 预览文件内容清空
             PreviewFileContent.Document.Blocks.Clear();
+
+            // 预览图片清空
             PreviewImage.Source = null;
+
+            // 预览文件类型图标清空
             PreviewFileTypeIcon.Source = null;
 
-            WorkStatus.Text = "就绪";
+            // 仅文件名 和 全词匹配取消选中
             OnlyFileName.IsChecked = false;
             MatchWords.IsChecked = false;
 
+            // 文件类型筛选取消选中
             ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(_radioButtonAll);
             IToggleProvider toggleProvider = toggleButtonAutomationPeer.GetPattern(PatternInterface.Toggle) as IToggleProvider;
             toggleProvider.Toggle();
 
+            // 还原为第一页
             pageNow = 1;
             // 设置分页标签总条数
             this.Dispatcher.BeginInvoke(new Action(() => {
@@ -755,12 +784,18 @@ namespace TextLocator
             // 排序类型切换为默认
             this.SortOptions.SelectedIndex = 0;
 
+            // 隐藏上一个和下一个切换面板
+            this.SwitchPreview.Visibility = Visibility.Collapsed;
+
 
             SearchText.Text = "";
             // 光标移除文本框
             SearchText.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
             // 光标聚焦
             SearchText.Focus();
+
+            // 工作状态更新为就绪
+            WorkStatus.Text = "就绪";
         }
         #endregion
 
@@ -776,6 +811,9 @@ namespace TextLocator
             {
                 return;
             }
+
+            // 预览切换索引标记
+            this.SwitchPreview.Tag = SearchResultList.SelectedIndex;
 
             // 手动GC
             GC.Collect();
@@ -998,6 +1036,53 @@ namespace TextLocator
             }
         }
 
+        /// <summary>
+        /// 上一个
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnLast_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Switch2Preview(false);
+        }
+
+        /// <summary>
+        /// 下一个
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnNext_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Switch2Preview(true);
+        }
+
+        /// <summary>
+        /// 切换预览，next为true，下一个；next为false，上一个
+        /// </summary>
+        /// <param name="next"></param>
+        private void Switch2Preview(bool next)
+        {
+            // 当前索引 = 预览标记不为空 ? 使用标记 ： 默认值0
+            int index = this.SwitchPreview.Tag != null ? int.Parse(this.SwitchPreview.Tag + "") : -1;
+
+            // 搜索结果列表为空时，不能执行切换
+            if (this.SearchResultList.Items.Count <= 0)
+            {
+                return;
+            }
+
+            // 下一个
+            if (next && index < this.SearchResultList.Items.Count)
+            {
+                this.SearchResultList.SelectedIndex = index + 1;
+            }
+            // 上一个
+            else if (!next && index > 0)
+            {
+                this.SearchResultList.SelectedIndex = index - 1;
+            }
+        }
+
         #endregion
 
         #region 辅助方法
@@ -1214,13 +1299,24 @@ namespace TextLocator
                 return;
             }*/
 
-            // 清空预览信息
+            // 预览区打开文件和文件夹标记清空
             OpenFile.Tag = null;
             OpenFolder.Tag = null;
+
+            // 预览文件名清空
             PreviewFileName.Text = "";
+
+            // 预览文件内容清空
             PreviewFileContent.Document.Blocks.Clear();
+
+            // 预览图标清空
             PreviewImage.Source = null;
+
+            // 预览文件类型图标清空
             PreviewFileTypeIcon.Source = null;
+
+            // 预览切换标记清空
+            SwitchPreview.Tag = null;
 
             // 记录时间戳
             _timestamp = Convert.ToInt64((DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds);

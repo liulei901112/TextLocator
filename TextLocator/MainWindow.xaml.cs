@@ -205,11 +205,15 @@ namespace TextLocator
             if (!string.IsNullOrEmpty(exclusionPaths))
             {
                 string[] exclusionPathArray = exclusionPaths.Split(',');
-                foreach(string exclusionPath in exclusionPathArray)
+                foreach (string exclusionPath in exclusionPathArray)
                 {
                     _exclusionFolders.Add(exclusionPath);
                 }
                 _regexExclusionFolder = new Regex(@"(" + exclusionPaths.Replace("\\", "\\\\").Replace(',', '|') + ")");
+            }
+            else
+            {
+                _regexExclusionFolder = null;
             }
             ExclusionPaths.Text = exclusionPaths;
             ExclusionPaths.ToolTip = ExclusionPaths.Text;            

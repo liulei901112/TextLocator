@@ -158,7 +158,7 @@ namespace TextLocator.Util
                     string dirPath = dir.FullName;
                     // 系统过滤：$RECYCLE|360REC|SYSTEM|TEMP|SYSTEM VOLUME INFOMATION
                     // 自定义过滤：
-                    if (AppConst.REGEX_EXCLUDE_KEYWORD.IsMatch(dirPath.ToUpper()) || regexExclude.IsMatch(dirPath))
+                    if (AppConst.REGEX_EXCLUDE_KEYWORD.IsMatch(dirPath.ToUpper()) || (regexExclude != null && regexExclude.IsMatch(dirPath)))
                     {
                         continue;
                     }

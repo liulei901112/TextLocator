@@ -78,7 +78,7 @@ namespace TextLocator.Service
                                             for (int k = 0; k < row.LastCellNum; k++)
                                             {
                                                 // 获取某行某列对应的单元格数据  
-                                                builder.Append(row.GetCell(k) + ";");
+                                                builder.Append(row.GetCell(k) + "　");
                                             }
                                             // 换行
                                             builder.AppendLine();
@@ -117,7 +117,7 @@ namespace TextLocator.Service
                                         // 列
                                         for (int k = 0; k < row.Columns.Length; k++)
                                         {
-                                            builder.Append(row.Columns[k].Value2.ToString());
+                                            builder.Append(row.Columns[k].Value2.ToString() + "　");
                                         }
                                         row.Dispose();
                                         builder.AppendLine();

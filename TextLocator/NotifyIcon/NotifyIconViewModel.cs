@@ -21,7 +21,10 @@ namespace TextLocator.NotifyIcon
                 {
                     CommandAction = () =>
                     {
+                        // 显示
                         Application.Current.MainWindow.Show();
+                        // 标准化
+                        Application.Current.MainWindow.WindowState = WindowState.Normal;
                     }
                 };
             }

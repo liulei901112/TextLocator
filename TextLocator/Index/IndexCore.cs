@@ -141,7 +141,7 @@ namespace TextLocator.Index
         {
             // 非重建 && 文件已经被索引过
             bool isUpdate = !create;
-            bool isExists = !string.IsNullOrEmpty(AppUtil.ReadValue("FileIndex", MD5Util.GetMD5Hash(filePath), ""));
+            bool isExists = !string.IsNullOrEmpty(AppUtil.ReadValue("FileIndex", filePath, ""));
             if (isUpdate && isExists)
             {
                 string skipMsg = "跳过文件：" + filePath;
@@ -184,7 +184,7 @@ namespace TextLocator.Index
                 string filePath = taskInfo.FilePath;
 
                 // 写入已索引标记
-                AppUtil.WriteValue("FileIndex", MD5Util.GetMD5Hash(filePath), "1");
+                AppUtil.WriteValue("FileIndex", filePath, "1");
 
                 // 文件信息
                 FileInfo fileInfo = new FileInfo(filePath);

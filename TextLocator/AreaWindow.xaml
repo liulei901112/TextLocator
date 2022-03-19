@@ -11,9 +11,9 @@
             <!-- 搜索区域 -->
             <GroupBox Header="搜索区域" Width="480" HorizontalAlignment="Left">
                 <Grid>
-                    <ListBox x:Name="FolderList" Margin="0,0,0,50">
+                    <ListBox x:Name="FolderList" Margin="0,0,10,50">
                         <ListBoxItem>
-                            <Grid Width="455" Height="40">
+                            <Grid Width="430" Height="40">
                                 <TextBlock Text="C:\Users\{User}\Document" Margin="10,0,0,0" FontSize="16" HorizontalAlignment="Left"/>
                                 <Button Content="删除" Margin="0,0,10,0" Background="Red" HorizontalAlignment="Right"/>
                                 <!-- 分割线 -->
@@ -28,9 +28,9 @@
             <!-- 排除区域 -->
             <GroupBox Header="排除区域" Width="480" HorizontalAlignment="Left">
                 <Grid>
-                    <ListBox x:Name="ExclusionList" Margin="0,0,0,50">
+                    <ListBox x:Name="ExclusionList" Margin="0,0,10,50">
                         <ListBoxItem>
-                            <Grid Width="455" Height="40">
+                            <Grid Width="430" Height="40">
                                 <TextBlock Text="C:\Users\{User}\Document" Margin="10,0,0,0" FontSize="16" HorizontalAlignment="Left"/>
                                 <Button Content="删除" Margin="0,0,10,0" Background="Red" HorizontalAlignment="Right"/>
                                 <!-- 分割线 -->

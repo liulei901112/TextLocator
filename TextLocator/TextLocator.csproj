@@ -157,8 +157,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="SettingWindow.xaml.cs">
-      <DependentUpon>SettingWindow.xaml</DependentUpon>
+    <Compile Include="HotkeyWindow.xaml.cs">
+      <DependentUpon>HotkeyWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\AppConst.cs" />
     <Compile Include="Core\AppCore.cs" />
@@ -174,6 +174,12 @@
     <Compile Include="FolderInfoItem.xaml.cs">
       <DependentUpon>FolderInfoItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HotKey\HotKeyHelper.cs" />
+    <Compile Include="HotKey\HotKeyManager.cs" />
+    <Compile Include="HotKey\HotKeyModel.cs" />
+    <Compile Include="HotKey\HotKeySetting.cs" />
+    <Compile Include="HotKey\HotKeySettingManager.cs" />
+    <Compile Include="HotKey\HotKey.cs" />
     <Compile Include="Index\IndexCore.cs" />
     <Compile Include="AreaWindow.xaml.cs">
       <DependentUpon>AreaWindow.xaml</DependentUpon>
@@ -204,7 +210,7 @@
     <Compile Include="Util\ListUtil.cs" />
     <Compile Include="Util\MD5Util.cs" />
     <Compile Include="Util\RichTextBoxUtil.cs" />
-    <Page Include="SettingWindow.xaml">
+    <Page Include="HotkeyWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -312,6 +318,12 @@
     <Resource Include="Dict\stopwords.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\btn_last.png" />
+    <Resource Include="Resource\btn_left.png" />
+    <Resource Include="Resource\btn_next.png" />
+    <Resource Include="Resource\btn_right.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

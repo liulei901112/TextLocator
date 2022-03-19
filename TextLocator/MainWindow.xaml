@@ -216,6 +216,11 @@
                                     PageSizeChanged="PageBar_PageSizeChanged"
                                     CurrentBackground="{DynamicResource Accent}"
                                     CurrentForeground="{DynamicResource AccentForeground}"/>
+                            <!-- 功能键 -->
+                            <Grid VerticalAlignment="Bottom" Visibility="Collapsed">
+                                <Image Source="/Resource/btn_last.png" Width="30" HorizontalAlignment="Right" Margin="0,0,50,0"/>
+                                <Image Source="/Resource/btn_next.png" Width="30" HorizontalAlignment="Right" Margin="0,0,10,0"/>
+                            </Grid>
                         </Grid>
                         <!-- 分割线 -->
                         <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Center" ShowsPreview="False" Background="Gray" />
@@ -796,6 +801,12 @@
                                     </RichTextBox>
                                 </Grid>
                             </ScrollViewer>
+                            
+                            <!-- 功能键 -->
+                            <Grid VerticalAlignment="Bottom" Visibility="Collapsed">
+                                <Image Source="/Resource/btn_left.png" Width="30" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                                <Image Source="/Resource/btn_right.png" Width="30" HorizontalAlignment="Left" Margin="50,0,0,0"/>
+                            </Grid>
                         </Grid>
                     </Grid>
                     <!-- 分割线 -->

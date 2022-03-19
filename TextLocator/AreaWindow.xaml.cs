@@ -204,7 +204,10 @@ namespace TextLocator
             {
                 exclusionPaths += item.FolderPath.Text + ",";
             }
-            exclusionPaths = exclusionPaths.Substring(0, exclusionPaths.Length - 1);
+            if (!string.IsNullOrEmpty(exclusionPaths))
+            {
+                exclusionPaths = exclusionPaths.Substring(0, exclusionPaths.Length - 1);
+            }
             // 保存到配置文件
             AppUtil.WriteValue("AppConfig", "ExclusionPaths", exclusionPaths);
 

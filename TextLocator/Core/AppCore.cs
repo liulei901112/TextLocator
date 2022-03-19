@@ -12,11 +12,10 @@ namespace TextLocator.Core
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        #region App退出或重启
         /// <summary>
         /// 退出应用
         /// </summary>
-        public static void ExitProcess()
+        public static void Shutdown()
         {
             log.Debug("退出当前应用程序进程");
             Environment.Exit(Environment.ExitCode); //Application.Current.Shutdown(-1);            
@@ -25,7 +24,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 重启应用
         /// </summary>
-        public static void RestartProcess()
+        public static void Restart()
         {
             log.Debug("重启当前应用程序");
 
@@ -35,8 +34,7 @@ namespace TextLocator.Core
             String processName = Process.GetCurrentProcess().ProcessName;
             Process.Start(processPath + "/" + processName);
 
-            ExitProcess();
+            Shutdown();
         }
-        #endregion
     }
 }

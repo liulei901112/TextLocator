@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TextLocator"
              mc:Ignorable="d" 
-             d:DesignWidth="455" d:DesignHeight="40">
-    <Grid Width="455" Height="40">
+             d:DesignWidth="430" d:DesignHeight="40">
+    <Grid Width="430" Height="40">
         <TextBlock x:Name="FolderPath" Text="D:\桌面文档" Margin="10,0,0,0" FontSize="16" HorizontalAlignment="Left"/>
         <Button x:Name="DeleteButton" Content="删除" Margin="0,0,10,0" Background="OrangeRed" HorizontalAlignment="Right"/>
         <!-- 分割线 -->

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using TextLocator.Core;
 
 namespace TextLocator.NotifyIcon
 {
@@ -33,7 +34,7 @@ namespace TextLocator.NotifyIcon
         /// <summary>
         /// 系统设置
         /// </summary>
-        public ICommand ShowSettingWindowCommand
+        public ICommand ShowHotKeyWindowCommand
         {
             get
             {
@@ -41,9 +42,15 @@ namespace TextLocator.NotifyIcon
                 {
                     CommandAction = () =>
                     {
-                        // Application.Current.MainWindow.Show();
-                        SettingWindow setting = new SettingWindow();
-                        setting.Show();
+                        var win = HotkeyWindow.CreateInstance();
+                        if (!win.IsVisible)
+                        {
+                            win.ShowDialog();
+                        }
+                        else
+                        {
+                            win.Activate();
+                        }
                     }
                 };
             }
@@ -71,7 +78,7 @@ namespace TextLocator.NotifyIcon
         {
             get
             {
-                return new DelegateCommand { CommandAction = () => Application.Current.Shutdown() };
+                return new DelegateCommand { CommandAction = () => AppCore.Shutdown() };
             }
         }
     }

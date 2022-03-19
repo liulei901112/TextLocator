@@ -147,6 +147,17 @@ namespace TextLocator
             e.Cancel = true;
         }
 
+        /// <summary>
+        /// 窗口激活
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            this.Show();
+            this.WindowState = WindowState.Normal;
+        }
+
         #region 初始化
 
         /// <summary>

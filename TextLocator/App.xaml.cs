@@ -1,6 +1,9 @@
 ﻿using Hardcodet.Wpf.TaskbarNotification;
 using log4net;
 using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,11 +23,12 @@ namespace TextLocator
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        // 托盘图标
         private static TaskbarIcon _taskbar;
-
         public static TaskbarIcon Taskbar { get => _taskbar; set => _taskbar = value; }
 
-        System.Threading.Mutex mutex;
+        // 单实例
+        private Mutex _mutex;
 
         public App()
         {
@@ -35,6 +39,45 @@ namespace TextLocator
             InitFileInfoServiceEngine();
         }
 
+        /// <summary>
+        /// 重写OnStartup
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            // 互斥
+            _mutex = new Mutex(true, "TextLocator", out bool isNewInstance);
+            // 是否启动新实例
+            if (!isNewInstance)
+            {
+                // 找到已经在运行的实例句柄(给出你的窗体标题名 “XXX影院”)
+                IntPtr hWndPtr = FindWindow(null, "文本搜索定位器");
+
+                // 还原窗口
+                _ = IsIconic(hWndPtr) ? ShowWindow(hWndPtr, SW_RESTORE) : ShowWindow(hWndPtr, SW_SHOW);
+
+                // 激活窗口
+                SetForegroundWindow(hWndPtr);
+                
+                // 退出当前实例
+                AppCore.Shutdown();
+                return;
+            }
+
+            // 托盘图标
+            _taskbar = (TaskbarIcon)FindResource("Taskbar");
+
+            base.OnStartup(e);
+
+            // UI线程未捕获异常处理事件
+            DispatcherUnhandledException += new System.Windows.Threading.DispatcherUnhandledExceptionEventHandler(App_DispatcherUnhandledException);
+            // Task线程内未捕获异常处理事件
+            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+            // 非UI线程未捕获异常处理事件
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+        }
+
+        #region 初始化
         /// <summary>
         /// 初始化线程池大小
         /// </summary>
@@ -81,32 +124,9 @@ namespace TextLocator
                 log.Error("文件服务工厂初始化错误：" + ex.Message, ex);
             }
         }
+        #endregion
 
-        protected override void OnStartup(StartupEventArgs e)
-        {
-            bool ret;
-            mutex = new Mutex(true, "TextLocator", out ret);
-            if (!ret)
-            {
-                MessageBox.Show("程序已经在运行");
-                log.Warn("程序已经在运行");
-                AppCore.Shutdown();
-                return;
-            }
-
-            // 托盘图标
-            _taskbar = (TaskbarIcon)FindResource("Taskbar");
-
-            base.OnStartup(e);            
-
-            // UI线程未捕获异常处理事件
-            DispatcherUnhandledException += new System.Windows.Threading.DispatcherUnhandledExceptionEventHandler(App_DispatcherUnhandledException);
-            // Task线程内未捕获异常处理事件
-            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
-            // 非UI线程未捕获异常处理事件
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-        }
-
+        #region 异常处理
         /// <summary>
         /// 非UI线程未捕获异常处理
         /// </summary>
@@ -160,5 +180,47 @@ namespace TextLocator
                 log.Fatal("程序出现严重错误：" + ex.Message, ex);
             }
         }
+        #endregion
+
+        #region Windows API
+        //ShowWindow 参数
+        private const int SW_SHOW = 5;
+        private const int SW_RESTORE = 9;
+
+        /// <summary>
+        /// 是标志性的
+        /// </summary>
+        /// <param name="hWnd">窗口句柄</param>
+        /// <returns></returns>
+        [DllImport("USER32.DLL", SetLastError = true, CharSet = CharSet.Auto)]
+        private static extern bool IsIconic(IntPtr hWnd);
+        /// <summary>
+        /// 在桌面窗口列表中寻找与指定条件相符的第一个窗口。
+        /// </summary>
+        /// <param name="lpClassName">指向指定窗口的类名。如果 lpClassName 是 NULL，所有类名匹配。</param>
+        /// <param name="lpWindowName">指向指定窗口名称(窗口的标题）。如果 lpWindowName 是 NULL，所有windows命名匹配。</param>
+        /// <returns>返回指定窗口句柄</returns>
+        [DllImport("USER32.DLL", SetLastError = true, CharSet = CharSet.Auto)]
+        public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+
+        /// <summary>
+        /// 将窗口还原,可从最小化还原
+        /// </summary>
+        /// <param name="hWnd"></param>
+        /// <param name="nCmdShow"></param>
+        /// <returns></returns>
+        [DllImport("USER32.DLL")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        /// <summary>
+        /// 激活指定窗口
+        /// </summary>
+        /// <param name="hWnd">指定窗口句柄</param>
+        /// <returns></returns>
+        [DllImport("USER32.DLL")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+        #endregion
     }
 }

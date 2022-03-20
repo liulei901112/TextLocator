@@ -23,33 +23,32 @@ namespace TextLocator.Service
             {
                 try
                 {
+                    //实例化一个StringBuilder 对象
+                    StringBuilder builder = new StringBuilder();
                     // 实例化一个PdfDocument对象
                     using (PdfDocument doc = new PdfDocument())
-                    {
-                        //实例化一个StringBuilder 对象
-                        StringBuilder builder = new StringBuilder();
+                    {                        
                         // 加载Pdf文档
                         doc.LoadFromFile(filePath);
 
                         //提取PDF所有页面的文本
                         foreach (PdfPageBase page in doc.Pages)
                         {
-                            builder.Append(page.ExtractText());
+                            builder.Append(page.ExtractText().Replace("Evaluation Warning : The document was created with Spire.PDF for .NET.", ""));
                         }
-
-                        doc.Dispose();
-
-                        content = builder.ToString();
                     }
-
-
+                    content = builder.ToString();
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    log.Error(filePath + " -> " + ex.Message, ex);
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex.Message, ex);
+                    log.Error(filePath + " -> " + ex.Message, ex);
                 }
             }
-            return content.Replace("Evaluation Warning : The document was created with Spire.PDF for .NET.", "");
+            return content;
         }
     }
 }

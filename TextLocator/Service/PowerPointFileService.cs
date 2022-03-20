@@ -22,9 +22,10 @@ namespace TextLocator.Service
             {
                 try
                 {
+                    StringBuilder builder = new StringBuilder();
                     using (Presentation presentation = new Presentation(filePath, FileFormat.Auto))
                     {
-                        StringBuilder builder = new StringBuilder();
+                        
                         foreach (ISlide slide in presentation.Slides)
                         {
                             foreach (IShape shape in slide.Shapes)
@@ -43,10 +44,12 @@ namespace TextLocator.Service
                             }
                             slide.Dispose();
                         }
-                        presentation.Dispose();
-
-                        content = builder.ToString();
                     }
+                    content = builder.ToString();
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    log.Error(filePath + " -> " + ex.Message, ex);
                 }
                 catch (Exception ex)
                 {

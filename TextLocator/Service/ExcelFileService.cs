@@ -25,91 +25,85 @@ namespace TextLocator.Service
             {
                 try
                 {
-                    try
+                    // =========== NPIO ===========
+
+                    // 获取扩展名
+                    string extName = Path.GetExtension(filePath);
+                    // 文件流
+                    using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite))
                     {
-                        // =========== NPIO ===========
-
-                        // 获取扩展名
-                        string extName = Path.GetExtension(filePath);
-                        // 文件流
-                        using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite))
+                        // 读取IWorkbook
+                        IWorkbook readWorkbook = null;
+                        switch (extName)
                         {
-                            // 读取IWorkbook
-                            IWorkbook readWorkbook = null;
-                            switch (extName)
-                            {
-                                // 把xls写入workbook中 2003版本
-                                case ".xls":
-                                    readWorkbook = new HSSFWorkbook(fileStream);
-                                    break;
-                                // 把xlsx 写入workbook中 2007版本
-                                case ".xlsx":
-                                    readWorkbook = new XSSFWorkbook(fileStream);
-                                    break;
-                                default:
-                                    break;
-                            }
-                            // 关闭文件流
-                            fileStream.Close();
-                            fileStream.Dispose();
+                            // 把xls写入workbook中 2003版本
+                            case ".xls":
+                                readWorkbook = new HSSFWorkbook(fileStream);
+                                break;
+                            // 把xlsx 写入workbook中 2007版本
+                            case ".xlsx":
+                                readWorkbook = new XSSFWorkbook(fileStream);
+                                break;
+                            default:
+                                break;
+                        }
 
-                            if (readWorkbook != null)
+                        if (readWorkbook != null)
+                        {
+                            StringBuilder builder = new StringBuilder();
+                            // 获取表
+                            var sheetCount = readWorkbook.NumberOfSheets;
+                            for (int i = 0; i < sheetCount; i++)
                             {
-                                StringBuilder builder = new StringBuilder();
-                                // 获取表
-                                var sheetCount = readWorkbook.NumberOfSheets;
-                                for (int i = 0; i < sheetCount; i++)
+                                // 获取sheet表数据
+                                ISheet sheet = readWorkbook.GetSheetAt(i);
+
+                                // 获取行数
+                                var rowCount = sheet.LastRowNum;
+
+                                // 从第四行(下标为3)开始获取数据，前三行是表头
+                                // 如果从第一行开始，则i=0就可以了
+                                for (int j = 0; j <= rowCount; j++)
                                 {
-                                    // 获取sheet表数据
-                                    ISheet sheet = readWorkbook.GetSheetAt(i);
-
-                                    // 获取行数
-                                    var rowCount = sheet.LastRowNum;
-
-                                    // 从第四行(下标为3)开始获取数据，前三行是表头
-                                    // 如果从第一行开始，则i=0就可以了
-                                    for (int j = 0; j <= rowCount; j++)
+                                    // 获取具体行
+                                    IRow row = sheet.GetRow(j);
+                                    if (row != null)
                                     {
-                                        // 获取具体行
-                                        IRow row = sheet.GetRow(j);
-                                        if (row != null)
+                                        // 获取行对应的列数
+                                        for (int k = 0; k < row.LastCellNum; k++)
                                         {
-                                            // 获取行对应的列数
-                                            for (int k = 0; k < row.LastCellNum; k++)
-                                            {
-                                                // 获取某行某列对应的单元格数据  
-                                                builder.Append(row.GetCell(k) + "　");
-                                            }
-                                            // 换行
-                                            builder.AppendLine();
+                                            // 获取某行某列对应的单元格数据  
+                                            builder.Append(row.GetCell(k) + "　");
                                         }
+                                        // 换行
+                                        builder.AppendLine();
                                     }
-
-                                    readWorkbook.Close();
                                 }
-
-                                content = builder.ToString();
                             }
+                            readWorkbook.Close();
+
+                            content = builder.ToString();
                         }
                     }
-                    catch
+                }
+                catch (Exception npioex)
+                {
+                    log.Error(filePath + " -> " + npioex.Message + " NPIO解析错误，尝试Spire.XLS", npioex);
+                    try
                     {
-                        try
+                        // =========== Spire.XLS ===========
+                        // 创建Workbook对象
+                        using (Spire.Xls.Workbook workbook = new Spire.Xls.Workbook())
                         {
-                            // =========== Spire.XLS ===========
-                            // 创建Workbook对象
-                            using (Spire.Xls.Workbook workbook = new Spire.Xls.Workbook())
+                            // 加载Excel文档
+                            workbook.LoadFromFile(filePath);
+
+                            StringBuilder builder = new StringBuilder();
+
+                            // 获取工作表
+                            for (int i = 0; i < workbook.Worksheets.Count; i++)
                             {
-                                // 加载Excel文档
-                                workbook.LoadFromFile(filePath);
-
-                                StringBuilder builder = new StringBuilder();
-
-                                // 获取工作表
-                                for (int i = 0; i < workbook.Worksheets.Count; i++)
-                                {
-                                    Spire.Xls.Worksheet sheet = workbook.Worksheets[i];
-
+                                using (Spire.Xls.Worksheet sheet = workbook.Worksheets[i]) {
                                     // 行
                                     for (int j = sheet.FirstRow; j < sheet.LastRow; j++)
                                     {
@@ -122,22 +116,19 @@ namespace TextLocator.Service
                                         row.Dispose();
                                         builder.AppendLine();
                                     }
-                                    sheet.Dispose();
                                 }
-                                workbook.Dispose();
-
-                                content = builder.ToString();
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error(ex.Message, ex);
+                            content = builder.ToString();
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    log.Error(ex.Message, ex);
+                    catch (ObjectDisposedException ex)
+                    {
+                        log.Error(filePath + " -> " + ex.Message, ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error(filePath + " -> " + ex.Message, ex);
+                    }
                 }
             }
             return content;

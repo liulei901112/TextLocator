@@ -27,13 +27,16 @@ namespace TextLocator.Service
 
                     return builder.ToString();
                 }
-                return filePath;
+            }
+            catch (ObjectDisposedException ex)
+            {
+                log.Error(filePath + " -> " + ex.Message, ex);
             }
             catch (Exception ex)
             {
-                log.Error(ex.Message, ex);
-                return filePath;
+                log.Error(filePath + " -> " + ex.Message, ex);                
             }
+            return filePath;
         }
     }
 }

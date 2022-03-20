@@ -17,8 +17,8 @@ namespace TextLocator.Service
 
         public string GetFileContent(string filePath)
         {
-            // 文件内容
-            string content = "";
+            // 内容
+            StringBuilder builder = new StringBuilder();
             lock (locker)
             {
                 try
@@ -26,7 +26,6 @@ namespace TextLocator.Service
                     using (var document = new Document(new FileStream(filePath, FileMode.Open)))
                     {
                         // 提取每个段落的文本 
-                        StringBuilder builder = new StringBuilder();
                         foreach (Section section in document.Sections)
                         {
                             foreach (Spire.Doc.Documents.Paragraph paragraph in section.Paragraphs)
@@ -34,18 +33,18 @@ namespace TextLocator.Service
                                 builder.AppendLine(paragraph.Text);
                             }
                         }
-                        content = builder.ToString();
-
-                        document.Close();
-                        document.Dispose();                        
                     }
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    log.Error(filePath + " -> " + ex.Message, ex);
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex.Message + filePath, ex);
+                    log.Error(filePath + " -> " + ex.Message, ex);
                 }
             }
-            return content;
+            return builder.ToString();
         }
     }
 }

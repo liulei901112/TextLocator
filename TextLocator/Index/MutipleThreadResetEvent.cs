@@ -55,9 +55,9 @@ namespace TextLocator.Index
         /// <summary>
         /// 等待所以线程执行完毕
         /// </summary>
-        public void WaitAll(int millisecondsTimeout = 5 * 60 * 1000)
+        public void WaitAll()
         {
-            done.WaitOne(millisecondsTimeout);
+            done.WaitOne();
         }
 
         /// <summary>

@@ -34,22 +34,66 @@ namespace TextLocator.Index
         private static object locker = new object();
 
         /// <summary>
-        /// 已完成数量
+        /// 完成数量
         /// </summary>
         private static volatile int _finishCount = 0;
         /// <summary>
-        /// 总数
+        /// 文件总数
         /// </summary>
         private static volatile int _totalCount = 0;
         /// <summary>
+        /// 是否是创建
+        /// </summary>
+        private static volatile bool _create = false;
+        /// <summary>
         /// 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
         /// </summary>
-        private static volatile IndexWriter _indexWriter;
+        private static IndexWriter _indexWriter;
         /// <summary>
         /// 回调函数
         /// </summary>
-        private static volatile Callback _callback;
+        private static Callback _callback;
 
+        #region 索引写入器
+        /// <summary>
+        /// 创建索引写入器
+        /// </summary>
+        private static void CreateIndexWriter()
+        {
+            if (_indexWriter == null)
+            {
+                // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
+                _indexWriter = new IndexWriter(
+                    AppConst.INDEX_DIRECTORY,
+                    AppConst.INDEX_ANALYZER,
+                    _create,
+                    IndexWriter.MaxFieldLength.UNLIMITED);
+
+                // 设置Buffer内存上限,默认值16MB
+                _indexWriter.SetRAMBufferSizeMB(512);
+                // 设置使用复合文件为禁用，
+                _indexWriter.UseCompoundFile = false;
+            }
+        }
+
+        /// <summary>
+        /// 关闭索引写入器
+        /// </summary>
+        private static void CloseIndexWriter()
+        {
+            if (_indexWriter != null)
+            {
+                // 关闭索引写入器
+                _indexWriter.Close();
+                // 销毁索引写入器
+                _indexWriter.Dispose();
+                // 置为NULL
+                _indexWriter = null;
+            }
+        }
+        #endregion
+
+        #region 创建文件索引
         /// <summary>
         /// 创建索引
         /// </summary>
@@ -68,29 +112,22 @@ namespace TextLocator.Index
             _finishCount = 0;
 
             // 判断是创建索引还是增量索引（如果索引目录不存在，重建）
-            bool create = !Directory.Exists(AppConst.APP_INDEX_DIR);
+            _create = !Directory.Exists(AppConst.APP_INDEX_DIR);
             // 入参为true，表示重建
             if (rebuild)
             {
-                create = rebuild;
+                _create = rebuild;
             }
 
             // 创建还是更新？
-            if (create)
+            if (_create)
             {
                 // 重建时，删除全部已建索引的标记
                 AppUtil.DeleteSection("FileIndex");
             }
 
-            // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
-            _indexWriter = new IndexWriter(
-                AppConst.INDEX_DIRECTORY, 
-                AppConst.INDEX_ANALYZER, 
-                create, 
-                IndexWriter.MaxFieldLength.UNLIMITED);
-
-            // 控制Buffer索引文档的内存上限,默认值16MB
-            _indexWriter.SetRAMBufferSizeMB(256);
+            // 创建索引写入器
+            CreateIndexWriter();
 
             using (MutipleThreadResetEvent resetEvent = new MutipleThreadResetEvent(_totalCount))
             {
@@ -99,7 +136,7 @@ namespace TextLocator.Index
                 {
                     string filePath = filePaths[i];
                     // 忽略已存在索引的文件
-                    if (SkipFile(create, filePath, resetEvent))
+                    if (SkipFile(_create, filePath, resetEvent))
                     {
                         continue;
                     }
@@ -112,17 +149,15 @@ namespace TextLocator.Index
 
                 // 等待所有线程结束
                 resetEvent.WaitAll();
-
-                // 销毁
-                resetEvent.Dispose();
             }
 
             try
             {
                 // 索引优化
-                _indexWriter.Optimize();
-                // 索引写入器销毁
-                _indexWriter.Dispose();
+                _indexWriter.Optimize(10000);
+
+                // 关闭并销毁索引写入器
+                CloseIndexWriter();
 
                 // 手动GC
                 GC.Collect();
@@ -254,7 +289,25 @@ namespace TextLocator.Index
                     {
                         if (_finishCount % 500 == 0 || _finishCount == _totalCount)
                         {
-                            _indexWriter.Optimize(false);
+                            try
+                            {
+                                // 索引刷新
+                                _indexWriter.Optimize(10000);
+                            }
+                            catch (OutOfMemoryException ex)
+                            {
+                                log.Error(ex.Message, ex);
+
+                                // 关闭并销毁索引写入器
+                                CloseIndexWriter();
+
+                                // 创建索引写入器
+                                CreateIndexWriter();
+                            }
+
+                            // 手动GC
+                            GC.Collect();
+                            GC.WaitForPendingFinalizers();
                         }
                     }
                     catch (Exception ex)
@@ -283,12 +336,15 @@ namespace TextLocator.Index
 
                 try
                 {
+                    // 标记当前任务完成，唤醒等待线程继续执行
                     taskInfo.ResetEvent.SetOne();
                 }
                 catch { }              
             }
         }
+        #endregion
 
+        #region 完成比例计算器
         /// <summary>
         /// 计算完成比例
         /// </summary>
@@ -299,7 +355,9 @@ namespace TextLocator.Index
         {
             return finishCount * 1.00F / totalCount * 1.00F * 100.00F;
         }
+        #endregion
 
+        #region 任务信息对象
         /// <summary>
         /// 任务信息
         /// </summary>
@@ -314,5 +372,6 @@ namespace TextLocator.Index
             /// </summary>
             public MutipleThreadResetEvent ResetEvent { get; set; }
         }
+        #endregion
     }
 }

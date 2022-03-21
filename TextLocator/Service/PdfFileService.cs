@@ -1,5 +1,6 @@
 ﻿using log4net;
 using Spire.Pdf;
+using Spire.Pdf.Widget;
 using System;
 using System.IO;
 using System.Text;
@@ -18,26 +19,28 @@ namespace TextLocator.Service
         public string GetFileContent(string filePath)
         {            
             // 文件内容
-            string content = "";
+            StringBuilder builder = new StringBuilder();
             lock (locker)
             {
                 try
                 {
-                    //实例化一个StringBuilder 对象
-                    StringBuilder builder = new StringBuilder();
+                    
                     // 实例化一个PdfDocument对象
-                    using (PdfDocument doc = new PdfDocument())
-                    {                        
-                        // 加载Pdf文档
-                        doc.LoadFromFile(filePath);
-
-                        //提取PDF所有页面的文本
-                        foreach (PdfPageBase page in doc.Pages)
+                    using (PdfDocument doc = new PdfDocument(new FileStream(filePath, FileMode.Open, FileAccess.Read)))
+                    {
+                        PdfPageCollection pages = doc.Pages;
+                        if (pages != null && pages.Count > 0)
                         {
-                            builder.Append(page.ExtractText().Replace("Evaluation Warning : The document was created with Spire.PDF for .NET.", ""));
+                            //提取PDF所有页面的文本
+                            foreach (PdfPageBase page in pages)
+                            {
+                                try
+                                {
+                                    builder.Append(page.ExtractText().Replace("Evaluation Warning : The document was created with Spire.PDF for .NET.", ""));
+                                } catch { }
+                            }
                         }
                     }
-                    content = builder.ToString();
                 }
                 catch (ObjectDisposedException ex)
                 {
@@ -48,7 +51,7 @@ namespace TextLocator.Service
                     log.Error(filePath + " -> " + ex.Message, ex);
                 }
             }
-            return content;
+            return builder.ToString();
         }
     }
 }

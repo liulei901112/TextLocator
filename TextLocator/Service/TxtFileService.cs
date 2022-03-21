@@ -20,7 +20,7 @@ namespace TextLocator.Service
             StringBuilder builder = new StringBuilder();
             try
             {
-                using (StreamReader reader = new StreamReader(filePath, Encoding.UTF8))
+                using (StreamReader reader = new StreamReader(new FileStream(filePath, FileMode.Open, FileAccess.Read), Encoding.UTF8))
                 {
                     string line;
                     while((line = reader.ReadLine()) != null)

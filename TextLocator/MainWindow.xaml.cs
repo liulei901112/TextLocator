@@ -1007,20 +1007,22 @@ namespace TextLocator
         /// <param name="e"></param>
         private async void IndexRebuildButton_Click(object sender, RoutedEventArgs e)
         {
-            if (CheckIndexExist(false))
-            {
-                var result = await MessageBoxR.ConfirmInContainer("DialogContaioner", "确定要重建索引嘛？时间可能比较久哦！", "提示");
-                if (result == MessageBoxResult.Cancel)
-                {
-                    return;
-                }
-            }
-
             if (build)
             {
                 Message.ShowWarning("MessageContainer", "索引构建中，不能重复执行！");
                 return;
             }
+
+            if (CheckIndexExist(false))
+            {
+                var result = await MessageBoxR.ConfirmInContainer("DialogContaioner", "确定要重建索引嘛？时间可能比较久哦！", "提示");
+                if (result == MessageBoxResult.Cancel)
+                {
+
+                    return;
+                }
+            }
+
             build = true;
 
             BuildIndex(true);

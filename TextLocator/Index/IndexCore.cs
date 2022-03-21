@@ -71,8 +71,6 @@ namespace TextLocator.Index
 
                 // 设置Buffer内存上限,默认值16MB
                 _indexWriter.SetRAMBufferSizeMB(512);
-                // 设置使用复合文件为禁用，
-                _indexWriter.UseCompoundFile = false;
             }
         }
 
@@ -151,11 +149,14 @@ namespace TextLocator.Index
 
             try
             {
-                // 索引优化
-                _indexWriter.Optimize(10000);
+                lock (locker)
+                {
+                    // 索引优化
+                    _indexWriter.Optimize(10000);
 
-                // 关闭并销毁索引写入器
-                CloseIndexWriter();
+                    // 关闭并销毁索引写入器
+                    CloseIndexWriter();
+                }                
 
                 // 手动GC
                 GC.Collect();
@@ -214,54 +215,54 @@ namespace TextLocator.Index
 
             // 文件路径
             string filePath = taskInfo.FilePath;
+            // 解析时间
+            var taskMark = TaskTime.StartNew();
+
+            // 写入已索引标记
+            AppUtil.WriteValue("FileIndex", filePath, "1");
+
+            // 文件信息
+            FileInfo fileInfo = new FileInfo(filePath);
+            // 文件名
+            string fileName = fileInfo.Name;
+            // 文件大小
+            long fileSize = fileInfo.Length;
+            // 创建时间
+            string createTime = fileInfo.CreationTime.ToString("yyyy-MM-dd");
+
+            // 根据文件路径获取文件类型（自定义文件类型分类）
+            FileType fileType = FileTypeUtil.GetFileType(filePath);
+
+            string filePathPadding = filePath;
             try
             {
-                // 解析时间
-                var taskMark = TaskTime.StartNew();
+                filePathPadding = filePath.Substring(0, 30) + "......" + filePath.Substring(filePath.Length - 30);
+            }
+            catch { }
 
-                // 写入已索引标记
-                AppUtil.WriteValue("FileIndex", filePath, "1");
+            StringBuilder msg = new StringBuilder("[" + _finishCount * 1.0F + "/" + _totalCount + "] => 引擎：" + (int)fileType + "，文件：" + filePathPadding);
 
-                // 文件信息
-                FileInfo fileInfo = new FileInfo(filePath);
-                // 文件名
-                string fileName = fileInfo.Name;
-                // 文件大小
-                long fileSize = fileInfo.Length;
-                // 创建时间
-                string createTime = fileInfo.CreationTime.ToString("yyyy-MM-dd");                
+            // 文件内容
+            string content = FileInfoServiceFactory.GetFileInfoService(fileType).GetFileContent(filePath);
 
-                // 根据文件路径获取文件类型（自定义文件类型分类）
-                FileType fileType = FileTypeUtil.GetFileType(filePath);
+            msg.Append("，解析：" + taskMark.ConsumeTime + "秒");
 
-                string filePathPadding = filePath;
+            // 缩略信息
+            string breviary = AppConst.REGEX_LINE_BREAKS_AND_WHITESPACE.Replace(content, "");
+            if (breviary.Length > AppConst.FILE_CONTENT_SUB_LENGTH)
+            {
+                breviary = breviary.Substring(0, AppConst.FILE_CONTENT_SUB_LENGTH) + "...";
+            }
+
+            // 文件标记
+            string fileMark = MD5Util.GetMD5Hash(filePath); //fileInfo.DirectoryName + fileInfo.CreationTime.ToString();
+
+            // 索引时间
+            taskMark = TaskTime.StartNew();
+
+            lock (locker)
+            {
                 try
-                {
-                    filePathPadding = filePath.Substring(0, 30) + "......" + filePath.Substring(filePath.Length - 30);
-                }
-                catch { }
-
-                StringBuilder msg = new StringBuilder("[" + _finishCount * 1.0F + "/" + _totalCount + "] => 引擎：" + (int)fileType + "，文件：" + filePathPadding);
-
-                // 文件内容
-                string content = FileInfoServiceFactory.GetFileInfoService(fileType).GetFileContent(filePath);
-
-                msg.Append("，解析：" + taskMark.ConsumeTime + "秒");
-
-                // 缩略信息
-                string breviary = AppConst.REGEX_LINE_BREAKS_AND_WHITESPACE.Replace(content, "");
-                if (breviary.Length > AppConst.FILE_CONTENT_SUB_LENGTH)
-                {
-                    breviary = breviary.Substring(0, AppConst.FILE_CONTENT_SUB_LENGTH) + "...";
-                }
-
-                // 文件标记
-                string fileMark = MD5Util.GetMD5Hash(filePath); //fileInfo.DirectoryName + fileInfo.CreationTime.ToString();
-
-                // 索引时间
-                taskMark = TaskTime.StartNew();
-
-                lock (locker)
                 {
                     // 当索引文件中含有与filemark相等的field值时，会先删除再添加，以防出现重复
                     // _indexWriter.DeleteDocuments(new Term("FileMark", fileMark));
@@ -283,62 +284,50 @@ namespace TextLocator.Index
                     // 索引存在时更新，不存在时添加
                     _indexWriter.UpdateDocument(new Term("FileMark", fileMark), doc);
 
+                    // 完成数+1，没执行到这里抛异常的。就跳过呗，log和消息又不缺这一条
+                    _finishCount++;
+
+                    /*if (_finishCount % 1000 == 0 || _finishCount == _totalCount)
+                    {
+                        // 索引刷新
+                        _indexWriter.Optimize(10000);                        
+                    }*/
+                }
+                catch (Exception ex)
+                {
+                    log.Error(filePath + " -> " + ex.Message, ex);
+
+                    Type ext = ex.GetType();
+
+                    if (ext == typeof(NullReferenceException) || ext == typeof(OutOfMemoryException))
+                    {
+                        // 关闭并销毁索引写入器
+                        CloseIndexWriter();
+
+                        // 创建索引写入器
+                        CreateIndexWriter();
+                    }
+
+                    // 手动GC
+                    ManualGC();
+                }
+                finally
+                {
                     try
                     {
-                        if (_finishCount % 500 == 0 || _finishCount == _totalCount)
-                        {
-                            try
-                            {
-                                // 索引刷新
-                                _indexWriter.Optimize(10000);
-                            }
-                            catch (OutOfMemoryException ex)
-                            {
-                                log.Error(ex.Message, ex);
-
-                                // 关闭并销毁索引写入器
-                                CloseIndexWriter();
-
-                                // 创建索引写入器
-                                CreateIndexWriter();
-                            }
-
-                            // 手动GC
-                            GC.Collect();
-                            GC.WaitForPendingFinalizers();
-                        }
+                        // 标记当前任务完成，唤醒等待线程继续执行
+                        taskInfo.ResetEvent.SetOne();
                     }
-                    catch (Exception ex)
-                    {
-                        log.Error(filePath + " -> " + ex.Message, ex);
-                    }
+                    catch { }
                 }
-                msg.Append("，索引：" + taskMark.ConsumeTime + "秒");
-
-                // 执行状态回调
-                // taskInfo.Callback(msg.ToString(), CalcFinishRatio(_finishCount, taskInfo.TotalCount));
-                _callback(msg.ToString(), CalcFinishRatio(_finishCount, _totalCount));
-
-                log.Debug(msg);
             }
-            catch (Exception ex)
-            {
-                log.Error(filePath + " -> " + ex.Message, ex);
-            }
-            finally
-            {
-                lock (locker)
-                {
-                    _finishCount++;
-                }
+            msg.Append("，索引：" + taskMark.ConsumeTime + "秒");
 
-                try
-                {
-                    // 标记当前任务完成，唤醒等待线程继续执行
-                    taskInfo.ResetEvent.SetOne();
-                }
-                catch { }              
-            }
+            // 执行状态回调
+            // taskInfo.Callback(msg.ToString(), CalcFinishRatio(_finishCount, taskInfo.TotalCount));
+            _callback(msg.ToString(), CalcFinishRatio(_finishCount, _totalCount));
+
+            log.Debug(msg);
         }
         #endregion
 
@@ -352,6 +341,15 @@ namespace TextLocator.Index
         private static double CalcFinishRatio(double finishCount, double totalCount)
         {
             return finishCount * 1.00F / totalCount * 1.00F * 100.00F;
+        }
+        #endregion
+
+        #region 手动GC
+        private static void ManualGC()
+        {
+            // 手动GC
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
         #endregion
 

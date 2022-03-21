@@ -133,14 +133,6 @@ namespace TextLocator.Service
                             }
                         }
                     }
-                    catch (ArgumentOutOfRangeException ex)
-                    {
-                        log.Error(filePath + " -> " + ex.Message, ex);
-                    }
-                    catch (ObjectDisposedException ex)
-                    {
-                        log.Error(filePath + " -> " + ex.Message, ex);
-                    }
                     catch (Exception ex)
                     {
                         log.Error(filePath + " -> " + ex.Message, ex);

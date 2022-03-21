@@ -60,10 +60,6 @@ namespace TextLocator.Service
                         
                     }
                 }
-                catch (ObjectDisposedException ex)
-                {
-                    log.Error(filePath + " -> " + ex.Message, ex);
-                }
                 catch (Exception ex)
                 {
                     log.Error(filePath + " -> " + ex.Message, ex);

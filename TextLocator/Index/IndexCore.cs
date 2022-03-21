@@ -284,9 +284,6 @@ namespace TextLocator.Index
                     // 索引存在时更新，不存在时添加
                     _indexWriter.UpdateDocument(new Term("FileMark", fileMark), doc);
 
-                    // 完成数+1，没执行到这里抛异常的。就跳过呗，log和消息又不缺这一条
-                    _finishCount++;
-
                     /*if (_finishCount % 1000 == 0 || _finishCount == _totalCount)
                     {
                         // 索引刷新
@@ -315,6 +312,12 @@ namespace TextLocator.Index
                 {
                     try
                     {
+                        lock (locker)
+                        {
+                            // 完成数+1
+                            _finishCount++;
+                        }
+
                         // 标记当前任务完成，唤醒等待线程继续执行
                         taskInfo.ResetEvent.SetOne();
                     }

@@ -83,8 +83,6 @@ namespace TextLocator.Index
         {
             if (_indexWriter != null)
             {
-                // 关闭索引写入器
-                _indexWriter.Close();
                 // 销毁索引写入器
                 _indexWriter.Dispose();
                 // 置为NULL

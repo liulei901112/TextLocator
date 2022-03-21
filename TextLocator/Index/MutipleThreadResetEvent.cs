@@ -20,6 +20,10 @@ namespace TextLocator.Index
         /// </summary>
         private readonly ManualResetEvent done;
         /// <summary>
+        /// 任务总数
+        /// </summary>
+        private readonly int total;
+        /// <summary>
         /// 任务当前剩余数量
         /// </summary>
         private long current;
@@ -30,6 +34,7 @@ namespace TextLocator.Index
         /// <param name="total">需要等待执行的线程总数</param>
         public MutipleThreadResetEvent(int total)
         {
+            this.total = total;
             this.current = total;
             this.done = new ManualResetEvent(false);
         }

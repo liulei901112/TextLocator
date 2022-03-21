@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using TextLocator.Core;
 using TextLocator.Enums;
 using TextLocator.Factory;
@@ -136,13 +137,15 @@ namespace TextLocator.Index
                     {
                         continue;
                     }
+
                     // 加入线程池
-                    ThreadPool.QueueUserWorkItem(new WaitCallback(CreateIndexTask), new TaskInfo() {
+                    ThreadPool.QueueUserWorkItem(new WaitCallback(CreateIndexTask), new TaskInfo()
+                    {
                         FilePath = filePath,
                         ResetEvent = resetEvent
                     });
-                }
 
+                }
                 // 等待所有线程结束
                 resetEvent.WaitAll();
             }
@@ -151,11 +154,16 @@ namespace TextLocator.Index
             {
                 lock (locker)
                 {
-                    // 索引优化
-                    _indexWriter.Optimize(10000);
-
-                    // 关闭并销毁索引写入器
-                    CloseIndexWriter();
+                    try
+                    {
+                        // 索引优化
+                        _indexWriter.Optimize(10000);
+                    }
+                    finally
+                    {
+                        // 关闭并销毁索引写入器
+                        CloseIndexWriter();
+                    }
                 }                
 
                 // 手动GC
@@ -212,125 +220,123 @@ namespace TextLocator.Index
         private static void CreateIndexTask(object obj)
         {
             TaskInfo taskInfo = obj as TaskInfo;
-
-            // 文件路径
-            string filePath = taskInfo.FilePath;
-            // 解析时间
-            var taskMark = TaskTime.StartNew();
-
-            // 写入已索引标记
-            AppUtil.WriteValue("FileIndex", filePath, "1");
-
-            // 文件信息
-            FileInfo fileInfo = new FileInfo(filePath);
-            // 文件名
-            string fileName = fileInfo.Name;
-            // 文件大小
-            long fileSize = fileInfo.Length;
-            // 创建时间
-            string createTime = fileInfo.CreationTime.ToString("yyyy-MM-dd");
-
-            // 根据文件路径获取文件类型（自定义文件类型分类）
-            FileType fileType = FileTypeUtil.GetFileType(filePath);
-
-            string filePathPadding = filePath;
             try
             {
-                filePathPadding = filePath.Substring(0, 30) + "......" + filePath.Substring(filePath.Length - 30);
-            }
-            catch { }
+                // 文件路径
+                string filePath = taskInfo.FilePath;
+                // 解析时间
+                var taskMark = TaskTime.StartNew();
 
-            StringBuilder msg = new StringBuilder("[" + _finishCount * 1.0F + "/" + _totalCount + "] => 引擎：" + (int)fileType + "，文件：" + filePathPadding);
+                // 写入已索引标记
+                AppUtil.WriteValue("FileIndex", filePath, "1");
 
-            // 文件内容
-            string content = FileInfoServiceFactory.GetFileInfoService(fileType).GetFileContent(filePath);
+                // 文件信息
+                FileInfo fileInfo = new FileInfo(filePath);
+                // 文件名
+                string fileName = fileInfo.Name;
+                // 文件大小
+                long fileSize = fileInfo.Length;
+                // 创建时间
+                string createTime = fileInfo.CreationTime.ToString("yyyy-MM-dd");
 
-            msg.Append("，解析：" + taskMark.ConsumeTime + "秒");
+                // 根据文件路径获取文件类型（自定义文件类型分类）
+                FileType fileType = FileTypeUtil.GetFileType(filePath);
 
-            // 缩略信息
-            string breviary = AppConst.REGEX_LINE_BREAKS_AND_WHITESPACE.Replace(content, "");
-            if (breviary.Length > AppConst.FILE_CONTENT_SUB_LENGTH)
-            {
-                breviary = breviary.Substring(0, AppConst.FILE_CONTENT_SUB_LENGTH) + "...";
-            }
-
-            // 文件标记
-            string fileMark = MD5Util.GetMD5Hash(filePath); //fileInfo.DirectoryName + fileInfo.CreationTime.ToString();
-
-            // 索引时间
-            taskMark = TaskTime.StartNew();
-
-            lock (locker)
-            {
+                string filePathPadding = filePath;
                 try
                 {
-                    // 当索引文件中含有与filemark相等的field值时，会先删除再添加，以防出现重复
-                    // _indexWriter.DeleteDocuments(new Term("FileMark", fileMark));
-
-                    Document doc = new Document();
-                    // 不分词建索引
-                    doc.Add(new Field("FileMark", fileMark, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.YES));
-                    doc.Add(new Field("FileType", fileType.ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
-                    doc.Add(new Field("FileSize", fileSize + "", Field.Store.YES, Field.Index.NOT_ANALYZED));
-                    doc.Add(new Field("Breviary", breviary, Field.Store.YES, Field.Index.NOT_ANALYZED));
-                    doc.Add(new Field("CreateTime", createTime, Field.Store.YES, Field.Index.NOT_ANALYZED));
-
-                    // ANALYZED分词建索引
-                    doc.Add(new Field("FileName", fileName, Field.Store.YES, Field.Index.ANALYZED));
-                    doc.Add(new Field("FilePath", filePath, Field.Store.YES, Field.Index.ANALYZED));
-                    doc.Add(new Field("Content", content, Field.Store.NO, Field.Index.ANALYZED));
-
-                    // _indexWriter.AddDocument(doc);
-                    // 索引存在时更新，不存在时添加
-                    _indexWriter.UpdateDocument(new Term("FileMark", fileMark), doc);
-
-                    /*if (_finishCount % 1000 == 0 || _finishCount == _totalCount)
-                    {
-                        // 索引刷新
-                        _indexWriter.Optimize(10000);                        
-                    }*/
+                    filePathPadding = filePath.Substring(0, 30) + "......" + filePath.Substring(filePath.Length - 30);
                 }
-                catch (Exception ex)
+                catch { }
+
+                StringBuilder msg = new StringBuilder("[" + _finishCount * 1.0F + "/" + _totalCount + "] => 引擎：" + (int)fileType + "，文件：" + filePathPadding);
+
+                // 文件内容
+                string content = FileInfoServiceFactory.GetFileInfoService(fileType).GetFileContent(filePath);
+
+                msg.Append("，解析：" + taskMark.ConsumeTime + "秒");
+
+                // 缩略信息
+                string breviary = AppConst.REGEX_LINE_BREAKS_AND_WHITESPACE.Replace(content, "");
+                if (breviary.Length > AppConst.FILE_CONTENT_SUB_LENGTH)
                 {
-                    log.Error(filePath + " -> " + ex.Message, ex);
-
-                    Type ext = ex.GetType();
-
-                    if (ext == typeof(NullReferenceException) || ext == typeof(OutOfMemoryException))
-                    {
-                        // 关闭并销毁索引写入器
-                        CloseIndexWriter();
-
-                        // 创建索引写入器
-                        CreateIndexWriter();
-                    }
-
-                    // 手动GC
-                    ManualGC();
+                    breviary = breviary.Substring(0, AppConst.FILE_CONTENT_SUB_LENGTH) + "...";
                 }
-                finally
+
+                // 文件标记
+                string fileMark = MD5Util.GetMD5Hash(filePath); //fileInfo.DirectoryName + fileInfo.CreationTime.ToString();
+
+                // 索引时间
+                taskMark = TaskTime.StartNew();
+
+                lock (locker)
                 {
                     try
                     {
-                        lock (locker)
+                        // 当索引文件中含有与filemark相等的field值时，会先删除再添加，以防出现重复
+                        // _indexWriter.DeleteDocuments(new Term("FileMark", fileMark));
+
+                        Document doc = new Document();
+                        // 不分词建索引
+                        doc.Add(new Field("FileMark", fileMark, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.YES));
+                        doc.Add(new Field("FileType", fileType.ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
+                        doc.Add(new Field("FileSize", fileSize + "", Field.Store.YES, Field.Index.NOT_ANALYZED));
+                        doc.Add(new Field("Breviary", breviary, Field.Store.YES, Field.Index.NOT_ANALYZED));
+                        doc.Add(new Field("CreateTime", createTime, Field.Store.YES, Field.Index.NOT_ANALYZED));
+
+                        // ANALYZED分词建索引
+                        doc.Add(new Field("FileName", fileName, Field.Store.YES, Field.Index.ANALYZED));
+                        doc.Add(new Field("FilePath", filePath, Field.Store.YES, Field.Index.ANALYZED));
+                        doc.Add(new Field("Content", content, Field.Store.NO, Field.Index.ANALYZED));
+
+                        // _indexWriter.AddDocument(doc);
+                        // 索引存在时更新，不存在时添加
+                        _indexWriter.UpdateDocument(new Term("FileMark", fileMark), doc);
+
+                        /*if (_finishCount % 1000 == 0 || _finishCount == _totalCount)
                         {
-                            // 完成数+1
-                            _finishCount++;
+                            // 索引刷新
+                            _indexWriter.Optimize(10000);                        
+                        }*/
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error(filePath + " -> " + ex.Message, ex);
+
+                        Type ext = ex.GetType();
+
+                        if (ext == typeof(NullReferenceException) || ext == typeof(OutOfMemoryException))
+                        {
+                            // 关闭并销毁索引写入器
+                            CloseIndexWriter();
+
+                            // 创建索引写入器
+                            CreateIndexWriter();
                         }
 
-                        // 标记当前任务完成，唤醒等待线程继续执行
-                        taskInfo.ResetEvent.SetOne();
+                        // 手动GC
+                        ManualGC();
                     }
-                    catch { }
+                    finally
+                    {
+                        // 完成数+1
+                        _finishCount++;
+                    }
                 }
+                msg.Append("，索引：" + taskMark.ConsumeTime + "秒");
+
+                // 执行状态回调
+                // taskInfo.Callback(msg.ToString(), CalcFinishRatio(_finishCount, taskInfo.TotalCount));
+                _callback(msg.ToString(), CalcFinishRatio(_finishCount, _totalCount));
+
+                log.Debug(msg);
             }
-            msg.Append("，索引：" + taskMark.ConsumeTime + "秒");
-
-            // 执行状态回调
-            // taskInfo.Callback(msg.ToString(), CalcFinishRatio(_finishCount, taskInfo.TotalCount));
-            _callback(msg.ToString(), CalcFinishRatio(_finishCount, _totalCount));
-
-            log.Debug(msg);
+            catch { }
+            finally
+            {
+                // 标记当前任务完成，唤醒等待线程继续执行
+                taskInfo.ResetEvent.SetOne();
+            }
         }
         #endregion
 

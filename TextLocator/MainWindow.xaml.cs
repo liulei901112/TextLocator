@@ -908,7 +908,7 @@ namespace TextLocator
                     else
                     {
                         // 文件内容
-                        content = FileInfoServiceFactory.GetFileInfoService(fileInfo.FileType).GetFileContent(fileInfo.FilePath);
+                        content = FileInfoServiceFactory.GetFileContent(fileInfo.FilePath);
 
                         // 写入缓存
                         CacheUtil.Add(fileInfo.FilePath, content);
@@ -985,7 +985,9 @@ namespace TextLocator
         private void MatchWords_Unchecked(object sender, RoutedEventArgs e)
         {
             BeforeSearch();
-        }        
+        }
+
+        
 
         /// <summary>
         /// 优化按钮
@@ -1000,6 +1002,8 @@ namespace TextLocator
                 return;
             }
             build = true;
+
+            ShowStatus("开始更新索引，请稍等...");
 
             BuildIndex(false);
         }
@@ -1016,7 +1020,6 @@ namespace TextLocator
                 Message.ShowWarning("MessageContainer", "索引构建中，不能重复执行！");
                 return;
             }
-
             if (CheckIndexExist(false))
             {
                 var result = await MessageBoxR.ConfirmInContainer("DialogContaioner", "确定要重建索引嘛？时间可能比较久哦！", "提示");
@@ -1027,7 +1030,14 @@ namespace TextLocator
                 }
             }
 
+            if (build)
+            {
+                Message.ShowWarning("MessageContainer", "索引构建中，请稍等。");
+                return;
+            }
             build = true;
+
+            ShowStatus("开始重建索引，请稍等...");
 
             BuildIndex(true);
         }

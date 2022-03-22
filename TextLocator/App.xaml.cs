@@ -35,7 +35,10 @@ namespace TextLocator
             // 初始化线程池大小
             InitThreadPoolSize();
 
-            // 初始化文件信息服务引擎
+            // 初始化配置
+            InitAppConfig();
+
+            // 初始化文件服务引擎
             InitFileInfoServiceEngine();
         }
 
@@ -93,7 +96,6 @@ namespace TextLocator
             AppUtil.WriteValue("ThreadPool", "MaxSize", AppConst.THREAD_POOL_MAX_SIZE + "");
         }
 
-
         /// <summary>
         /// 初始化文件信息服务引擎
         /// </summary>
@@ -123,6 +125,15 @@ namespace TextLocator
             {
                 log.Error("文件服务工厂初始化错误：" + ex.Message, ex);
             }
+        }
+
+        /// <summary>
+        /// 初始化AppConfig
+        /// </summary>
+        private void InitAppConfig()
+        {
+            // 保存线程池
+            AppUtil.WriteValue("AppConfig", "FileReadTimeout", AppConst.FILE_READ_TIMEOUT + "");
         }
         #endregion
 

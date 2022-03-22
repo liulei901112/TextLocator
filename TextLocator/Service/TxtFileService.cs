@@ -17,22 +17,23 @@ namespace TextLocator.Service
         public string GetFileContent(string filePath)
         {
             // 文件内容
-            string content = "";
+            StringBuilder builder = new StringBuilder();
             try
             {
-                using (StreamReader reader = new StreamReader(filePath, Encoding.UTF8))
+                using (StreamReader reader = new StreamReader(new FileStream(filePath, FileMode.Open, FileAccess.Read), Encoding.UTF8))
                 {
-                    content = reader.ReadToEnd();
-
-                    reader.Close();
-                    reader.Dispose();
+                    string line;
+                    while((line = reader.ReadLine()) != null)
+                    {
+                        builder.Append(line);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(ex.Message, ex);
+                log.Error(filePath + " -> " + ex.Message, ex);
             }
-            return content;
+            return builder.ToString();
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using log4net;
 using Spire.Presentation;
+using Spire.Presentation.Collections;
 using System;
+using System.IO;
 using System.Text;
 
 namespace TextLocator.Service
@@ -17,35 +19,45 @@ namespace TextLocator.Service
         public string GetFileContent(string filePath)
         {
             // 文件内容
-            string content = "";
+            StringBuilder builder = new StringBuilder();
             lock (locker)
             {
                 try
                 {
-                    using (Presentation presentation = new Presentation(filePath, FileFormat.Auto))
+                    using (Presentation presentation = new Presentation(new FileStream(filePath, FileMode.Open, FileAccess.Read), FileFormat.Auto))
                     {
-                        StringBuilder builder = new StringBuilder();
-                        foreach (ISlide slide in presentation.Slides)
+                        SlideCollection slides = presentation.Slides;
+                        if (slides != null && slides.Count > 0)
                         {
-                            foreach (IShape shape in slide.Shapes)
+                            foreach (ISlide slide in presentation.Slides)
                             {
-                                if (shape is IAutoShape)
+                                ShapeCollection shapes = slide.Shapes;
+                                if (shapes != null && shapes.Count > 0)
                                 {
-                                    if ((shape as IAutoShape).TextFrame != null)
+                                    foreach (IShape shape in shapes)
                                     {
-                                        foreach (TextParagraph tp in (shape as IAutoShape).TextFrame.Paragraphs)
+                                        if (shape != null && shape is IAutoShape)
                                         {
-                                            builder.Append(tp.Text + Environment.NewLine);
+                                            ITextFrameProperties textFrame;
+                                            if ((textFrame = (shape as IAutoShape).TextFrame) != null)
+                                            {
+                                                ParagraphCollection paragraph = textFrame.Paragraphs;
+                                                if (paragraph != null && paragraph.Count > 0)
+                                                {
+                                                    foreach (TextParagraph tp in paragraph)
+                                                    {
+                                                        builder.Append(tp.Text + Environment.NewLine);
+                                                    }
+                                                }
+                                            }
                                         }
+                                        shape.Dispose();
                                     }
                                 }
-                                shape.Dispose();
+                                slide.Dispose();
                             }
-                            slide.Dispose();
                         }
-                        presentation.Dispose();
-
-                        content = builder.ToString();
+                        
                     }
                 }
                 catch (Exception ex)
@@ -53,7 +65,7 @@ namespace TextLocator.Service
                     log.Error(filePath + " -> " + ex.Message, ex);
                 }
             }
-            return content;
+            return builder.ToString();
         }
     }
 }

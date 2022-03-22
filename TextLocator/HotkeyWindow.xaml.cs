@@ -72,8 +72,7 @@ namespace TextLocator
             }
             foreach(HotKeyModel hotKey in HotKeyList)
             {
-                string json = JsonConvert.SerializeObject(hotKey);
-                log.Debug(json);
+                log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(hotKey));
                 AppUtil.WriteValue("HotKey", hotKey.Name, String.Format("{0}_{1}_{2}_{3}_{4}", hotKey.IsUsable, hotKey.IsSelectCtrl, hotKey.IsSelectAlt, hotKey.IsSelectShift, hotKey.SelectKey));
             }
             this.Close();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,8 +13,19 @@ namespace TextLocator.Index
     /// </summary>
     public class MutipleThreadResetEvent : IDisposable
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        /// <summary>
+        /// 人工重置的事件
+        /// </summary>
         private readonly ManualResetEvent done;
+        /// <summary>
+        /// 任务总数
+        /// </summary>
         private readonly int total;
+        /// <summary>
+        /// 任务当前剩余数量
+        /// </summary>
         private long current;
 
         /// <summary>
@@ -23,8 +35,8 @@ namespace TextLocator.Index
         public MutipleThreadResetEvent(int total)
         {
             this.total = total;
-            current = total;
-            done = new ManualResetEvent(false);
+            this.current = total;
+            this.done = new ManualResetEvent(false);
         }
 
         /// <summary>
@@ -53,7 +65,7 @@ namespace TextLocator.Index
         /// </summary>
         public void Dispose()
         {
-            ((IDisposable)done).Dispose();
+            done.Dispose();
         }
     }
 }

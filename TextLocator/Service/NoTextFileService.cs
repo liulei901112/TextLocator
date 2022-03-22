@@ -27,13 +27,12 @@ namespace TextLocator.Service
 
                     return builder.ToString();
                 }
-                return filePath;
             }
             catch (Exception ex)
             {
-                log.Error(ex.Message, ex);
-                return filePath;
+                log.Error(filePath + " -> " + ex.Message, ex);                
             }
+            return filePath;
         }
     }
 }

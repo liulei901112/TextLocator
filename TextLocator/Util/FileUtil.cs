@@ -91,23 +91,6 @@ namespace TextLocator.Util
         /// <returns></returns>
         public static string GetFileSizeFriendly(long number)
         {
-            /*string sizeUnit = "B";
-            if (fileSize > PROGRAMMERS_SECTION)
-            {
-                fileSize = fileSize / PROGRAMMERS_SECTION;
-                sizeUnit = "KB";
-            }
-            if (fileSize > PROGRAMMERS_SECTION)
-            {
-                fileSize = fileSize / PROGRAMMERS_SECTION;
-                sizeUnit = "MB";
-            }
-            if (fileSize > PROGRAMMERS_SECTION)
-            {
-                fileSize = fileSize / PROGRAMMERS_SECTION;
-                sizeUnit = "GB";
-            }
-            return fileSize + "" + sizeUnit;*/
             double last = 1;
             for (int i = 0; i < suffixes.Length; i++)
             {

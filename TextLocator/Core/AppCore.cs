@@ -30,8 +30,8 @@ namespace TextLocator.Core
 
             // 启动新进程
             System.Reflection.Assembly.GetEntryAssembly();
-            String processPath = Directory.GetCurrentDirectory();
-            String processName = Process.GetCurrentProcess().ProcessName;
+            string processPath = Directory.GetCurrentDirectory();
+            string processName = Process.GetCurrentProcess().ProcessName;
             Process.Start(processPath + "/" + processName);
 
             Shutdown();

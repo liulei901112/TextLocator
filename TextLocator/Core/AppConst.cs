@@ -58,7 +58,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 匹配空白和换行
         /// </summary>
-        public static readonly Regex REGEX_LINE_BREAKS_AND_WHITESPACE = new Regex(" |\r|\n|\\s");
+        public static readonly Regex REGEX_LINE_BREAKS_AND_WHITESPACE = new Regex("  |\r|\n|\\s");
         /// <summary>
         /// 匹配HTML和XML标签
         /// </summary>
@@ -70,7 +70,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 匹配排除关键词
         /// </summary>
-        public static readonly Regex REGEX_EXCLUDE_KEYWORD = new Regex(@"(\$RECYCLE|360REC|SYSTEM|TEMP|SYSTEM VOLUME INFOMATION)");
+        public static readonly Regex REGEX_EXCLUDE_KEYWORD = new Regex(@"(\$RECYCLE|360REC|C:\\(SYSTEM|PROGRAM FILES)|TEMP\\|TMP\\|SYSTEM VOLUME INFOMATION|\.(.*)\\|\{(.*)\})");
         /// <summary>
         /// 匹配开始字符
         /// </summary>

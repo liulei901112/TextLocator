@@ -129,8 +129,12 @@ namespace TextLocator
                 AppUtil.WriteValue("AppConfig", "MaxCountLimit", AppConst.MAX_COUNT_LIMIT + "");
             }
 
-            // 软件每次启动时执行索引更新逻辑？
-            CheckingIndexUpdates();
+            // 检查索引是否存在：如果存在才执行更新检查，不存在的跳过更新检查。
+            if (CheckIndexExist())
+            {
+                // 软件每次启动时执行索引更新逻辑？
+                CheckingIndexUpdates();
+            }            
 
             // 注册全局热键时间
             HotKeySettingManager.Instance.RegisterGlobalHotKeyEvent += Instance_RegisterGlobalHotKeyEvent;
@@ -302,7 +306,7 @@ namespace TextLocator
             if (string.IsNullOrEmpty(failList))
                 return true;
 
-            var result = await MessageBoxR.ConfirmInContainer("DialogContaioner", string.Format("无法注册下列快捷键\n\r{0}是否要改变这些快捷键？", failList), "提示", MessageBoxButton.YesNo);
+            var result = await MessageBoxR.ConfirmInContainer("DialogContaioner", string.Format("无法注册下列快捷键：\r\n\r\n{0}是否要改变这些快捷键？", failList), "提示", MessageBoxButton.YesNo);
             // 弹出热键设置窗体
             var win = HotkeyWindow.CreateInstance();
             if (result == MessageBoxResult.Yes)
@@ -366,13 +370,13 @@ namespace TextLocator
                     else if (sid == _hotKeySettings[HotKeySetting.上一个])
                     {
                         hotKeySetting = HotKeySetting.上一个;
-                        Switch2Preview(false);
+                        Switch2Preview(HotKeySetting.上一个);
                     }
                     // 下一项
                     else if (sid == _hotKeySettings[HotKeySetting.下一个])
                     {
                         hotKeySetting = HotKeySetting.下一个;
-                        Switch2Preview(true);
+                        Switch2Preview(HotKeySetting.下一个);
                     }
                     log.Debug(string.Format("触发【{0}】快捷键", hotKeySetting));
                     handled = true;
@@ -712,7 +716,7 @@ namespace TextLocator
 
         private void PageBar_PageIndexChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
         {
-            log.Debug($"page index : {e.OldValue} => {e.NewValue}");
+            log.Debug($"pageIndex : {e.OldValue} => {e.NewValue}");
 
             // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
             MatchWords.IsChecked = false;
@@ -724,7 +728,7 @@ namespace TextLocator
 
         private void PageBar_PageSizeChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
         {
-            log.Debug($"page size : {e.OldValue} => {e.NewValue}");
+            log.Debug($"pageSize : {e.OldValue} => {e.NewValue}");
         }
         #endregion
 
@@ -981,9 +985,7 @@ namespace TextLocator
         private void MatchWords_Unchecked(object sender, RoutedEventArgs e)
         {
             BeforeSearch();
-        }
-
-        
+        }        
 
         /// <summary>
         /// 优化按钮
@@ -994,12 +996,10 @@ namespace TextLocator
         {
             if (build)
             {
-                Message.ShowWarning("MessageContainer", "索引构建中，请稍等。");
+                Message.ShowWarning("MessageContainer", "索引构建中，不能重复执行！");
                 return;
             }
             build = true;
-
-            ShowStatus("开始更新索引，请稍等...");
 
             BuildIndex(false);
         }
@@ -1011,23 +1011,23 @@ namespace TextLocator
         /// <param name="e"></param>
         private async void IndexRebuildButton_Click(object sender, RoutedEventArgs e)
         {
+            if (build)
+            {
+                Message.ShowWarning("MessageContainer", "索引构建中，不能重复执行！");
+                return;
+            }
+
             if (CheckIndexExist(false))
             {
                 var result = await MessageBoxR.ConfirmInContainer("DialogContaioner", "确定要重建索引嘛？时间可能比较久哦！", "提示");
                 if (result == MessageBoxResult.Cancel)
                 {
+
                     return;
                 }
             }
 
-            if (build)
-            {
-                Message.ShowWarning("MessageContainer", "索引构建中，请稍等。");
-                return;
-            }
             build = true;
-
-            ShowStatus("开始重建索引，请稍等...");
 
             BuildIndex(true);
         }
@@ -1054,7 +1054,7 @@ namespace TextLocator
         /// <param name="e"></param>
         private void BtnLast_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            Switch2Preview(false);
+            Switch2Preview(HotKeySetting.上一个);
         }
 
         /// <summary>
@@ -1064,14 +1064,14 @@ namespace TextLocator
         /// <param name="e"></param>
         private void BtnNext_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            Switch2Preview(true);
+            Switch2Preview(HotKeySetting.下一个);
         }
 
         /// <summary>
         /// 切换预览，next为true，下一个；next为false，上一个
         /// </summary>
         /// <param name="next"></param>
-        private void Switch2Preview(bool next)
+        private void Switch2Preview(HotKeySetting setting)
         {
             // 当前索引 = 预览标记不为空 ? 使用标记 ： 默认值0
             int index = this.SwitchPreview.Tag != null ? int.Parse(this.SwitchPreview.Tag + "") : -1;
@@ -1083,12 +1083,12 @@ namespace TextLocator
             }
 
             // 下一个
-            if (next && index < this.SearchResultList.Items.Count)
+            if (setting == HotKeySetting.下一个 && index < this.SearchResultList.Items.Count)
             {
                 this.SearchResultList.SelectedIndex = index + 1;
             }
             // 上一个
-            else if (!next && index > 0)
+            else if (setting == HotKeySetting.上一个 && index > 0)
             {
                 this.SearchResultList.SelectedIndex = index - 1;
             }
@@ -1107,7 +1107,7 @@ namespace TextLocator
             if (string.IsNullOrEmpty(lastIndexTime) || (DateTime.Now - DateTime.Parse(lastIndexTime)).TotalDays > 7)
             {
                 // 执行索引更新，扫描新文件。
-                BuildIndex(false);
+                BuildIndex();
             }
         }
 
@@ -1134,11 +1134,17 @@ namespace TextLocator
         /// <param name="rebuild">重建，默认是优化</param>
         private void BuildIndex(bool rebuild = false)
         {
+            // 提示语
+            string tips = rebuild ? "重建" : "更新";
+
             Task.Factory.StartNew(() =>
             {
                 var taskMark = TaskTime.StartNew();
 
                 var fileMark = TaskTime.StartNew();
+
+                ShowStatus("开始" + tips + "索引，正在扫描文件...");
+
                 // 定义文件列表
                 List<string> filePaths = new List<string>();
                 foreach (string s in _indexFolders)
@@ -1148,6 +1154,7 @@ namespace TextLocator
                     FileUtil.GetAllFiles(filePaths, _regexExclusionFolder, s);
                 }
                 log.Debug("GetFiles 耗时：" + fileMark.ConsumeTime + "秒");
+                ShowStatus("文件扫描完成，开始" + tips + "索引...");
 
                 // 排重
                 filePaths = filePaths.Distinct().ToList();
@@ -1164,7 +1171,7 @@ namespace TextLocator
                 // 索引拷贝：索引创建结束后拷贝新索引覆盖旧的索引，并删除write.lock
                 FileUtil.CopyDirectory(AppConst.APP_INDEX_BUILD_DIR, AppConst.APP_INDEX_DIR);*/
 
-                string msg = "索引完成。共用时：" + taskMark.ConsumeTime + "秒";
+                string msg = "索引" + tips + "完成。共用时：" + taskMark.ConsumeTime + "秒";
 
                 // 显示状态
                 ShowStatus(msg);

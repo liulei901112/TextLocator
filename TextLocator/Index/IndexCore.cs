@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using TextLocator.Core;
 using TextLocator.Enums;
 using TextLocator.Factory;
@@ -47,32 +46,48 @@ namespace TextLocator.Index
         /// </summary>
         private static volatile bool _create = false;
         /// <summary>
-        /// 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
-        /// </summary>
-        private static IndexWriter _indexWriter;
-        /// <summary>
         /// 回调函数
         /// </summary>
         private static Callback _callback;
 
+
         #region 索引写入器
+        /// <summary>
+        /// 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
+        /// </summary>
+        private static IndexWriter _indexWriter;
+        /// <summary>
+        /// 索引写入器锁
+        /// </summary>
+        private static volatile object _writerLock = new object();
         /// <summary>
         /// 创建索引写入器
         /// </summary>
-        private static void CreateIndexWriter()
+        private static IndexWriter GetIndexWriter()
         {
             if (_indexWriter == null)
             {
-                // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
-                _indexWriter = new IndexWriter(
-                    AppConst.INDEX_DIRECTORY,
-                    AppConst.INDEX_ANALYZER,
-                    _create,
-                    IndexWriter.MaxFieldLength.UNLIMITED);
+                lock(_writerLock)
+                {
+                    if (_indexWriter == null)
+                    {
+                        // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
+                        _indexWriter = new IndexWriter(
+                            // 索引目录
+                            AppConst.INDEX_DIRECTORY,
+                            // 分词器
+                            AppConst.INDEX_ANALYZER,
+                            // 是否创建
+                            _create,
+                            // 字段限制
+                            IndexWriter.MaxFieldLength.UNLIMITED);
 
-                // 设置Buffer内存上限,默认值16MB
-                _indexWriter.SetRAMBufferSizeMB(512);
+                        // 设置Buffer内存上限,默认值16MB
+                        _indexWriter.SetRAMBufferSizeMB(512);
+                    }
+                }
             }
+            return _indexWriter;
         }
 
         /// <summary>
@@ -80,13 +95,16 @@ namespace TextLocator.Index
         /// </summary>
         private static void CloseIndexWriter()
         {
-            if (_indexWriter != null)
+            lock (_writerLock)
             {
-                // 销毁索引写入器
-                _indexWriter.Dispose();
-                // 置为NULL
-                _indexWriter = null;
+                if (_indexWriter != null)
+                {
+                    // 销毁索引写入器
+                    _indexWriter.Dispose();
+                }
             }
+            // 置为NULL
+            _indexWriter = null;
         }
         #endregion
 
@@ -124,7 +142,7 @@ namespace TextLocator.Index
             }
 
             // 创建索引写入器
-            CreateIndexWriter();
+            GetIndexWriter();
 
             using (MutipleThreadResetEvent resetEvent = new MutipleThreadResetEvent(_totalCount))
             {
@@ -152,23 +170,14 @@ namespace TextLocator.Index
 
             try
             {
-                lock (locker)
-                {
-                    try
-                    {
-                        // 索引优化
-                        _indexWriter.Optimize(10000);
-                    }
-                    finally
-                    {
-                        // 关闭并销毁索引写入器
-                        CloseIndexWriter();
-                    }
-                }                
+                // 索引优化
+                GetIndexWriter().Optimize();
+
+                // 关闭并销毁索引写入器
+                CloseIndexWriter();
 
                 // 手动GC
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
+                ManualGC();
             }
             catch (Exception ex)
             {
@@ -242,14 +251,13 @@ namespace TextLocator.Index
                 // 根据文件路径获取文件类型（自定义文件类型分类）
                 FileType fileType = FileTypeUtil.GetFileType(filePath);
 
-                string filePathPadding = filePath;
-                try
+                string filePathSub = filePath;
+                if (filePath.Length > 60)
                 {
-                    filePathPadding = filePath.Substring(0, 30) + "......" + filePath.Substring(filePath.Length - 30);
+                    filePathSub = filePath.Substring(0, 30) + "......" + filePath.Substring(filePath.Length - 30);
                 }
-                catch { }
 
-                StringBuilder msg = new StringBuilder("[" + _finishCount * 1.0F + "/" + _totalCount + "] => 引擎：" + (int)fileType + "，文件：" + filePathPadding);
+                StringBuilder msg = new StringBuilder("[" + _finishCount * 1.0F + "/" + _totalCount + "] => 引擎：" + (int)fileType + "，文件：" + filePathSub);
 
                 // 文件内容
                 string content = FileInfoServiceFactory.GetFileInfoService(fileType).GetFileContent(filePath);
@@ -274,7 +282,7 @@ namespace TextLocator.Index
                     try
                     {
                         // 当索引文件中含有与filemark相等的field值时，会先删除再添加，以防出现重复
-                        // _indexWriter.DeleteDocuments(new Term("FileMark", fileMark));
+                        // GetIndexWriter().DeleteDocuments(new Term("FileMark", fileMark));
 
                         Document doc = new Document();
                         // 不分词建索引
@@ -289,14 +297,14 @@ namespace TextLocator.Index
                         doc.Add(new Field("FilePath", filePath, Field.Store.YES, Field.Index.ANALYZED));
                         doc.Add(new Field("Content", content, Field.Store.NO, Field.Index.ANALYZED));
 
-                        // _indexWriter.AddDocument(doc);
+                        // GetIndexWriter().AddDocument(doc);
                         // 索引存在时更新，不存在时添加
-                        _indexWriter.UpdateDocument(new Term("FileMark", fileMark), doc);
+                        GetIndexWriter().UpdateDocument(new Term("FileMark", fileMark), doc);
 
                         /*if (_finishCount % 1000 == 0 || _finishCount == _totalCount)
                         {
                             // 索引刷新
-                            _indexWriter.Optimize(10000);                        
+                            GetIndexWriter().Optimize(10000);                        
                         }*/
                     }
                     catch (Exception ex)
@@ -309,9 +317,6 @@ namespace TextLocator.Index
                         {
                             // 关闭并销毁索引写入器
                             CloseIndexWriter();
-
-                            // 创建索引写入器
-                            CreateIndexWriter();
                         }
 
                         // 手动GC

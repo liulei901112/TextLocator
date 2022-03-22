@@ -129,8 +129,12 @@ namespace TextLocator
                 AppUtil.WriteValue("AppConfig", "MaxCountLimit", AppConst.MAX_COUNT_LIMIT + "");
             }
 
-            // 软件每次启动时执行索引更新逻辑？
-            CheckingIndexUpdates();
+            // 检查索引是否存在：如果存在才执行更新检查，不存在的跳过更新检查。
+            if (CheckIndexExist())
+            {
+                // 软件每次启动时执行索引更新逻辑？
+                CheckingIndexUpdates();
+            }            
 
             // 注册全局热键时间
             HotKeySettingManager.Instance.RegisterGlobalHotKeyEvent += Instance_RegisterGlobalHotKeyEvent;

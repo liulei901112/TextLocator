@@ -2,6 +2,8 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
+using TextLocator.Util;
 
 namespace TextLocator.Core
 {
@@ -35,6 +37,21 @@ namespace TextLocator.Core
             Process.Start(processPath + "/" + processName);
 
             Shutdown();
+        }
+
+        /// <summary>
+        /// 设置线程池大小
+        /// </summary>
+        public static void SetThreadPoolSize()
+        {
+            bool setMinThread = ThreadPool.SetMinThreads(AppConst.THREAD_POOL_MIN_SIZE, AppConst.THREAD_POOL_MIN_SIZE);
+            log.Debug("修改线程池最小线程数量：" + AppConst.THREAD_POOL_MIN_SIZE + " => " + setMinThread);
+            bool setMaxThread = ThreadPool.SetMaxThreads(AppConst.THREAD_POOL_MAX_SIZE, AppConst.THREAD_POOL_MAX_SIZE);
+            log.Debug("修改线程池最大线程数量：" + AppConst.THREAD_POOL_MAX_SIZE + " => " + setMaxThread);
+
+            // 保存线程池
+            AppUtil.WriteValue("ThreadPool", "MinSize", AppConst.THREAD_POOL_MIN_SIZE + "");
+            AppUtil.WriteValue("ThreadPool", "MaxSize", AppConst.THREAD_POOL_MAX_SIZE + "");
         }
     }
 }

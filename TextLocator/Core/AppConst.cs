@@ -15,11 +15,21 @@ namespace TextLocator.Core
         /// <summary>
         /// 线程池最小数量
         /// </summary>
-        public static readonly int THREAD_POOL_MIN_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MinSize", "32"));
+        public static int THREAD_POOL_MIN_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MinSize", "32"));
         /// <summary>
         /// 线程池最大数量
         /// </summary>
-        public static readonly int THREAD_POOL_MAX_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MaxSize", "64"));
+        public static int THREAD_POOL_MAX_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MaxSize", "64"));
+        /// <summary>
+        /// 结果列表分页条数
+        /// </summary>
+        public static int MRESULT_LIST_PAGE_SIZE = int.Parse(AppUtil.ReadValue("AppConfig", "ResultListPageSize", "100"));
+        /// <summary>
+        /// 文件读取超时时间，单位：秒
+        /// </summary>
+        public static int FILE_READ_TIMEOUT = int.Parse(AppUtil.ReadValue("AppConfig", "FileReadTimeout", "600"));
+
+
         /// <summary>
         /// App.ini路径：_AppDir\\_AppName\\Index\\
         /// </summary>
@@ -34,22 +44,13 @@ namespace TextLocator.Core
         /// 分割器
         /// </summary>
         public static readonly JiebaSegmenter INDEX_SEGMENTER = new JiebaSegmenter();
-
         /// <summary>
         /// 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
         /// 磁盘路径：Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(_AppIndexDir))
         /// 内存：new Lucene.Net.Store.RAMDirectory()
         /// </summary>
         public static readonly Lucene.Net.Store.FSDirectory INDEX_DIRECTORY = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(APP_INDEX_DIR));
-
-        /// <summary>
-        /// 搜索最大值限制
-        /// </summary>
-        public static readonly int MAX_COUNT_LIMIT = int.Parse(AppUtil.ReadValue("AppConfig", "MaxCountLimit", "100"));
-        /// <summary>
-        /// 文件读取超时时间，单位：秒
-        /// </summary>
-        public static readonly int FILE_READ_TIMEOUT = int.Parse(AppUtil.ReadValue("AppConfig", "FileReadTimeout", "600"));
+        
 
         /// <summary>
         /// 匹配特殊字符
@@ -75,6 +76,7 @@ namespace TextLocator.Core
         /// 匹配开始字符
         /// </summary>
         public static readonly Regex REGEX_START_WITH = new Regex(@"^(\`|\$|\~|\.)");
+
 
         /// <summary>
         /// 比例最小值

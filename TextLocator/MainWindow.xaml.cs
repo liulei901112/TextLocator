@@ -124,9 +124,9 @@ namespace TextLocator
             CleanSearchResult();
 
             // 检查配置参数信息
-            if (string.IsNullOrEmpty(AppUtil.ReadValue("AppConfig", "MaxCountLimit", "")))
+            if (string.IsNullOrEmpty(AppUtil.ReadValue("AppConfig", "ResultListPageSize", "")))
             {
-                AppUtil.WriteValue("AppConfig", "MaxCountLimit", AppConst.MAX_COUNT_LIMIT + "");
+                AppUtil.WriteValue("AppConfig", "ResultListPageSize", AppConst.MRESULT_LIST_PAGE_SIZE + "");
             }
 
             // 检查索引是否存在：如果存在才执行更新检查，不存在的跳过更新检查。
@@ -571,7 +571,7 @@ namespace TextLocator
 
 
                     // 查询数据分页
-                    Lucene.Net.Search.TopFieldDocs topDocs = searcher.Search(boolQuery, null, pageNow * pageSize, sort);
+                    Lucene.Net.Search.TopFieldDocs topDocs = searcher.Search(boolQuery, null, pageNow * PageSize, sort);
                     // 结果数组
                     Lucene.Net.Search.ScoreDoc[] scores = topDocs.ScoreDocs;
 
@@ -581,7 +581,7 @@ namespace TextLocator
                     // 设置分页标签总条数
                     this.Dispatcher.BeginInvoke(new Action(() => {
                         // 如果总条数小于等于分页条数，则不显示分页
-                        this.PageBar.Total = totalHits > pageSize ? totalHits : 0;
+                        this.PageBar.Total = totalHits > PageSize ? totalHits : 0;
 
                         // 上一个和下一个切换面板是否显示
                         this.SwitchPreview.Visibility = totalHits > 0 ? Visibility.Visible : Visibility.Hidden;
@@ -604,8 +604,8 @@ namespace TextLocator
                     Entity.FileInfo fileInfo;
 
                     // 计算显示数据
-                    int start = (pageNow - 1) * pageSize;
-                    int end = pageSize * pageNow;
+                    int start = (pageNow - 1) * PageSize;
+                    int end = PageSize * pageNow;
                     if (end > totalHits) end = totalHits;
                     // 获取并显示列表
                     for (int i = start; i < end; i++)
@@ -700,15 +700,14 @@ namespace TextLocator
         /// <summary>
         /// 每页显示数量
         /// </summary>
-        public int pageSize = AppConst.MAX_COUNT_LIMIT;
         public int PageSize
         {
             // 获取值时将私有字段传出；
-            get { return pageSize; }
+            get { return AppConst.MRESULT_LIST_PAGE_SIZE; }
             set
             {
                 // 赋值时将值传给私有字段
-                pageSize = value;
+                AppConst.MRESULT_LIST_PAGE_SIZE = value;
                 // 一旦执行了赋值操作说明其值被修改了，则立马通过INotifyPropertyChanged接口告诉UI(IntValue)被修改了
                 OnPropertyChanged("PageSize");
             }

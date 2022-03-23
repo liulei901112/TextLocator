@@ -1,0 +1,43 @@
+﻿<Window x:Class="TextLocator.SettingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TextLocator"
+        mc:Ignorable="d"
+        x:Name="hotkey"
+        Title="设置" Height="380" Width="520" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" ResizeMode="CanMinimize" Icon="/Resource/App.ico" Loaded="Window_Loaded" Closed="Window_Closed" >
+    <Grid>
+        <Grid Margin="0,0,0,50">
+            <StackPanel Margin="20">
+                <!-- 任务线程池 -->
+                <Grid>
+                    <TextBlock Text="线程池配置：" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                    <StackPanel>
+                        <Grid Margin="20,20,20,0">
+                            <Grid HorizontalAlignment="Left">
+                                <TextBlock Text="最小数量：" />
+                                <TextBox x:Name="MinThreads" Text="32" HorizontalAlignment="Left" Margin="70,0,0,0" Width="100" />
+                                <TextBlock Text="(建议：N，N为CPU核心数)"  HorizontalAlignment="Left" Margin="180,0,0,0" />
+                            </Grid>
+                        </Grid>
+                        <Grid Margin="20,20,20,0">
+                            <Grid HorizontalAlignment="Left">
+                                <TextBlock Text="最大数量：" HorizontalAlignment="Left"/>
+                                <TextBox x:Name="MaxThreads" Text="64" HorizontalAlignment="Left" Margin="70,0,0,0" Width="100" />
+                                <TextBlock Text="(建议：2N + 1，N为CPU核心数)"  HorizontalAlignment="Left" Margin="180,0,0,0" />
+                            </Grid>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+                <!-- 任务线程池 -->
+                <Grid Margin="30,20,30,0">
+                    <TextBlock Text="结果列表每页显示条数：" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                    
+                </Grid>
+            </StackPanel>
+        </Grid>
+        <!-- 功能按钮 -->
+        <Button x:Name="SaveClose" Content="保存并关闭" Background="Green" VerticalAlignment="Bottom" Margin="10,0,10,10" Width="100" Click="SaveClose_Click"/>
+    </Grid>
+</Window>

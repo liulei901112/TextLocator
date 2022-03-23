@@ -50,5 +50,5 @@
 9. [Hardcodet.NotifyIcon.Wpf](https://www.nuget.org/packages/Hardcodet.NotifyIcon.Wpf/)
 
 #### 仓库地址
-[github](https://github.com/liulei901112/TextLocator)
-[gitee](https://gitee.com/liulei901112/TextLocator)
+* [github](https://github.com/liulei901112/TextLocator)
+* [gitee](https://gitee.com/liulei901112/TextLocator)

@@ -18,15 +18,15 @@ namespace TextLocator.Index
         /// <summary>
         /// 人工重置的事件
         /// </summary>
-        private readonly ManualResetEvent done;
+        private readonly ManualResetEvent _event;
         /// <summary>
         /// 任务总数
         /// </summary>
-        private readonly int total;
+        private readonly int _total;
         /// <summary>
-        /// 任务当前剩余数量
+        /// 剩余数量
         /// </summary>
-        private long current;
+        private volatile int _current;
 
         /// <summary>
         /// 构造函数
@@ -34,9 +34,9 @@ namespace TextLocator.Index
         /// <param name="total">需要等待执行的线程总数</param>
         public MutipleThreadResetEvent(int total)
         {
-            this.total = total;
-            this.current = total;
-            this.done = new ManualResetEvent(false);
+            this._total = total;
+            this._current = total;
+            this._event = new ManualResetEvent(false);
         }
 
         /// <summary>
@@ -45,10 +45,10 @@ namespace TextLocator.Index
         public void SetOne()
         {
             // Interlocked 原子操作类 ,此处将计数器减1
-            if (Interlocked.Decrement(ref current) == 0)
+            if (Interlocked.Decrement(ref _current) == 0)
             {
                 //当所以等待线程执行完毕时，唤醒等待的线程
-                done.Set();
+                _event.Set();
             }
         }
 
@@ -57,7 +57,7 @@ namespace TextLocator.Index
         /// </summary>
         public void WaitAll()
         {
-            done.WaitOne();
+            _event.WaitOne();
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace TextLocator.Index
         /// </summary>
         public void Dispose()
         {
-            done.Dispose();
+            ((IDisposable)_event).Dispose();
         }
     }
 }

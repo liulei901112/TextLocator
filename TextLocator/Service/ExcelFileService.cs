@@ -26,111 +26,111 @@ namespace TextLocator.Service
             {
                 try
                 {
-                    // =========== Spire.XLS ===========
-                    // 创建Workbook对象
-                    using (Spire.Xls.Workbook workbook = new Spire.Xls.Workbook())
+                    // =========== NPIO ===========
+                    // 文件流
+                    using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                     {
-                        // 加载Excel文档
-                        workbook.LoadFromFile(filePath);
-                        StringBuilder builder = new StringBuilder();
-                        if (workbook != null)
+                        // 获取扩展名
+                        string extName = Path.GetExtension(filePath);
+                        // 读取IWorkbook
+                        IWorkbook readWorkbook = null;
+                        switch (extName)
                         {
-                            WorksheetsCollection sheets = workbook.Worksheets;
-                            if (sheets != null && sheets.Count > 0)
+                            // 把xls写入workbook中 2003版本
+                            case ".xls":
+                                readWorkbook = new HSSFWorkbook(fileStream);
+                                break;
+                            // 把xlsx 写入workbook中 2007版本
+                            case ".xlsx":
+                                readWorkbook = new XSSFWorkbook(fileStream);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (readWorkbook != null)
+                        {
+                            StringBuilder builder = new StringBuilder();
+                            // 获取表
+                            var sheetCount = readWorkbook.NumberOfSheets;
+                            if (sheetCount > 0)
                             {
-                                // 获取工作表
-                                for (int i = 0; i < sheets.Count; i++)
+                                for (int i = 0; i < sheetCount; i++)
                                 {
-                                    using (Spire.Xls.Worksheet sheet = sheets[i])
+                                    // 得到sheet数据
+                                    ISheet sheet = readWorkbook.GetSheetAt(i);
+                                    if (sheet != null)
                                     {
-                                        // 行
-                                        for (int j = sheet.FirstRow; j < sheet.LastRow; j++)
+                                        // 获取行数
+                                        var rowCount = sheet.LastRowNum;
+                                        // 解析行数据
+                                        for (int j = 0; j <= rowCount; j++)
                                         {
-                                            using (Spire.Xls.CellRange row = sheet.Rows[j])
+                                            // 得到row数据
+                                            IRow row = sheet.GetRow(j);
+                                            if (row != null)
                                             {
-                                                // 列
-                                                for (int k = 0; k < row.Columns.Length; k++)
+                                                // 解析列数据
+                                                for (int k = 0; k < row.LastCellNum; k++)
                                                 {
-                                                    builder.Append(row.Columns[k].Value2.ToString() + "　");
+                                                    // 得到cell数据
+                                                    ICell cell = row.GetCell(k);
+                                                    // 获取某行某列对应的单元格数据  
+                                                    builder.Append(cell + "　");
                                                 }
+                                                // 换行
+                                                builder.AppendLine();
                                             }
-                                            builder.AppendLine();
                                         }
                                     }
                                 }
                             }
+                            readWorkbook.Close();
+
+                            content = builder.ToString();
                         }
-                        content = builder.ToString();
                     }
                 }
                 catch (Exception spirex)
                 {
                     log.Error(filePath + " -> " + spirex.Message + " Spire.Xls解析错误，尝试NPIO", spirex);
-                    // =========== NPIO ===========
                     try
                     {
-                        // 文件流
-                        using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                        // =========== Spire.XLS ===========
+                        // 创建Workbook对象
+                        using (Spire.Xls.Workbook workbook = new Spire.Xls.Workbook())
                         {
-                            // 获取扩展名
-                            string extName = Path.GetExtension(filePath);
-                            // 读取IWorkbook
-                            IWorkbook readWorkbook = null;
-                            switch (extName)
+                            // 加载Excel文档
+                            workbook.LoadFromFile(filePath);
+                            StringBuilder builder = new StringBuilder();
+                            if (workbook != null)
                             {
-                                // 把xls写入workbook中 2003版本
-                                case ".xls":
-                                    readWorkbook = new HSSFWorkbook(fileStream);
-                                    break;
-                                // 把xlsx 写入workbook中 2007版本
-                                case ".xlsx":
-                                    readWorkbook = new XSSFWorkbook(fileStream);
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                            if (readWorkbook != null)
-                            {
-                                StringBuilder builder = new StringBuilder();
-                                // 获取表
-                                var sheetCount = readWorkbook.NumberOfSheets;
-                                if (sheetCount > 0)
+                                WorksheetsCollection sheets = workbook.Worksheets;
+                                if (sheets != null && sheets.Count > 0)
                                 {
-                                    for (int i = 0; i < sheetCount; i++)
+                                    // 获取工作表
+                                    for (int i = 0; i < sheets.Count; i++)
                                     {
-                                        // 得到sheet数据
-                                        ISheet sheet = readWorkbook.GetSheetAt(i);
-                                        if (sheet != null)
+                                        using (Spire.Xls.Worksheet sheet = sheets[i])
                                         {
-                                            // 获取行数
-                                            var rowCount = sheet.LastRowNum;
-                                            // 解析行数据
-                                            for (int j = 0; j <= rowCount; j++)
+                                            // 行
+                                            for (int j = sheet.FirstRow; j < sheet.LastRow; j++)
                                             {
-                                                // 得到row数据
-                                                IRow row = sheet.GetRow(j);
-                                                if (row != null)
+                                                using (Spire.Xls.CellRange row = sheet.Rows[j])
                                                 {
-                                                    // 解析列数据
-                                                    for (int k = 0; k < row.LastCellNum; k++)
+                                                    // 列
+                                                    for (int k = 0; k < row.Columns.Length; k++)
                                                     {
-                                                        // 得到cell数据
-                                                        ICell cell = row.GetCell(k);
-                                                        // 获取某行某列对应的单元格数据  
-                                                        builder.Append(cell + "　");
+                                                        builder.Append(row.Columns[k].Value2.ToString() + "　");
                                                     }
-                                                    // 换行
-                                                    builder.AppendLine();
                                                 }
+                                                builder.AppendLine();
                                             }
                                         }
                                     }
                                 }
-                                readWorkbook.Close();
-
-                                content = builder.ToString();
                             }
+                            content = builder.ToString();
                         }
                     }
                     catch (Exception ex)

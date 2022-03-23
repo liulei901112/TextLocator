@@ -21,13 +21,9 @@ namespace TextLocator.Core
         /// </summary>
         public static readonly int THREAD_POOL_MAX_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MaxSize", "64"));
         /// <summary>
-        /// 应用目录
-        /// </summary>
-        public static readonly string APP_DIR = AppDomain.CurrentDomain.BaseDirectory;
-        /// <summary>
         /// App.ini路径：_AppDir\\_AppName\\Index\\
         /// </summary>
-        public static readonly string APP_INDEX_DIR = Path.Combine(APP_DIR, "Index");
+        public static readonly string APP_INDEX_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Index");
         /// <summary>
         /// 分词器
         /// new Lucene.Net.Analysis.Cn.ChineseAnalyzer();
@@ -50,6 +46,10 @@ namespace TextLocator.Core
         /// 搜索最大值限制
         /// </summary>
         public static readonly int MAX_COUNT_LIMIT = int.Parse(AppUtil.ReadValue("AppConfig", "MaxCountLimit", "100"));
+        /// <summary>
+        /// 文件读取超时时间，单位：秒
+        /// </summary>
+        public static readonly int FILE_READ_TIMEOUT = int.Parse(AppUtil.ReadValue("AppConfig", "FileReadTimeout", "600"));
 
         /// <summary>
         /// 匹配特殊字符
@@ -70,7 +70,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 匹配排除关键词
         /// </summary>
-        public static readonly Regex REGEX_EXCLUDE_KEYWORD = new Regex(@"(\$RECYCLE|360REC|C:\\(SYSTEM|PROGRAM FILES)|TEMP\\|TMP\\|SYSTEM VOLUME INFOMATION|\.(.*)\\|\{(.*)\})");
+        public static readonly Regex REGEX_EXCLUDE_KEYWORD = new Regex(@"(\$RECYCLE|360REC|SYSTEM|TEMP|SYSTEM VOLUME INFOMATION|\{(.*)\})");
         /// <summary>
         /// 匹配开始字符
         /// </summary>
@@ -88,5 +88,6 @@ namespace TextLocator.Core
         /// 文件内容缩略信息截取值
         /// </summary>
         public const int FILE_CONTENT_SUB_LENGTH = 120;
+        
     }
 }

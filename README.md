@@ -1,15 +1,5 @@
 # 本地文本搜索定位器
-![主界面](images/MainWindow.png)
-![区域管理](images/SearchAreaManagement.png)
-![创建索引](images/BuildIndex.png)
-![索引完成](images/BuildIndexFinish.png)
-![自动分词](images/Keywords1.png)
-![手动分词](images/Keywords2.png)
-![类型筛选](images/FileFilter.png)
-![搜索分页](images/Page.png)
-![重建确认](images/RebuildIndexConfirm.png)
-![清空按钮](images/Clean.png)
-![热键设置](images/HotKey.png)
+![封面](images/Cover.png)
 
 #### 软件介绍
 基于.net实现的本地文档的全文索引定位器，根据关键词搜索定位本地文档内容。便于查找历史文档时节省时间，本地文本搜索神器！
@@ -25,6 +15,19 @@
 * 发布版下载解压可用
 
 #### 使用说明
+![主界面](images/MainWindow.png)
+![区域管理](images/SearchAreaManagement.png)
+![创建索引](images/BuildIndex.png)
+![索引完成](images/BuildIndexFinish.png)
+![自动分词](images/Keywords1.png)
+![手动分词](images/Keywords2.png)
+![类型筛选](images/FileFilter.png)
+![搜索分页](images/Page.png)
+![重建确认](images/RebuildIndexConfirm.png)
+![清空按钮](images/Clean.png)
+![热键设置](images/HotKey.png)
+![参数设置](images/Setting.png)
+
 1. 双击文件夹设置自己需要搜索的文件夹
 2. 点击“重建”按钮创建文档索引，更新文档索引点击“优化”按钮。
 3. 索引创建结束后，搜索框输入关键词后，回车或者点击搜索按钮。搜索结果列表会显示搜索结果列表

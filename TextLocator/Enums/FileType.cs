@@ -43,6 +43,11 @@ namespace TextLocator.Enums
         [Description("cs,java,js,css,md,py,c,h,cpp,lua,sql,jsp,json,php,rs,rb,yml,yaml,bat,ps1")]
         代码,
         /// <summary>
+        /// 压缩包
+        /// </summary>
+        [Description("rar,zip,7z,tar")]
+        压缩包,
+        /// <summary>
         /// 纯文本
         /// </summary>
         [Description("txt")]

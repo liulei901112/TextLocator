@@ -28,6 +28,10 @@ namespace TextLocator.Core
         /// 文件读取超时时间，单位：秒
         /// </summary>
         public static int FILE_READ_TIMEOUT = int.Parse(AppUtil.ReadValue("AppConfig", "FileReadTimeout", "600"));
+        /// <summary>
+        /// 文件大小限制
+        /// </summary>
+        public static int FILE_SIZE_LIMIT = int.Parse(AppUtil.ReadValue("AppConfig", "FileSizeLimit", "500000000"));
 
 
         /// <summary>

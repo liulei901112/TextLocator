@@ -32,6 +32,7 @@ namespace TextLocator
 
         public App()
         {
+
             // 初始化线程池大小
             AppCore.SetThreadPoolSize();
 
@@ -103,6 +104,7 @@ namespace TextLocator
                 FileInfoServiceFactory.Register(FileType.图片, new NoTextFileService());
                 // 程序员服务
                 FileInfoServiceFactory.Register(FileType.代码, new DevelopFileService());
+                FileInfoServiceFactory.Register(FileType.压缩包, new ZipFileService());
                 // 纯文本服务
                 FileInfoServiceFactory.Register(FileType.纯文本, new TxtFileService());
             }

@@ -11,7 +11,7 @@
 * NPOI、Spire、Microsoft.Office实现的文档内容读取
 
 #### 安装教程
-* 运行环境基于.net freamwork 4.6（需要安装此环境才能运行，win10+默认有此环境）
+* 运行环境基于.net freamwork 4.6.1（需要安装此环境才能运行）
 * 发布版下载解压可用
 
 #### 使用说明
@@ -51,6 +51,7 @@
 7. [Microsoft.Office.Interop.Word](https://www.nuget.org/packages/Microsoft.Office.Interop.Word/)
 8. [Microsoft.Office.Interop.PowerPoint](https://www.nuget.org/packages/Microsoft.Office.Interop.PowerPoint/)
 9. [Hardcodet.NotifyIcon.Wpf](https://www.nuget.org/packages/Hardcodet.NotifyIcon.Wpf/)
+10. [SharpCompress](https://www.nuget.org/packages/SharpCompress)
 
 #### 仓库地址
 * [github](https://github.com/liulei901112/TextLocator)

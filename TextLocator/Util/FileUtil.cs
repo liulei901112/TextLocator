@@ -58,6 +58,9 @@ namespace TextLocator.Util
                 case FileType.纯文本:
                     bitmap = Properties.Resources.txt;
                     break;
+                case FileType.压缩包:
+                    bitmap = Properties.Resources.zip;
+                    break;
                 default:
                     bitmap = Properties.Resources.rtf;
                     break;

@@ -45,7 +45,7 @@ namespace TextLocator.Enums
         /// <summary>
         /// 压缩包
         /// </summary>
-        [Description("rar,zip,7z,tar")]
+        [Description("rar,zip,7z,tar,jar")]
         压缩包,
         /// <summary>
         /// 纯文本

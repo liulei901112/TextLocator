@@ -1165,20 +1165,29 @@ namespace TextLocator
                 log.Debug("GetFiles 耗时：" + fileMark.ConsumeTime + "秒");
                 ShowStatus("文件扫描完成，开始" + tips + "索引...");
 
+                // 验证
+                if (filePaths == null || filePaths.Count <= 0)
+                {
+                    build = false;
+
+                    ShowStatus("就绪");
+
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        Message.ShowWarning("MessageContainer", "未找到可以需要索引的文档");
+                    }));
+                    
+                    return;
+                }
+
                 // 排重
                 filePaths = filePaths.Distinct().ToList();
 
                 // 排序
-                filePaths = ListUtil.Shuffle(filePaths);
+                filePaths = ListUtil.Shuffle(filePaths);                
 
                 // 创建索引方法
                 IndexCore.CreateIndex(filePaths, rebuild, ShowStatus);
-
-                /*// 索引拷贝前删除
-                FileUtil.RemoveDirectory(AppConst.APP_INDEX_DIR);
-
-                // 索引拷贝：索引创建结束后拷贝新索引覆盖旧的索引，并删除write.lock
-                FileUtil.CopyDirectory(AppConst.APP_INDEX_BUILD_DIR, AppConst.APP_INDEX_DIR);*/
 
                 string msg = "索引" + tips + "完成。共用时：" + taskMark.ConsumeTime + "秒";
 

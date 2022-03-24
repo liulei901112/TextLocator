@@ -52,7 +52,6 @@ namespace TextLocator.Service
                     log.Error(filePath + " -> " + ex.Message, ex);
                 }
             }
-            log.Debug(builder.ToString());
             return builder.ToString();
         }
     }

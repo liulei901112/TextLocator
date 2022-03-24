@@ -1165,7 +1165,7 @@ namespace TextLocator
                 log.Debug("GetFiles 耗时：" + fileMark.ConsumeTime + "秒");
                 ShowStatus("文件扫描完成，开始" + tips + "索引...");
 
-                // 验证
+                // 验证扫描文件列表是否为空
                 if (filePaths == null || filePaths.Count <= 0)
                 {
                     build = false;

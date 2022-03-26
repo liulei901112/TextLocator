@@ -32,8 +32,9 @@ namespace TextLocator
 
         public App()
         {
+
             // 初始化线程池大小
-            InitThreadPoolSize();
+            AppCore.SetThreadPoolSize();
 
             // 初始化配置
             InitAppConfig();
@@ -82,21 +83,6 @@ namespace TextLocator
 
         #region 初始化
         /// <summary>
-        /// 初始化线程池大小
-        /// </summary>
-        private void InitThreadPoolSize()
-        {
-            bool setMinThread = ThreadPool.SetMinThreads(AppConst.THREAD_POOL_MIN_SIZE, AppConst.THREAD_POOL_MIN_SIZE);
-            log.Debug("修改线程池最小线程数量：" + AppConst.THREAD_POOL_MIN_SIZE + " => " + setMinThread);
-            bool setMaxThread = ThreadPool.SetMaxThreads(AppConst.THREAD_POOL_MAX_SIZE, AppConst.THREAD_POOL_MAX_SIZE);
-            log.Debug("修改线程池最大线程数量：" + AppConst.THREAD_POOL_MAX_SIZE + " => " + setMaxThread);
-
-            // 保存线程池
-            AppUtil.WriteValue("ThreadPool", "MinSize", AppConst.THREAD_POOL_MIN_SIZE + "");
-            AppUtil.WriteValue("ThreadPool", "MaxSize", AppConst.THREAD_POOL_MAX_SIZE + "");
-        }
-
-        /// <summary>
         /// 初始化文件信息服务引擎
         /// </summary>
         private void InitFileInfoServiceEngine()
@@ -118,6 +104,7 @@ namespace TextLocator
                 FileInfoServiceFactory.Register(FileType.图片, new NoTextFileService());
                 // 程序员服务
                 FileInfoServiceFactory.Register(FileType.代码, new DevelopFileService());
+                FileInfoServiceFactory.Register(FileType.压缩包, new ZipFileService());
                 // 纯文本服务
                 FileInfoServiceFactory.Register(FileType.纯文本, new TxtFileService());
             }
@@ -132,7 +119,7 @@ namespace TextLocator
         /// </summary>
         private void InitAppConfig()
         {
-            // 保存线程池
+            // 保存文件读取超时时间
             AppUtil.WriteValue("AppConfig", "FileReadTimeout", AppConst.FILE_READ_TIMEOUT + "");
         }
         #endregion

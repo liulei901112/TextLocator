@@ -32,7 +32,7 @@ namespace TextLocator.NotifyIcon
         }
 
         /// <summary>
-        /// 系统设置
+        /// 热键设置
         /// </summary>
         public ICommand ShowHotKeyWindowCommand
         {
@@ -55,6 +55,32 @@ namespace TextLocator.NotifyIcon
                 };
             }
         }
+        
+        /// <summary>
+        /// 系统设置
+        /// </summary>
+        public ICommand ShowSettingWindowCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = () =>
+                    {
+                        var win = SettingWindow.CreateInstance();
+                        if (!win.IsVisible)
+                        {
+                            win.ShowDialog();
+                        }
+                        else
+                        {
+                            win.Activate();
+                        }
+                    }
+                };
+            }
+        }
+        
 
         /// <summary>
         /// 隐藏窗口

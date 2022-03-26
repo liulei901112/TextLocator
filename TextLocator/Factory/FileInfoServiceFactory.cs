@@ -1,10 +1,12 @@
 ﻿using log4net;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using TextLocator.Core;
 using TextLocator.Enums;
+using TextLocator.Exceptions;
 using TextLocator.Service;
 using TextLocator.Util;
 
@@ -30,13 +32,32 @@ namespace TextLocator.Factory
 		/// <returns></returns>
 		public static string GetFileContent(string filePath)
 		{
+			FileInfo fileInfo = new FileInfo(filePath);
+			try
+			{
+				// 如果文件存在
+				if (fileInfo == null && !fileInfo.Exists)
+				{
+					throw new FileNotFoundException("文件未找到，请确认");
+				}
+				// 文件太大
+				if (fileInfo.Length > AppConst.FILE_SIZE_LIMIT)
+				{
+					throw new FileBigSizeException("不支持大于 " + FileUtil.GetFileSizeFriendly(AppConst.FILE_SIZE_LIMIT) + " 的文件解析");
+				}
+			}
+			catch (Exception ex)
+			{
+				log.Error(filePath + "->" + ex.Message, ex);
+
+				return null;
+			}
+
 			// 获取文件服务对象
 			IFileInfoService fileInfoService = GetFileInfoService(FileTypeUtil.GetFileType(filePath));
 
-			string content;
 			// 读取文件内容
-			content = WaitTimeout(fileInfoService.GetFileContent, filePath, TimeSpan.FromSeconds(AppConst.FILE_READ_TIMEOUT));
-			return content;
+			return WaitTimeout(fileInfoService.GetFileContent, filePath, TimeSpan.FromSeconds(AppConst.FILE_READ_TIMEOUT));
 		}
 
 		/// <summary>
@@ -64,7 +85,7 @@ namespace TextLocator.Factory
 			catch (Exception ex)
 			{
 				log.Error(ex.Message, ex);
-				throw new Exception("暂无[" + fileType.ToString() + "]服务实例， 返回默认其他类型文件服务实例");
+				throw new NotFoundFileServiceException("暂无[" + fileType.ToString() + "]服务实例， 返回默认其他类型文件服务实例");
 			}
 		}
 		#endregion

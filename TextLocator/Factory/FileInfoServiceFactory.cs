@@ -43,7 +43,7 @@ namespace TextLocator.Factory
 				// 文件太大
 				if (fileInfo.Length > AppConst.FILE_SIZE_LIMIT)
 				{
-					throw new FileBigSizeException("文件太大了，不支持解析");
+					throw new FileBigSizeException("不支持大于 " + FileUtil.GetFileSizeFriendly(AppConst.FILE_SIZE_LIMIT) + " 的文件解析");
 				}
 			}
 			catch (Exception ex)
@@ -57,8 +57,7 @@ namespace TextLocator.Factory
 			IFileInfoService fileInfoService = GetFileInfoService(FileTypeUtil.GetFileType(filePath));
 
 			// 读取文件内容
-			string content = WaitTimeout(fileInfoService.GetFileContent, filePath, TimeSpan.FromSeconds(AppConst.FILE_READ_TIMEOUT));
-			return content;
+			return WaitTimeout(fileInfoService.GetFileContent, filePath, TimeSpan.FromSeconds(AppConst.FILE_READ_TIMEOUT));
 		}
 
 		/// <summary>

@@ -1,6 +1,6 @@
 ﻿using log4net;
 using SharpCompress.Archives;
-using SharpCompress.Readers;
+using SharpCompress.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TextLocator.Core;
 using TextLocator.Exceptions;
+using TextLocator.Factory;
 using TextLocator.Util;
 
 namespace TextLocator.Service
@@ -30,19 +31,20 @@ namespace TextLocator.Service
             {
                 try
                 {
-                    FileInfo fileInfo = new FileInfo(filePath);
-                    System.Diagnostics.FileVersionInfo info = System.Diagnostics.FileVersionInfo.GetVersionInfo(filePath);
-                    builder.Append("文件名称：" + info.FileName.Substring(info.FileName.LastIndexOf("\\") + 1));
-                    builder.Append("　文件大小：" + FileUtil.GetFileSizeFriendly(fileInfo.Length) + "=>\r\n");
+                    // 压缩包解压
+                    builder.Append("名称：" + filePath.Substring(filePath.LastIndexOf("\\") + 1));
+                    builder.Append("　大小：" + FileUtil.GetFileSizeFriendly(new FileInfo(filePath).Length) + " =>\r\n");
 
-                    builder.Append("　文件列表：->\r\n");
+                    builder.Append("　列表：=>\r\n");
                     using (FileStream file = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                     {
-                        var archive = ArchiveFactory.Open(file);
-                        foreach (var entry in archive.Entries) {
-                            if (!entry.IsDirectory)
+                        using (var archive = ArchiveFactory.Open(file)) {
+                            foreach (var entry in archive.Entries)
                             {
-                                builder.Append(String.Format("　　文件名：{0},　大小：{1}\r\n", entry.Key, FileUtil.GetFileSizeFriendly(entry.Size)));
+                                if (!entry.IsDirectory)
+                                {
+                                    builder.Append(String.Format("　　{0},　{1}\r\n", entry.Key, FileUtil.GetFileSizeFriendly(entry.Size)));                                 
+                                }
                             }
                         }
                     }

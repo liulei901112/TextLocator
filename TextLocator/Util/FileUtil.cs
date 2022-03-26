@@ -124,9 +124,9 @@ namespace TextLocator.Util
         /// 获取指定根目录下的子目录及其文档
         /// </summary>
         /// <param name="filePaths">文档列表</param>
-        /// <param name="regexExclude">过滤列表</param>
         /// <param name="rootPath">根目录路径</param>
-        public static void GetAllFiles(List<string> filePaths, Regex regexExclude, string rootPath)
+        /// <param name="regexExclude">过滤列表</param>
+        public static void GetAllFiles(List<string> filePaths, string rootPath, Regex regexExclude = null)
         {
             // 根目录
             DirectoryInfo rootDir = new DirectoryInfo(rootPath);
@@ -149,7 +149,7 @@ namespace TextLocator.Util
                         continue;
                     }
                     // 递归调用
-                    GetAllFiles(filePaths, regexExclude, dirPath);
+                    GetAllFiles(filePaths, dirPath, regexExclude);
                 }
             }
             catch (UnauthorizedAccessException ex) {
@@ -209,9 +209,13 @@ namespace TextLocator.Util
                 }
                 catch (Exception ex)
                 {
-                    log.Error("索引清理失败：" + ex.Message, ex);
+                    log.Error("文件删除失败：" + ex.Message, ex);
                 }
             }
+            try
+            {
+                File.Delete(srcDir);
+            } catch { }
         }
 
         /// <summary>

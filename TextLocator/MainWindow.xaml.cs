@@ -1160,7 +1160,7 @@ namespace TextLocator
                 {
                     log.Debug("目录：" + s);
                     // 获取文件信息列表
-                    FileUtil.GetAllFiles(filePaths, _regexExclusionFolder, s);
+                    FileUtil.GetAllFiles(filePaths, s, _regexExclusionFolder);
                 }
                 log.Debug("GetFiles 耗时：" + fileMark.ConsumeTime + "秒");
                 ShowStatus("文件扫描完成，开始" + tips + "索引...");

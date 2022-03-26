@@ -32,10 +32,14 @@ namespace TextLocator.Core
         /// 文件大小限制
         /// </summary>
         public static int FILE_SIZE_LIMIT = int.Parse(AppUtil.ReadValue("AppConfig", "FileSizeLimit", "500000000"));
+        /// <summary>
+        /// 压缩包解析大小
+        /// </summary>
+        public static int ZIP_FILE_SIZE_LIMIT = int.Parse(AppUtil.ReadValue("AppConfig", "ZipFileSizeLimit", "20000000"));
 
 
         /// <summary>
-        /// App.ini路径：_AppDir\\_AppName\\Index\\
+        /// 索引路径：_AppDir\\_AppName\\Index\\
         /// </summary>
         public static readonly string APP_INDEX_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Index");
         /// <summary>

@@ -758,7 +758,14 @@ namespace TextLocator
         /// 清理查询结果
         /// </summary>
         private void CleanSearchResult()
-        {   
+        {
+            // 先清空搜索框
+            SearchText.Text = "";
+            // 光标移除文本框
+            SearchText.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+            // 光标聚焦
+            SearchText.Focus();
+
             // 搜索结果列表清空
             SearchResultList.Items.Clear();
 
@@ -800,13 +807,6 @@ namespace TextLocator
 
             // 隐藏上一个和下一个切换面板
             this.SwitchPreview.Visibility = Visibility.Collapsed;
-
-
-            SearchText.Text = "";
-            // 光标移除文本框
-            SearchText.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-            // 光标聚焦
-            SearchText.Focus();
 
             // 工作状态更新为就绪
             WorkStatus.Text = "就绪";

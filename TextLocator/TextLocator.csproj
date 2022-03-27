@@ -177,6 +177,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Cache\LFUCache.cs" />
+    <Compile Include="Cache\LFUCacheEntity.cs" />
     <Compile Include="Exceptions\FileSizeTooBigException.cs" />
     <Compile Include="Exceptions\NotFoundFileServiceException.cs" />
     <Compile Include="Service\ZipFileService.cs" />

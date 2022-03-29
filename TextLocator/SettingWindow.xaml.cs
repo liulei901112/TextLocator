@@ -167,9 +167,9 @@ namespace TextLocator
                 Message.ShowWarning("MessageContainer", "缓存池容量设置错误");
                 return;
             }
-            if (cachePoolCapacity < 300000 || cachePoolCapacity > 3000000)
+            if (cachePoolCapacity < 50000 || cachePoolCapacity > 500000)
             {
-                Message.ShowWarning("MessageContainer", "建议设置在30-300w范围内");
+                Message.ShowWarning("MessageContainer", "建议设置在5-50w范围内");
                 return;
             }
 

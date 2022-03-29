@@ -39,7 +39,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 缓存池容量
         /// </summary>
-        public static int CACHE_POOL_CAPACITY = int.Parse(AppUtil.ReadValue("AppConfig", "CachePoolCapacity", "1000000"));
+        public static int CACHE_POOL_CAPACITY = int.Parse(AppUtil.ReadValue("AppConfig", "CachePoolCapacity", "100000"));
 
 
         /// <summary>

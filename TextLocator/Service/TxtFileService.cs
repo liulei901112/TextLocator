@@ -25,7 +25,7 @@ namespace TextLocator.Service
                     string line;
                     while((line = reader.ReadLine()) != null)
                     {
-                        builder.Append(line);
+                        builder.AppendLine(line);
                     }
                 }
             }

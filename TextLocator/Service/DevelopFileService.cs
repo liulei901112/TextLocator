@@ -27,7 +27,7 @@ namespace TextLocator.Service
                     string line;
                     while ((line = reader.ReadLine()) != null)
                     {
-                        builder.Append(AppConst.REGEX_TAG.Replace(line, ""));
+                        builder.AppendLine(AppConst.REGEX_TAG.Replace(line, ""));
                     }
                 }
             }

@@ -248,7 +248,7 @@ namespace TextLocator.Index
                 // 文件内容
                 string content = FileInfoServiceFactory.GetFileContent(filePath);
 
-                msg.Append("，解析：" + taskMark.ConsumeTime + "秒");
+                msg.Append("，解析：" + taskMark.ConsumeTime);
                 // 判断文件内容
                 if (!string.IsNullOrEmpty(content))
                 {
@@ -284,7 +284,7 @@ namespace TextLocator.Index
                         // 执行删除、添加逻辑
                         AddDocument(filePath, doc);
                     }
-                    msg.Append("，索引：" + taskMark.ConsumeTime + "秒");
+                    msg.Append("，索引：" + taskMark.ConsumeTime);
                 }
                 else
                 {

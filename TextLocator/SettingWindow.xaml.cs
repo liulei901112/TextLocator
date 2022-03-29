@@ -68,6 +68,12 @@ namespace TextLocator
 
             // 缓存池容量
             this.CachePoolCapacity.Text = AppConst.CACHE_POOL_CAPACITY + "";
+
+            // 压缩包解析限制大小
+            this.ZipFileSizeLimit.Text = AppConst.ZIP_FILE_SIZE_LIMIT / 1000 / 1000 + "";
+
+            // 是否解析压缩包内容
+            this.IsParseZipContent.IsChecked = AppConst.IS_PARSE_ZIP_CONTENT;
         }
 
         #region 保存并关闭
@@ -81,17 +87,6 @@ namespace TextLocator
             // 线程池
             string minThreadsText = this.MinThreads.Text;
             string maxThreadsText = this.MaxThreads.Text;
-
-            // 每页显示条数
-            string ResultListPageSizeText = this.ResultListPageSize.Text;
-
-            // 文件读取超时时间
-            string fileReadTimeoutText = this.FileReadTimeout.Text;
-
-            // 缓存池容量
-            string cachePoolCapacityText = this.CachePoolCapacity.Text;
-
-            // 转换，验证
             int minThreads = 0;
             try
             {
@@ -126,6 +121,26 @@ namespace TextLocator
                 }
             }
 
+            // 缓存池容量
+            string cachePoolCapacityText = this.CachePoolCapacity.Text;
+            int cachePoolCapacity = 0;
+            try
+            {
+                cachePoolCapacity = int.Parse(cachePoolCapacityText);
+            }
+            catch
+            {
+                Message.ShowWarning("MessageContainer", "缓存池容量设置错误");
+                return;
+            }
+            if (cachePoolCapacity < 50000 || cachePoolCapacity > 500000)
+            {
+                Message.ShowWarning("MessageContainer", "建议设置在5-50W范围内");
+                return;
+            }
+
+            // 每页显示条数
+            string ResultListPageSizeText = this.ResultListPageSize.Text;
             int ResultListPageSize = 0;
             try
             {
@@ -142,6 +157,8 @@ namespace TextLocator
                 return;
             }
 
+            // 文件读取超时时间
+            string fileReadTimeoutText = this.FileReadTimeout.Text;
             int fileReadTimeout = 0;
             try
             {
@@ -158,38 +175,50 @@ namespace TextLocator
                 return;
             }
 
-            int cachePoolCapacity = 0;
+            // 压缩包解析大小限制
+            string zipFileSizeLimitText = this.ZipFileSizeLimit.Text;
+            int zipFileSizeLimit = 0;
             try
             {
-                cachePoolCapacity = int.Parse(cachePoolCapacityText);
-            } catch
+                zipFileSizeLimit = int.Parse(zipFileSizeLimitText);
+            }
+            catch
             {
-                Message.ShowWarning("MessageContainer", "缓存池容量设置错误");
+                Message.ShowWarning("MessageContainer", "压缩包解析大小限制错误");
                 return;
             }
-            if (cachePoolCapacity < 50000 || cachePoolCapacity > 500000)
+            if (zipFileSizeLimit > 200)
             {
-                Message.ShowWarning("MessageContainer", "建议设置在5-50w范围内");
+                Message.ShowWarning("MessageContainer", "建议设置200MB范围内");
                 return;
             }
+            zipFileSizeLimit = zipFileSizeLimit * 1000 * 1000;
+
 
             // 刷新、保存
             AppConst.THREAD_POOL_MIN_SIZE = minThreads;
             AppConst.THREAD_POOL_MAX_SIZE = maxThreads;
             AppCore.SetThreadPoolSize();
 
+            AppConst.CACHE_POOL_CAPACITY = cachePoolCapacity;
+            AppUtil.WriteValue("AppConfig", "CachePoolCapacity", AppConst.CACHE_POOL_CAPACITY + "");
+            log.Debug("修改缓存池容量：" + AppConst.CACHE_POOL_CAPACITY);
+
             AppConst.MRESULT_LIST_PAGE_SIZE = ResultListPageSize;
             AppUtil.WriteValue("AppConfig", "ResultListPageSize", AppConst.MRESULT_LIST_PAGE_SIZE + "");
             log.Debug("修改结果列表分页条数：" + AppConst.MRESULT_LIST_PAGE_SIZE);
-
 
             AppConst.FILE_READ_TIMEOUT = fileReadTimeout;
             AppUtil.WriteValue("AppConfig", "FileReadTimeout", AppConst.FILE_READ_TIMEOUT + "");
             log.Debug("修改文件读取超时时间：" + AppConst.FILE_READ_TIMEOUT);
 
-            AppConst.CACHE_POOL_CAPACITY = cachePoolCapacity;
-            AppUtil.WriteValue("AppConfig", "CachePoolCapacity", AppConst.CACHE_POOL_CAPACITY + "");
-            log.Debug("修改缓存池容量：" + AppConst.CACHE_POOL_CAPACITY);
+            AppConst.ZIP_FILE_SIZE_LIMIT = zipFileSizeLimit;
+            AppUtil.WriteValue("AppConfig", "ZipFileSizeLimit", AppConst.ZIP_FILE_SIZE_LIMIT + "");
+            log.Debug("压缩包解析大小限制：" + AppConst.ZIP_FILE_SIZE_LIMIT);
+
+            AppConst.IS_PARSE_ZIP_CONTENT = (bool)this.IsParseZipContent.IsChecked;
+            AppUtil.WriteValue("AppConfig", "IsParseZipContent", AppConst.IS_PARSE_ZIP_CONTENT + "");
+            log.Debug("是否解析压缩包内容：" + AppConst.IS_PARSE_ZIP_CONTENT);
 
             this.Close();
         }

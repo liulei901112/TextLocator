@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -46,18 +49,18 @@ namespace TextLocator.Util
                 TextPointer position = richTextBox.Document.ContentStart;
                 while (position != null)
                 {
-                    //向前搜索,需要内容为Text                
+                    // 向前搜索,需要内容为Text                
                     if (position.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
                     {
-                        //拿出Run的Text                    
+                        // 拿出Run的Text                    
                         string text = position.GetTextInRun(LogicalDirection.Forward);
-                        //可能包含多个keyword,做遍历查找                    
-                        int index = text.IndexOf(keyword, 0);
+                        // 可能包含多个keyword,做遍历查找                    
+                        int index = text.IndexOf(keyword, 0, StringComparison.CurrentCultureIgnoreCase);
                         if (index != -1)
                         {
                             TextPointer start = position.GetPositionAtOffset(index);
                             TextPointer end = start.GetPositionAtOffset(keyword.Length);
-                            position = selecta(richTextBox, color, start, end, background);
+                            position = Selecta(richTextBox, color, start, end, background);
                         }
                     }
                     // 文字指针向前偏移
@@ -72,11 +75,10 @@ namespace TextLocator.Util
         /// </summary>
         /// <param name="richTextBox">元素</param>
         /// <param name="color">颜色</param>
-        /// <param name="selectLen">选择长度</param>
         /// <param name="tpStart">内容指针开始位置</param>
         /// <param name="tpEnd">内容指针结束位置</param>
         /// <returns></returns>
-        private static TextPointer selecta(RichTextBox richTextBox, Color color, TextPointer tpStart, TextPointer tpEnd, bool background)
+        private static TextPointer Selecta(RichTextBox richTextBox, Color color, TextPointer tpStart, TextPointer tpEnd, bool background)
         {
             TextRange range = richTextBox.Selection;
             range.Select(tpStart, tpEnd);

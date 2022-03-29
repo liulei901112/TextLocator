@@ -39,7 +39,7 @@
                         <Grid Margin="20,30,20,0">
                             <Grid HorizontalAlignment="Left">
                                 <TextBox x:Name="CachePoolCapacity" Text="100000" ToolTip="建议：根据自己CPU使用率和内存决定吧"  HorizontalAlignment="Left" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
-                                <TextBlock Text="默认：100000（缓存：文件被索引标记、文件内容等）"  HorizontalAlignment="Left" Margin="110,0,0,0" />
+                                <TextBlock Text="默认：100000（缓存：被索引标记、文件内容等）"  HorizontalAlignment="Left" Margin="110,0,0,0" />
                             </Grid>
                         </Grid>
                     </Grid>

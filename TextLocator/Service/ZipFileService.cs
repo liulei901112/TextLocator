@@ -29,7 +29,7 @@ namespace TextLocator.Service
             // 内容
             StringBuilder builder = new StringBuilder();
             lock (locker)
-            {                
+            {
                 try
                 {
                     // 文件信息
@@ -64,6 +64,9 @@ namespace TextLocator.Service
                         }
 
                         builder.Append(GetContent(filePath, unzipPath));
+
+                        // 清理临时目录
+                        FileUtil.RemoveDirectory(unzipPath);
                     }
                     else
                     {
@@ -88,7 +91,7 @@ namespace TextLocator.Service
         private string GetContent(string filePath, string unzipPath)
         {
             StringBuilder builder = new StringBuilder();
-            using (FileStream file = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (FileStream file = File.OpenRead(filePath))
             {
                 using (var archive = ArchiveFactory.Open(file))
                 {

@@ -22,12 +22,15 @@ namespace TextLocator.Service
             StringBuilder builder = new StringBuilder();
             try
             {
-                using (StreamReader reader = new StreamReader(new FileStream(filePath, FileMode.Open, FileAccess.Read), Encoding.UTF8))
+                using (FileStream fs = File.OpenRead(filePath))
                 {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
+                    using (StreamReader reader = new StreamReader(fs, Encoding.UTF8))
                     {
-                        builder.AppendLine(AppConst.REGEX_TAG.Replace(line, ""));
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            builder.AppendLine(AppConst.REGEX_TAG.Replace(line, ""));
+                        }
                     }
                 }
             }

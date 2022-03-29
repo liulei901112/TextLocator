@@ -24,20 +24,23 @@ namespace TextLocator.Service
             {
                 try
                 {
-                    
-                    // 实例化一个PdfDocument对象
-                    using (PdfDocument doc = new PdfDocument(new FileStream(filePath, FileMode.Open, FileAccess.Read)))
+                    using (FileStream fs = File.OpenRead(filePath))
                     {
-                        PdfPageCollection pages = doc.Pages;
-                        if (pages != null && pages.Count > 0)
+                        // 实例化一个PdfDocument对象
+                        using (PdfDocument doc = new PdfDocument(fs))
                         {
-                            //提取PDF所有页面的文本
-                            foreach (PdfPageBase page in pages)
+                            PdfPageCollection pages = doc.Pages;
+                            if (pages != null && pages.Count > 0)
                             {
-                                try
+                                //提取PDF所有页面的文本
+                                foreach (PdfPageBase page in pages)
                                 {
-                                    builder.Append(page.ExtractText().Replace("Evaluation Warning : The document was created with Spire.PDF for .NET.", ""));
-                                } catch { }
+                                    try
+                                    {
+                                        builder.Append(page.ExtractText().Replace("Evaluation Warning : The document was created with Spire.PDF for .NET.", ""));
+                                    }
+                                    catch { }
+                                }
                             }
                         }
                     }

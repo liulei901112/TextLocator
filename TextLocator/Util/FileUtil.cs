@@ -209,13 +209,15 @@ namespace TextLocator.Util
                 }
                 catch (Exception ex)
                 {
-                    log.Error("文件删除失败：" + ex.Message, ex);
+                    log.Error(fileInfo.FullName + " -> 文件删除失败：" + ex.Message, ex);
                 }
             }
             try
             {
-                File.Delete(srcDir);
-            } catch { }
+                Directory.Delete(srcDir);
+            } catch (Exception ex) {
+                log.Error(srcDir + " -> 目录删除失败：" + ex.Message, ex);
+            }
         }
 
         /// <summary>

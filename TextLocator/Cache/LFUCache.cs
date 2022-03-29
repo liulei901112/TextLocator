@@ -33,7 +33,7 @@ namespace TextLocator.Cache
         /// <summary>
         /// 构造函数
         /// </summary>
-        /// <param name="capacity">缓存吃大小</param>
+        /// <param name="capacity">缓存池容量</param>
         public LFUCache(int capacity)
         {
             _capacity = capacity;

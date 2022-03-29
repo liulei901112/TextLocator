@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using TextLocator.Cache;
+using TextLocator.Core;
 
 namespace TextLocator.Util
 {
@@ -15,7 +16,7 @@ namespace TextLocator.Util
 
         static CacheUtil()
         {
-            _cache = new LFUCache(10000);
+            _cache = new LFUCache(AppConst.CACHE_POOL_CAPACITY);
         }
 
         /// <summary>

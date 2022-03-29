@@ -36,6 +36,10 @@ namespace TextLocator.Core
         /// 压缩包解析大小
         /// </summary>
         public static int ZIP_FILE_SIZE_LIMIT = int.Parse(AppUtil.ReadValue("AppConfig", "ZipFileSizeLimit", "20000000"));
+        /// <summary>
+        /// 缓存池容量
+        /// </summary>
+        public static int CACHE_POOL_CAPACITY = int.Parse(AppUtil.ReadValue("AppConfig", "CachePoolCapacity", "100000"));
 
 
         /// <summary>

@@ -65,6 +65,9 @@ namespace TextLocator
 
             // 文件读取超时时间
             this.FileReadTimeout.Text = AppConst.FILE_READ_TIMEOUT + "";
+
+            // 缓存池容量
+            this.CachePoolCapacity.Text = AppConst.CACHE_POOL_CAPACITY + "";
         }
 
         #region 保存并关闭
@@ -84,6 +87,9 @@ namespace TextLocator
 
             // 文件读取超时时间
             string fileReadTimeoutText = this.FileReadTimeout.Text;
+
+            // 缓存池容量
+            string cachePoolCapacityText = this.CachePoolCapacity.Text;
 
             // 转换，验证
             int minThreads = 0;
@@ -152,6 +158,21 @@ namespace TextLocator
                 return;
             }
 
+            int cachePoolCapacity = 0;
+            try
+            {
+                cachePoolCapacity = int.Parse(cachePoolCapacityText);
+            } catch
+            {
+                Message.ShowWarning("MessageContainer", "缓存池容量设置错误");
+                return;
+            }
+            if (cachePoolCapacity < 50000 || cachePoolCapacity > 500000)
+            {
+                Message.ShowWarning("MessageContainer", "建议设置在5-50w范围内");
+                return;
+            }
+
             // 刷新、保存
             AppConst.THREAD_POOL_MIN_SIZE = minThreads;
             AppConst.THREAD_POOL_MAX_SIZE = maxThreads;
@@ -165,6 +186,10 @@ namespace TextLocator
             AppConst.FILE_READ_TIMEOUT = fileReadTimeout;
             AppUtil.WriteValue("AppConfig", "FileReadTimeout", AppConst.FILE_READ_TIMEOUT + "");
             log.Debug("修改文件读取超时时间：" + AppConst.FILE_READ_TIMEOUT);
+
+            AppConst.CACHE_POOL_CAPACITY = cachePoolCapacity;
+            AppUtil.WriteValue("AppConfig", "CachePoolCapacity", AppConst.CACHE_POOL_CAPACITY + "");
+            log.Debug("修改缓存池容量：" + AppConst.CACHE_POOL_CAPACITY);
 
             this.Close();
         }

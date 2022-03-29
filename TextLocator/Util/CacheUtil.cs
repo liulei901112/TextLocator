@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using TextLocator.Cache;
+using TextLocator.Core;
 
 namespace TextLocator.Util
 {
@@ -7,15 +9,22 @@ namespace TextLocator.Util
     /// </summary>
     public class CacheUtil
     {
-        //缓存容器 
-        private static Dictionary<string, object> cacheDic = new Dictionary<string, object>();
+        /// <summary>
+        /// LFU缓存
+        /// </summary>
+        private static LFUCache _cache;
+
+        static CacheUtil()
+        {
+            _cache = new LFUCache(AppConst.CACHE_POOL_CAPACITY);
+        }
 
         /// <summary>
         /// 添加缓存
         /// </summary>
         public static void Add(string key, object value)
         {
-            cacheDic[key] = value;
+            _cache.Put(key, value);
         }
 
         /// <summary>
@@ -23,11 +32,7 @@ namespace TextLocator.Util
         /// </summary>
         public static T Get<T>(string key)
         {
-            try
-            {
-                return (T)cacheDic[key];
-            } catch { }
-            return default(T);
+            return _cache.Get<T>(key);
         }
 
         /// <summary>
@@ -37,7 +42,7 @@ namespace TextLocator.Util
         /// <returns></returns>
         public static bool Exsits(string key)
         {
-            return cacheDic.ContainsKey(key);
+            return _cache.Exists(key);
         }
     }
 }

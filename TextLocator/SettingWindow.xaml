@@ -10,50 +10,64 @@
         Title="设置" Height="380" Width="520" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" ResizeMode="CanMinimize" Icon="/Resource/App.ico" Loaded="Window_Loaded" Closed="Window_Closed" >
     <Grid>
         <Grid Margin="0,0,0,50">
-            <StackPanel Margin="20">
-                <!-- 任务线程池 -->
-                <Grid>
-                    <TextBlock Text="线程池配置：" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                    <StackPanel Orientation="Horizontal">
-                        <Grid Margin="20,20,20,0">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="10">
+                    <!-- 任务线程池 -->
+                    <Grid>
+                        <TextBlock Text="线程池配置：" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Grid Margin="20,20,20,0">
+                                <Grid HorizontalAlignment="Left">
+                                    <TextBlock Text="最小数量：" HorizontalAlignment="Left"/>
+                                    <TextBox x:Name="MinThreads" Text="32"  ToolTip="建议：CPU核心数" HorizontalAlignment="Left" Margin="70,0,0,0" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
+                                </Grid>
+                            </Grid>
+                            <Grid Margin="20,20,20,0">
+                                <Grid HorizontalAlignment="Left">
+                                    <TextBlock Text="最大数量：" HorizontalAlignment="Left"/>
+                                    <TextBox x:Name="MaxThreads" Text="64" ToolTip="建议：2倍CPU核心数 + 1" HorizontalAlignment="Left" Margin="70,0,0,0" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
+                                </Grid>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                    <!-- 分割线 -->
+                    <Line X1="0" Y1="0" X2="480" Y2="0" Margin="0,10,0,10" Stroke="Gray" StrokeThickness="1"></Line>
+                    <!-- 结果列表每页显示条数 -->
+                    <Grid>
+                        <TextBlock Text="结果列表分页条数：" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                        <Grid Margin="20,30,20,0">
                             <Grid HorizontalAlignment="Left">
-                                <TextBlock Text="最小数量：" HorizontalAlignment="Left"/>
-                                <TextBox x:Name="MinThreads" Text="32"  ToolTip="建议：CPU核心数" HorizontalAlignment="Left" Margin="70,0,0,0" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
+                                <TextBox x:Name="ResultListPageSize" Text="100" ToolTip="建议：大于50，小于300" HorizontalAlignment="Left" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
+                                <TextBlock Text="(分页条数太多每页显示太多可能会卡顿)"  HorizontalAlignment="Left" Margin="110,0,0,0" />
                             </Grid>
                         </Grid>
-                        <Grid Margin="20,20,20,0">
+                    </Grid>
+                    <!-- 分割线 -->
+                    <Line X1="0" Y1="0" X2="480" Y2="0" Margin="0,10,0,10" Stroke="Gray" StrokeThickness="1"></Line>
+                    <!-- 结果列表每页显示条数 -->
+                    <Grid>
+                        <TextBlock Text="文件读取超时时间：" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                        <Grid Margin="20,30,20,0">
                             <Grid HorizontalAlignment="Left">
-                                <TextBlock Text="最大数量：" HorizontalAlignment="Left"/>
-                                <TextBox x:Name="MaxThreads" Text="64" ToolTip="建议：2倍CPU核心数 + 1" HorizontalAlignment="Left" Margin="70,0,0,0" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
+                                <TextBox x:Name="FileReadTimeout" Text="600" ToolTip="建议：大于5分钟，小于15分钟"  HorizontalAlignment="Left" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
+                                <TextBlock Text="单位：秒（太短正常文件未返回，太长影响速度）"  HorizontalAlignment="Left" Margin="110,0,0,0" />
                             </Grid>
                         </Grid>
-                    </StackPanel>
-                </Grid>
-                <!-- 分割线 -->
-                <Line X1="0" Y1="0" X2="480" Y2="0" Margin="0,15,0,15" Stroke="Gray" StrokeThickness="1"></Line>
-                <!-- 结果列表每页显示条数 -->
-                <Grid Margin="0,10,0,0">
-                    <TextBlock Text="结果列表分页条数：" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                    <Grid Margin="20,30,20,0">
-                        <Grid HorizontalAlignment="Left">
-                            <TextBox x:Name="ResultListPageSize" Text="100" ToolTip="建议：大于50，小于300" HorizontalAlignment="Left" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
-                            <TextBlock Text="(分页条数太多每页显示太多可能会卡顿)"  HorizontalAlignment="Left" Margin="110,0,0,0" />
+                    </Grid>
+                    <!-- 分割线 -->
+                    <Line X1="0" Y1="0" X2="480" Y2="0" Margin="0,10,0,10" Stroke="Gray" StrokeThickness="1"></Line>
+                    <!-- 结果列表每页显示条数 -->
+                    <Grid>
+                        <TextBlock Text="缓存池容量：" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                        <Grid Margin="20,30,20,0">
+                            <Grid HorizontalAlignment="Left">
+                                <TextBox x:Name="CachePoolCapacity" Text="100000" ToolTip="建议：根据自己CPU使用率和内存决定吧"  HorizontalAlignment="Left" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
+                                <TextBlock Text="程序运行中缓存（文件被索引标记、文件内容预览等）"  HorizontalAlignment="Left" Margin="110,0,0,0" />
+                            </Grid>
                         </Grid>
                     </Grid>
-                </Grid>
-                <!-- 分割线 -->
-                <Line X1="0" Y1="0" X2="480" Y2="0" Margin="0,15,0,15" Stroke="Gray" StrokeThickness="1"></Line>
-                <!-- 结果列表每页显示条数 -->
-                <Grid Margin="0,10,0,0">
-                    <TextBlock Text="文件读取超时时间：" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                    <Grid Margin="20,30,20,0">
-                        <Grid HorizontalAlignment="Left">
-                            <TextBox x:Name="FileReadTimeout" Text="600" ToolTip="建议：大于5分钟，小于15分钟"  HorizontalAlignment="Left" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
-                            <TextBlock Text="单位：秒（太短正常文件未返回，太长影响速度）"  HorizontalAlignment="Left" Margin="110,0,0,0" />
-                        </Grid>
-                    </Grid>
-                </Grid>
-            </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
         <!-- 功能按钮 -->
         <Button x:Name="SaveClose" Content="保存并关闭" Background="Green" VerticalAlignment="Bottom" Margin="10,0,10,10" Width="100" Click="SaveClose_Click"/>

@@ -41,10 +41,6 @@ namespace TextLocator.Index
         /// </summary>
         private static volatile int _totalCount = 0;
         /// <summary>
-        /// 是否是创建
-        /// </summary>
-        private static volatile bool _create = false;
-        /// <summary>
         /// 回调函数
         /// </summary>
         private static volatile Callback _callback;
@@ -58,7 +54,8 @@ namespace TextLocator.Index
         /// <summary>
         /// 创建索引写入器
         /// </summary>
-        private static void CreateIndexWriter()
+        /// <param name="create">是否是创建</param>
+        private static void CreateIndexWriter(bool create = false)
         {
             if (_indexWriter == null)
             {
@@ -69,7 +66,7 @@ namespace TextLocator.Index
                     // 分词器
                     AppConst.INDEX_ANALYZER,
                     // 是否创建
-                    _create,
+                    create,
                     // 字段限制
                     IndexWriter.MaxFieldLength.UNLIMITED);
 
@@ -114,22 +111,22 @@ namespace TextLocator.Index
             _finishCount = 0;
 
             // 判断是创建索引还是增量索引（如果索引目录不存在，重建）
-            _create = !Directory.Exists(AppConst.APP_INDEX_DIR);
+            bool create = !Directory.Exists(AppConst.APP_INDEX_DIR);
             // 入参为true，表示重建
             if (rebuild)
             {
-                _create = rebuild;
+                create = rebuild;
             }
 
             // 创建还是更新？
-            if (_create)
+            if (create)
             {
                 // 重建时，删除全部已建索引的标记
                 AppUtil.DeleteSection("FileIndex");
             }
 
             // 创建索引写入器
-            CreateIndexWriter();
+            CreateIndexWriter(create);
 
             using (MutipleThreadResetEvent resetEvent = new MutipleThreadResetEvent(_totalCount))
             {
@@ -138,7 +135,7 @@ namespace TextLocator.Index
                 {
                     string filePath = filePaths[i];
                     // 忽略已存在索引的文件
-                    if (SkipFile(_create, filePath, resetEvent))
+                    if (SkipFile(create, filePath, resetEvent))
                     {
                         continue;
                     }

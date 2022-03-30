@@ -31,15 +31,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 文件大小限制
         /// </summary>
-        public static int FILE_SIZE_LIMIT = int.Parse(AppUtil.ReadValue("AppConfig", "FileSizeLimit", "500000000"));
-        /// <summary>
-        /// 压缩包解析大小
-        /// </summary>
-        public static int ZIP_FILE_SIZE_LIMIT = int.Parse(AppUtil.ReadValue("AppConfig", "ZipFileSizeLimit", "100000000"));
-        /// <summary>
-        /// 是否解析压缩包内容
-        /// </summary>
-        public static bool IS_PARSE_ZIP_CONTENT = bool.Parse(AppUtil.ReadValue("AppConfig", "IsParseZipContent", "false"));
+        public static int FILE_SIZE_LIMIT = int.Parse(AppUtil.ReadValue("AppConfig", "FileSizeLimit", "200000000"));
         /// <summary>
         /// 缓存池容量
         /// </summary>

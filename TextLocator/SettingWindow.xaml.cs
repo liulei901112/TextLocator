@@ -68,12 +68,6 @@ namespace TextLocator
 
             // 缓存池容量
             this.CachePoolCapacity.Text = AppConst.CACHE_POOL_CAPACITY + "";
-
-            // 压缩包解析限制大小
-            this.ZipFileSizeLimit.Text = AppConst.ZIP_FILE_SIZE_LIMIT / 1000 / 1000 + "";
-
-            // 是否解析压缩包内容
-            this.IsParseZipContent.IsChecked = AppConst.IS_PARSE_ZIP_CONTENT;
         }
 
         #region 保存并关闭
@@ -175,26 +169,6 @@ namespace TextLocator
                 return;
             }
 
-            // 压缩包解析大小限制
-            string zipFileSizeLimitText = this.ZipFileSizeLimit.Text;
-            int zipFileSizeLimit = 0;
-            try
-            {
-                zipFileSizeLimit = int.Parse(zipFileSizeLimitText);
-            }
-            catch
-            {
-                Message.ShowWarning("MessageContainer", "压缩包解析大小限制错误");
-                return;
-            }
-            if (zipFileSizeLimit > 200)
-            {
-                Message.ShowWarning("MessageContainer", "建议设置200MB范围内");
-                return;
-            }
-            zipFileSizeLimit = zipFileSizeLimit * 1000 * 1000;
-
-
             // 刷新、保存
             AppConst.THREAD_POOL_MIN_SIZE = minThreads;
             AppConst.THREAD_POOL_MAX_SIZE = maxThreads;
@@ -211,14 +185,6 @@ namespace TextLocator
             AppConst.FILE_READ_TIMEOUT = fileReadTimeout;
             AppUtil.WriteValue("AppConfig", "FileReadTimeout", AppConst.FILE_READ_TIMEOUT + "");
             log.Debug("修改文件读取超时时间：" + AppConst.FILE_READ_TIMEOUT);
-
-            AppConst.ZIP_FILE_SIZE_LIMIT = zipFileSizeLimit;
-            AppUtil.WriteValue("AppConfig", "ZipFileSizeLimit", AppConst.ZIP_FILE_SIZE_LIMIT + "");
-            log.Debug("压缩包解析大小限制：" + AppConst.ZIP_FILE_SIZE_LIMIT);
-
-            AppConst.IS_PARSE_ZIP_CONTENT = (bool)this.IsParseZipContent.IsChecked;
-            AppUtil.WriteValue("AppConfig", "IsParseZipContent", AppConst.IS_PARSE_ZIP_CONTENT + "");
-            log.Debug("是否解析压缩包内容：" + AppConst.IS_PARSE_ZIP_CONTENT);
 
             this.Close();
         }

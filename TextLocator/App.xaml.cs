@@ -127,12 +127,6 @@ namespace TextLocator
 
             // 文件读取超时时间
             AppUtil.WriteValue("AppConfig", "FileReadTimeout", AppConst.FILE_READ_TIMEOUT + "");
-
-            // 压缩包解析大小限制
-            AppUtil.WriteValue("AppConfig", "ZipFileSizeLimit", AppConst.ZIP_FILE_SIZE_LIMIT + "");
-
-            // 是否解析压缩包内容
-            AppUtil.WriteValue("AppConfig", "IsParseZipContent", AppConst.IS_PARSE_ZIP_CONTENT + "");
         }
         #endregion
 

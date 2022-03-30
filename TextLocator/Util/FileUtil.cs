@@ -199,22 +199,10 @@ namespace TextLocator.Util
             {
                 return;
             }
-            // 获取源文件夹中的所有文件完整路径
-            FileInfo[] files = new DirectoryInfo(srcDir).GetFiles();
-            foreach (FileInfo fileInfo in files)
-            {
-                try
-                {
-                    File.Delete(fileInfo.FullName);
-                }
-                catch (Exception ex)
-                {
-                    log.Error(fileInfo.FullName + " -> 文件删除失败：" + ex.Message, ex);
-                }
-            }
             try
             {
-                Directory.Delete(srcDir);
+                DirectoryInfo dirInfo = new DirectoryInfo(srcDir);
+                dirInfo.Delete(true);
             } catch (Exception ex) {
                 log.Error(srcDir + " -> 目录删除失败：" + ex.Message, ex);
             }

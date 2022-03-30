@@ -86,7 +86,6 @@ namespace TextLocator.Service
         /// </summary>
         /// <param name="filePath">压缩文件路径</param>
         /// <param name="unzipPath">解压路径</param>
-        /// <param name="isParseContent">是否解析文件内容</param>
         /// <returns></returns>
         private string GetContent(string filePath, string unzipPath)
         {

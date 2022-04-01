@@ -28,22 +28,25 @@ namespace TextLocator.Service
                 try
                 {
                     // =========== Spire.XLS ===========
-                    using (Spire.Doc.Document document = new Spire.Doc.Document(new FileStream(filePath, FileMode.Open, FileAccess.Read)))
+                    using (FileStream fs = File.OpenRead(filePath))
                     {
-                        if (document != null)
+                        using (Spire.Doc.Document document = new Spire.Doc.Document(fs))
                         {
-                            SectionCollection sections = document.Sections;
-                            if (sections != null && sections.Count > 0)
+                            if (document != null)
                             {
-                                // 提取每个段落的文本 
-                                foreach (Section section in sections)
+                                SectionCollection sections = document.Sections;
+                                if (sections != null && sections.Count > 0)
                                 {
-                                    ParagraphCollection paragraphs = section.Paragraphs;
-                                    if (paragraphs != null && paragraphs.Count > 0)
+                                    // 提取每个段落的文本 
+                                    foreach (Section section in sections)
                                     {
-                                        foreach (Paragraph paragraph in paragraphs)
+                                        ParagraphCollection paragraphs = section.Paragraphs;
+                                        if (paragraphs != null && paragraphs.Count > 0)
                                         {
-                                            builder.AppendLine(paragraph.Text);
+                                            foreach (Paragraph paragraph in paragraphs)
+                                            {
+                                                builder.AppendLine(paragraph.Text);
+                                            }
                                         }
                                     }
                                 }
@@ -57,9 +60,9 @@ namespace TextLocator.Service
                     XWPFDocument document = null;
                     try
                     {
-                        using (FileStream file = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                        using (FileStream fs = File.OpenRead(filePath))
                         {
-                            document = new XWPFDocument(file);
+                            document = new XWPFDocument(fs);
 
                             if (document != null)
                             {

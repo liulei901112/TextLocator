@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TextLocator.Core;
+using TextLocator.Enums;
 using TextLocator.Exceptions;
 using TextLocator.Factory;
 using TextLocator.Util;
@@ -31,19 +32,29 @@ namespace TextLocator.Service
             {
                 try
                 {
-                    // 压缩包解压
-                    builder.Append("名称：" + filePath.Substring(filePath.LastIndexOf("\\") + 1));
-                    builder.Append("　大小：" + FileUtil.GetFileSizeFriendly(new FileInfo(filePath).Length) + " =>\r\n");
+                    // 文件信息
+                    FileInfo fileInfo = new FileInfo(filePath);
+                    // 文件名称
+                    string fileName = fileInfo.Name;
+                    // 文件大小
+                    long fileSize = fileInfo.Length;
 
-                    builder.Append("　列表：=>\r\n");
-                    using (FileStream file = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                    // 压缩包解压
+                    builder.Append("名称：" + fileName);
+                    builder.Append("　大小：" + FileUtil.GetFileSizeFriendly(fileInfo.Length));
+                    builder.Append("　列表：=> \r\n");
+
+                    // 解析列表
+                    using (FileStream file = File.OpenRead(filePath))
                     {
-                        using (var archive = ArchiveFactory.Open(file)) {
+                        using (var archive = ArchiveFactory.Open(file))
+                        {
                             foreach (var entry in archive.Entries)
                             {
                                 if (!entry.IsDirectory)
                                 {
-                                    builder.Append(String.Format("　　{0},　{1}\r\n", entry.Key, FileUtil.GetFileSizeFriendly(entry.Size)));                                 
+                                    builder.Append("┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\r\n");
+                                    builder.Append(string.Format("{0},　{1}\r\n", entry.Key, FileUtil.GetFileSizeFriendly(entry.Size)));
                                 }
                             }
                         }

@@ -31,11 +31,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 文件大小限制
         /// </summary>
-        public static int FILE_SIZE_LIMIT = int.Parse(AppUtil.ReadValue("AppConfig", "FileSizeLimit", "500000000"));
-        /// <summary>
-        /// 压缩包解析大小
-        /// </summary>
-        public static int ZIP_FILE_SIZE_LIMIT = int.Parse(AppUtil.ReadValue("AppConfig", "ZipFileSizeLimit", "20000000"));
+        public static int FILE_SIZE_LIMIT = int.Parse(AppUtil.ReadValue("AppConfig", "FileSizeLimit", "200000000"));
         /// <summary>
         /// 缓存池容量
         /// </summary>
@@ -46,6 +42,10 @@ namespace TextLocator.Core
         /// 索引路径：_AppDir\\_AppName\\Index\\
         /// </summary>
         public static readonly string APP_INDEX_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Index");
+        /// <summary>
+        /// 临时目录：_AppDir\\_AppName\\Temp\\
+        /// </summary>
+        public static readonly string APP_TEMP_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Temp");
         /// <summary>
         /// 分词器
         /// new Lucene.Net.Analysis.Cn.ChineseAnalyzer();
@@ -71,7 +71,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 匹配空白和换行
         /// </summary>
-        public static readonly Regex REGEX_LINE_BREAKS_AND_WHITESPACE = new Regex("  |\r|\n|\\s");
+        public static readonly Regex REGEX_LINE_BREAKS_AND_WHITESPACE = new Regex("  |\r|\n|┄|\\s");
         /// <summary>
         /// 匹配HTML和XML标签
         /// </summary>

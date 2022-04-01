@@ -8,6 +8,11 @@ namespace TextLocator.Core
     public class TaskTime
     {
         /// <summary>
+        /// 文件大小单位
+        /// </summary>
+        private static readonly string[] suffixes = new string[] { " 秒", " 分", " 时" };
+
+        /// <summary>
         /// 开始时间
         /// </summary>
         private DateTime beginTime;
@@ -21,14 +26,28 @@ namespace TextLocator.Core
         }
 
         /// <summary>
-        /// 消耗时间
+        /// 消耗时间（友好显示）
         /// </summary>
-        /// <returns></returns>
-        public double ConsumeTime
+        public string ConsumeTime
         {
-            get
-            {
-                return (DateTime.Now - beginTime).TotalSeconds;
+            get {
+                double time = (DateTime.Now - beginTime).TotalMilliseconds;
+                if (time > 1000)
+                {
+                    if (time / 1000 < 60)
+                    {
+                        return time / 1000 + " 秒";
+                    }
+                    else if (time / 1000 / 60 < 60)
+                    {
+                        return time / 1000 / 60 + " 分";
+                    }
+                    else if (time / 1000 / 60 / 60 < 24)
+                    {
+                        return time / 1000 / 60 / 60 + " 时";
+                    }
+                }
+                return time + " 毫秒";
             }
         }
 

@@ -24,40 +24,43 @@ namespace TextLocator.Service
             {
                 try
                 {
-                    using (Presentation presentation = new Presentation(new FileStream(filePath, FileMode.Open, FileAccess.Read), FileFormat.Auto))
+                    using (FileStream fs = File.OpenRead(filePath))
                     {
-                        SlideCollection slides = presentation.Slides;
-                        if (slides != null && slides.Count > 0)
+                        using (Presentation presentation = new Presentation(fs, FileFormat.Auto))
                         {
-                            foreach (ISlide slide in presentation.Slides)
+                            SlideCollection slides = presentation.Slides;
+                            if (slides != null && slides.Count > 0)
                             {
-                                ShapeCollection shapes = slide.Shapes;
-                                if (shapes != null && shapes.Count > 0)
+                                foreach (ISlide slide in presentation.Slides)
                                 {
-                                    foreach (IShape shape in shapes)
+                                    ShapeCollection shapes = slide.Shapes;
+                                    if (shapes != null && shapes.Count > 0)
                                     {
-                                        if (shape != null && shape is IAutoShape)
+                                        foreach (IShape shape in shapes)
                                         {
-                                            ITextFrameProperties textFrame;
-                                            if ((textFrame = (shape as IAutoShape).TextFrame) != null)
+                                            if (shape != null && shape is IAutoShape)
                                             {
-                                                ParagraphCollection paragraph = textFrame.Paragraphs;
-                                                if (paragraph != null && paragraph.Count > 0)
+                                                ITextFrameProperties textFrame;
+                                                if ((textFrame = (shape as IAutoShape).TextFrame) != null)
                                                 {
-                                                    foreach (TextParagraph tp in paragraph)
+                                                    ParagraphCollection paragraph = textFrame.Paragraphs;
+                                                    if (paragraph != null && paragraph.Count > 0)
                                                     {
-                                                        builder.Append(tp.Text + Environment.NewLine);
+                                                        foreach (TextParagraph tp in paragraph)
+                                                        {
+                                                            builder.Append(tp.Text + Environment.NewLine);
+                                                        }
                                                     }
                                                 }
                                             }
+                                            shape.Dispose();
                                         }
-                                        shape.Dispose();
                                     }
+                                    slide.Dispose();
                                 }
-                                slide.Dispose();
                             }
+
                         }
-                        
                     }
                 }
                 catch (Exception ex)

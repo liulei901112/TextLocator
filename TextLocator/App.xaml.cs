@@ -119,7 +119,13 @@ namespace TextLocator
         /// </summary>
         private void InitAppConfig()
         {
-            // 保存文件读取超时时间
+            // 保存缓存池容量
+            AppUtil.WriteValue("AppConfig", "CachePoolCapacity", AppConst.CACHE_POOL_CAPACITY + "");
+
+            // 每页显示条数
+            AppUtil.WriteValue("AppConfig", "ResultListPageSize", AppConst.MRESULT_LIST_PAGE_SIZE + "");
+
+            // 文件读取超时时间
             AppUtil.WriteValue("AppConfig", "FileReadTimeout", AppConst.FILE_READ_TIMEOUT + "");
         }
         #endregion

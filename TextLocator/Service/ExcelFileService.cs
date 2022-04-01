@@ -28,7 +28,7 @@ namespace TextLocator.Service
                 {
                     // =========== NPIO ===========
                     // 文件流
-                    using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                    using (FileStream fs = File.OpenRead(filePath))
                     {
                         // 获取扩展名
                         string extName = Path.GetExtension(filePath);
@@ -38,11 +38,11 @@ namespace TextLocator.Service
                         {
                             // 把xls写入workbook中 2003版本
                             case ".xls":
-                                readWorkbook = new HSSFWorkbook(fileStream);
+                                readWorkbook = new HSSFWorkbook(fs);
                                 break;
                             // 把xlsx 写入workbook中 2007版本
                             case ".xlsx":
-                                readWorkbook = new XSSFWorkbook(fileStream);
+                                readWorkbook = new XSSFWorkbook(fs);
                                 break;
                             default:
                                 break;
@@ -97,40 +97,43 @@ namespace TextLocator.Service
                     try
                     {
                         // =========== Spire.XLS ===========
-                        // 创建Workbook对象
-                        using (Spire.Xls.Workbook workbook = new Spire.Xls.Workbook())
+                        using (FileStream fs = File.OpenRead(filePath))
                         {
-                            // 加载Excel文档
-                            workbook.LoadFromFile(filePath);
-                            StringBuilder builder = new StringBuilder();
-                            if (workbook != null)
+                            // 创建Workbook对象
+                            using (Spire.Xls.Workbook workbook = new Spire.Xls.Workbook())
                             {
-                                WorksheetsCollection sheets = workbook.Worksheets;
-                                if (sheets != null && sheets.Count > 0)
+                                // 加载Excel文档
+                                workbook.LoadFromStream(fs);
+                                StringBuilder builder = new StringBuilder();
+                                if (workbook != null)
                                 {
-                                    // 获取工作表
-                                    for (int i = 0; i < sheets.Count; i++)
+                                    WorksheetsCollection sheets = workbook.Worksheets;
+                                    if (sheets != null && sheets.Count > 0)
                                     {
-                                        using (Spire.Xls.Worksheet sheet = sheets[i])
+                                        // 获取工作表
+                                        for (int i = 0; i < sheets.Count; i++)
                                         {
-                                            // 行
-                                            for (int j = sheet.FirstRow; j < sheet.LastRow; j++)
+                                            using (Spire.Xls.Worksheet sheet = sheets[i])
                                             {
-                                                using (Spire.Xls.CellRange row = sheet.Rows[j])
+                                                // 行
+                                                for (int j = sheet.FirstRow; j < sheet.LastRow; j++)
                                                 {
-                                                    // 列
-                                                    for (int k = 0; k < row.Columns.Length; k++)
+                                                    using (Spire.Xls.CellRange row = sheet.Rows[j])
                                                     {
-                                                        builder.Append(row.Columns[k].Value2.ToString() + "　");
+                                                        // 列
+                                                        for (int k = 0; k < row.Columns.Length; k++)
+                                                        {
+                                                            builder.Append(row.Columns[k].Value2.ToString() + "　");
+                                                        }
                                                     }
+                                                    builder.AppendLine();
                                                 }
-                                                builder.AppendLine();
                                             }
                                         }
                                     }
                                 }
+                                content = builder.ToString();
                             }
-                            content = builder.ToString();
                         }
                     }
                     catch (Exception ex)

@@ -176,7 +176,7 @@ namespace TextLocator
             {
                 SortOptions.Items.Add(sort);
             }
-            log.Debug("InitializeSortType 耗时：" + taskTime.ConsumeTime + "秒");
+            log.Debug("InitializeSortType 耗时：" + taskTime.ConsumeTime + "。");
         }
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace TextLocator
                     Background = Brushes.DarkGray
                 });
             }
-            log.Debug("InitializeFileTypeFilters 耗时：" + taskTime.ConsumeTime + "秒");
+            log.Debug("InitializeFileTypeFilters 耗时：" + taskTime.ConsumeTime + "。");
         }
 
         /// <summary>
@@ -275,7 +275,7 @@ namespace TextLocator
             ExclusionPaths.Text = exclusionPaths;
             ExclusionPaths.ToolTip = ExclusionPaths.Text;            
 
-            log.Debug("InitializeAppConfig 耗时：" + taskTime.ConsumeTime + "秒");
+            log.Debug("InitializeAppConfig 耗时：" + taskTime.ConsumeTime + "。");
         }
 
         #endregion
@@ -587,7 +587,7 @@ namespace TextLocator
                         this.SwitchPreview.Visibility = totalHits > 0 ? Visibility.Visible : Visibility.Hidden;
                     }));
 
-                    string msg = "检索完成。分词：( " + text + " )，结果：" + totalHits + "个符合条件的结果 (第 " + pageNow + " 页)，耗时：" + taskMark.ConsumeTime + "秒。";
+                    string msg = "检索完成。分词：( " + text + " )，结果：" + totalHits + "个符合条件的结果 (第 " + pageNow + " 页)，耗时：" + taskMark.ConsumeTime + "。";
 
                     log.Debug(msg);
 
@@ -1162,7 +1162,7 @@ namespace TextLocator
                     // 获取文件信息列表
                     FileUtil.GetAllFiles(filePaths, s, _regexExclusionFolder);
                 }
-                log.Debug("GetFiles 耗时：" + fileMark.ConsumeTime + "秒");
+                log.Debug("GetFiles 耗时：" + fileMark.ConsumeTime + "。");
                 ShowStatus("文件扫描完成，开始" + tips + "索引...");
 
                 // 验证扫描文件列表是否为空
@@ -1189,7 +1189,7 @@ namespace TextLocator
                 // 创建索引方法
                 IndexCore.CreateIndex(filePaths, rebuild, ShowStatus);
 
-                string msg = "索引" + tips + "完成。共用时：" + taskMark.ConsumeTime + "秒";
+                string msg = "索引" + tips + "完成。共用时：" + taskMark.ConsumeTime + "。";
 
                 // 显示状态
                 ShowStatus(msg);

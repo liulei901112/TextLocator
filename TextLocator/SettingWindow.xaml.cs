@@ -81,17 +81,6 @@ namespace TextLocator
             // 线程池
             string minThreadsText = this.MinThreads.Text;
             string maxThreadsText = this.MaxThreads.Text;
-
-            // 每页显示条数
-            string ResultListPageSizeText = this.ResultListPageSize.Text;
-
-            // 文件读取超时时间
-            string fileReadTimeoutText = this.FileReadTimeout.Text;
-
-            // 缓存池容量
-            string cachePoolCapacityText = this.CachePoolCapacity.Text;
-
-            // 转换，验证
             int minThreads = 0;
             try
             {
@@ -126,6 +115,26 @@ namespace TextLocator
                 }
             }
 
+            // 缓存池容量
+            string cachePoolCapacityText = this.CachePoolCapacity.Text;
+            int cachePoolCapacity = 0;
+            try
+            {
+                cachePoolCapacity = int.Parse(cachePoolCapacityText);
+            }
+            catch
+            {
+                Message.ShowWarning("MessageContainer", "缓存池容量设置错误");
+                return;
+            }
+            if (cachePoolCapacity < 50000 || cachePoolCapacity > 500000)
+            {
+                Message.ShowWarning("MessageContainer", "建议设置在5-50W范围内");
+                return;
+            }
+
+            // 每页显示条数
+            string ResultListPageSizeText = this.ResultListPageSize.Text;
             int ResultListPageSize = 0;
             try
             {
@@ -142,6 +151,8 @@ namespace TextLocator
                 return;
             }
 
+            // 文件读取超时时间
+            string fileReadTimeoutText = this.FileReadTimeout.Text;
             int fileReadTimeout = 0;
             try
             {
@@ -158,38 +169,22 @@ namespace TextLocator
                 return;
             }
 
-            int cachePoolCapacity = 0;
-            try
-            {
-                cachePoolCapacity = int.Parse(cachePoolCapacityText);
-            } catch
-            {
-                Message.ShowWarning("MessageContainer", "缓存池容量设置错误");
-                return;
-            }
-            if (cachePoolCapacity < 50000 || cachePoolCapacity > 500000)
-            {
-                Message.ShowWarning("MessageContainer", "建议设置在5-50w范围内");
-                return;
-            }
-
             // 刷新、保存
             AppConst.THREAD_POOL_MIN_SIZE = minThreads;
             AppConst.THREAD_POOL_MAX_SIZE = maxThreads;
             AppCore.SetThreadPoolSize();
 
+            AppConst.CACHE_POOL_CAPACITY = cachePoolCapacity;
+            AppUtil.WriteValue("AppConfig", "CachePoolCapacity", AppConst.CACHE_POOL_CAPACITY + "");
+            log.Debug("修改缓存池容量：" + AppConst.CACHE_POOL_CAPACITY);
+
             AppConst.MRESULT_LIST_PAGE_SIZE = ResultListPageSize;
             AppUtil.WriteValue("AppConfig", "ResultListPageSize", AppConst.MRESULT_LIST_PAGE_SIZE + "");
             log.Debug("修改结果列表分页条数：" + AppConst.MRESULT_LIST_PAGE_SIZE);
 
-
             AppConst.FILE_READ_TIMEOUT = fileReadTimeout;
             AppUtil.WriteValue("AppConfig", "FileReadTimeout", AppConst.FILE_READ_TIMEOUT + "");
             log.Debug("修改文件读取超时时间：" + AppConst.FILE_READ_TIMEOUT);
-
-            AppConst.CACHE_POOL_CAPACITY = cachePoolCapacity;
-            AppUtil.WriteValue("AppConfig", "CachePoolCapacity", AppConst.CACHE_POOL_CAPACITY + "");
-            log.Debug("修改缓存池容量：" + AppConst.CACHE_POOL_CAPACITY);
 
             this.Close();
         }

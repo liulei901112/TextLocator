@@ -1393,8 +1393,14 @@ namespace TextLocator
             string text = PreviewSearchText.Text;
             if (!string.IsNullOrEmpty(text))
             {
-                List<string> keywords = text.Split(' ').ToList();
-                RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.Green, keywords, true);
+                List<string> keywords = text.Split(' ').ToList();                
+                ThreadPool.QueueUserWorkItem(_ => {
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        // 关键词高亮
+                        RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.Green, keywords, true);
+                    }));
+                });
             }
         }
 

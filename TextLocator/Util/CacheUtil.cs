@@ -22,7 +22,7 @@ namespace TextLocator.Util
         /// <summary>
         /// 添加缓存
         /// </summary>
-        public static void Add(string key, object value)
+        public static void Put(string key, object value)
         {
             _cache.Put(key, value);
         }

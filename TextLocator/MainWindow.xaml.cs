@@ -902,19 +902,8 @@ namespace TextLocator
                 // 文件内容预览
                 Thread t = new Thread(new ThreadStart(() =>
                 {
-                    string content = "";
-                    if (CacheUtil.Exsits(fileInfo.FilePath))
-                    {
-                        content = CacheUtil.Get<string>(fileInfo.FilePath);
-                    }
-                    else
-                    {
-                        // 文件内容
-                        content = FileInfoServiceFactory.GetFileContent(fileInfo.FilePath);
-
-                        // 写入缓存
-                        CacheUtil.Add(fileInfo.FilePath, content);
-                    }
+                    // 文件内容
+                    string content = FileInfoServiceFactory.GetFileContent(fileInfo.FilePath);
 
                     Dispatcher.BeginInvoke(new Action(() =>
                     {

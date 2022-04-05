@@ -146,7 +146,8 @@ namespace TextLocator.Util
                 uint bytesReturned = GetPrivateProfileString(section, key, def, builder, SIZE, _AppIniFile);
                 if (bytesReturned != 0)
                 {
-                    return builder.ToString();
+                    def = builder.ToString();
+                    _AppIniCache[GetCacheKey(section, key)] = def;
                 }
                 return def;
             }

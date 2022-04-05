@@ -52,12 +52,28 @@ namespace TextLocator.Factory
 
 				return null;
 			}
+			// 缓存Key
+			string cacheKey = MD5Util.GetMD5Hash(filePath);
+			string content = "";
+			if (CacheUtil.Exsits(cacheKey))
+			{
+				content = CacheUtil.Get<string>(cacheKey);
+#if DEBUG
+				log.Debug(filePath + "文件，内存读取缓存。");
+#endif
+			}
+			else
+			{
+				// 获取文件服务对象
+				IFileInfoService fileInfoService = GetFileInfoService(FileTypeUtil.GetFileType(filePath));
 
-			// 获取文件服务对象
-			IFileInfoService fileInfoService = GetFileInfoService(FileTypeUtil.GetFileType(filePath));
+				// 读取文件内容
+				content = WaitTimeout(fileInfoService.GetFileContent, filePath, TimeSpan.FromSeconds(AppConst.FILE_READ_TIMEOUT));
 
-			// 读取文件内容
-			return WaitTimeout(fileInfoService.GetFileContent, filePath, TimeSpan.FromSeconds(AppConst.FILE_READ_TIMEOUT));
+				// 写入缓存
+				CacheUtil.Put(cacheKey, content);
+			}
+			return content;
 		}
 
 		/// <summary>
@@ -88,9 +104,9 @@ namespace TextLocator.Factory
 				throw new NotFoundFileServiceException("暂无[" + fileType.ToString() + "]服务实例， 返回默认其他类型文件服务实例");
 			}
 		}
-		#endregion
+#endregion
 
-		#region 超时函数
+#region 超时函数
 		/// <summary>
 		/// 有参数,有反回值方法
 		/// </summary>
@@ -130,6 +146,6 @@ namespace TextLocator.Factory
 				t.Abort();
 			}
 		}
-		#endregion
+#endregion
 	}
 }

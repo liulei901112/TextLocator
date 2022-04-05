@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:TextLocator"
              mc:Ignorable="d" 
              d:DesignWidth="1000" d:DesignHeight="90" >
+    <!-- 内容 -->
     <Grid Width="1000" Height="90" HorizontalAlignment="Left" VerticalAlignment="Top">
         <!-- 图标 -->
         <Image x:Name="FileTypeIcon" Source="/Resource/ext/word.png" Width="80" HorizontalAlignment="Left"/>
@@ -22,7 +23,7 @@
                         </Paragraph>
                     </FlowDocument>
                 </RichTextBox>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"  Margin="0,0,10,0">
                     <!-- 文件大小 -->
                     <TextBlock x:Name="FileSize" Text="1MB" Foreground="#545454" HorizontalAlignment="Right"/>
                     <TextBlock Text="•" Foreground="#545454" HorizontalAlignment="Right" Margin="20,0,20,0"/>

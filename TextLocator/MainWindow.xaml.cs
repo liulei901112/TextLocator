@@ -766,6 +766,9 @@ namespace TextLocator
             // 光标聚焦
             SearchText.Focus();
 
+            // 清空预览搜索框
+            PreviewSearchText.Text = "";
+
             // 搜索结果列表清空
             SearchResultList.Items.Clear();
 
@@ -1366,6 +1369,71 @@ namespace TextLocator
                 (bool)OnlyFileName.IsChecked, 
                 (bool)MatchWords.IsChecked
             );
+        }
+        #endregion
+
+        #region 预览文本搜索
+        /// <summary>
+        /// 预览搜索文本搜索按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PreviewSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 预览搜索关键词高亮
+            PreviewSearchTextHighlighted();
+        }
+
+        /// <summary>
+        /// 预览搜索关键词高亮
+        /// </summary>
+        private void PreviewSearchTextHighlighted()
+        {
+            // 搜索关键词
+            string text = PreviewSearchText.Text;
+            if (!string.IsNullOrEmpty(text))
+            {
+                List<string> keywords = text.Split(' ').ToList();
+                RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.Green, keywords, true);
+            }
+        }
+
+        /// <summary>
+        /// 预览搜索文本按键
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PreviewSearchText_PreviewKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                // 预览搜索关键词高亮
+                PreviewSearchTextHighlighted();
+            }
+        }
+
+        /// <summary>
+        /// 预览搜索文本改变
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PreviewSearchText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                // 搜索关键词
+                string text = PreviewSearchText.Text;
+
+                // 替换特殊字符
+                text = AppConst.REGEX_SPECIAL_CHARACTER.Replace(text, "");
+
+                // 回写处理过的字符
+                PreviewSearchText.Text = text;
+
+                // 光标定位到最后
+                PreviewSearchText.SelectionStart = PreviewSearchText.Text.Length;
+            }
+            catch { }
         }
         #endregion
     }

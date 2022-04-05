@@ -15,9 +15,10 @@ namespace TextLocator.Util
         /// <summary>
         /// 填充数据
         /// </summary>
-        /// <param name="richTextBox"></param>
-        /// <param name="text"></param>
-        /// <param name="brush"></param>
+        /// <param name="richTextBox">RichTextBox文本对象</param>
+        /// <param name="text">高亮关键词</param>
+        /// <param name="brush">高亮颜色画刷</param>
+        /// <param name="underLine">下划线</param>
         public static void FillingData(RichTextBox richTextBox, string text, Brush brush, bool underLine = false)
         {
             richTextBox.Document.Blocks.Clear();
@@ -86,7 +87,7 @@ namespace TextLocator.Util
             //高亮选择
             if (background)
             {
-                range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(Colors.White));
+                // range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(Colors.White));
                 range.ApplyPropertyValue(TextElement.BackgroundProperty, new SolidColorBrush(color));
             }
             else

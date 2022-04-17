@@ -46,7 +46,7 @@ namespace TextLocator
         /// </summary>
         private List<string> _exclusionFolders = new List<string>();
         /// <summary>
-        /// 
+        /// 正则匹配排除文件夹
         /// </summary>
         private Regex _exclusionFolderRegex;
         /// <summary>
@@ -57,6 +57,10 @@ namespace TextLocator
         /// 搜索参数
         /// </summary>
         private Entity.SearchParam _searchParam;
+        /// <summary>
+        /// 上次预览区搜索文本
+        /// </summary>
+        private string _lastPreviewSearchText;
 
         /// <summary>
         /// 索引构建中
@@ -674,6 +678,7 @@ namespace TextLocator
             // -------- 右侧预览区
             // 清空预览搜索框
             PreviewSearchText.Text = "";
+            _lastPreviewSearchText = "";
 
             // 右侧预览区，打开文件和文件夹标记清空
             OpenFile.Tag = null;
@@ -1267,16 +1272,30 @@ namespace TextLocator
             // 预览搜索关键词高亮
             PreviewSearchTextHighlighted();
         }
-
         /// <summary>
         /// 预览搜索关键词高亮
         /// </summary>
         private void PreviewSearchTextHighlighted()
         {
+            // 清理上一次的搜索关键词
+            if (!string.IsNullOrEmpty(_lastPreviewSearchText))
+            {
+                List<string> keywords = _lastPreviewSearchText.Split(' ').ToList();
+                Task.Factory.StartNew(() => {
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        // 关键词高亮
+                        RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.White, keywords, true);
+                    }));
+                });
+            }
+
             // 搜索关键词
             string text = PreviewSearchText.Text.Trim();
             if (!string.IsNullOrEmpty(text))
             {
+                _lastPreviewSearchText = text;
+
                 List<string> keywords = text.Split(' ').ToList();
                 Task.Factory.StartNew(() => {
                     Dispatcher.BeginInvoke(new Action(() =>

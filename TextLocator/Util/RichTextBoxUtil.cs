@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -42,6 +41,7 @@ namespace TextLocator.Util
         /// <param name="richTextBox">UI元素</param>
         /// <param name="color">颜色值</param>
         /// <param name="keywords">关键词</param>
+        /// <param name="background">背景颜色</param>
         public static void Highlighted(RichTextBox richTextBox, Color color, List<string> keywords, bool background = false)
         {
             if (keywords == null || keywords.Count <= 0) return;
@@ -104,14 +104,15 @@ namespace TextLocator.Util
             //高亮选择
             if (background)
             {
-                // range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(Colors.White));
                 range.ApplyPropertyValue(TextElement.BackgroundProperty, new SolidColorBrush(color));
+                range.ApplyPropertyValue(TextElement.FontWeightProperty, color == Colors.White ? FontWeights.Normal : FontWeights.Bold);
             }
             else
             {
                 range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(color));
+                range.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
             }
-            range.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
+            
 
             return tpEnd.GetNextContextPosition(LogicalDirection.Forward);
         }

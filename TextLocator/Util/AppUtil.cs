@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -38,7 +39,7 @@ namespace TextLocator.Util
         /// <summary>
         /// Ini文件内容缓存
         /// </summary>
-        private static readonly Dictionary<string, string> _AppIniCache = new Dictionary<string, string>();
+        private static readonly Dictionary<string, Dictionary<string, string>> _AppIniCache = new Dictionary<string, Dictionary<string, string>>();
 
         static AppUtil()
         {
@@ -75,7 +76,7 @@ namespace TextLocator.Util
             }
         }
 
-        #region {AppName}.ini文件
+        #region 配置文件
 
         /// <summary>
         /// 设置INI
@@ -91,26 +92,33 @@ namespace TextLocator.Util
                 {
                     throw new ArgumentException("必须指定节点名称", "section");
                 }
-
                 if (string.IsNullOrEmpty(key))
                 {
                     throw new ArgumentException("必须指定键名称(key)", "key");
                 }
-                if (value == null)
-                {
-                    throw new ArgumentException("值不能为null", "value");
-                }
 
                 lock (locker)
                 {
-                    _AppIniCache[GetCacheKey(section, key)] = value;
+                    Dictionary<string, string> sectionDic = _AppIniCache.ContainsKey(section) ? _AppIniCache[section] : new Dictionary<string, string>();
+                    if (sectionDic.ContainsKey(key))
+                    {
+                        if (string.IsNullOrEmpty(value))
+                        {
+                            sectionDic.Remove(key);
+                        }
+                        else
+                        {
+                            sectionDic[key] = value;
+                        }
+                    }
+                    _AppIniCache[section] = sectionDic;
 
                     WritePrivateProfileString(section, key, value, _AppIniFile);
                 }
             }
             catch (Exception ex)
             {
-                log.Error(ex.Message);
+                log.Error(string.Format("写入错误：section={0}，key={1}，value={2} => {3}", section, key, value, ex.Message), ex);
             }
         }
 
@@ -137,9 +145,10 @@ namespace TextLocator.Util
                 }
                 lock (locker)
                 {
-                    if (_AppIniCache.ContainsKey(GetCacheKey(section, key)))
+                    Dictionary<string, string> sectionDic = _AppIniCache.ContainsKey(section) ? _AppIniCache[section] : new Dictionary<string, string>();
+                    if (sectionDic.ContainsKey(key))
                     {
-                        return _AppIniCache[GetCacheKey(section, key)];
+                        return sectionDic[key];
                     }
                 }
                 StringBuilder builder = new StringBuilder(SIZE);
@@ -147,19 +156,24 @@ namespace TextLocator.Util
                 if (bytesReturned != 0)
                 {
                     def = builder.ToString();
-                    _AppIniCache[GetCacheKey(section, key)] = def;
+                    lock(locker)
+                    {
+                        Dictionary<string, string> sectionDic = _AppIniCache.ContainsKey(section) ? _AppIniCache[section] : new Dictionary<string, string>();
+                        sectionDic[key] = def;
+                        _AppIniCache[section] = sectionDic;
+                    }                    
                 }
                 return def;
             }
             catch (Exception ex)
             {
-                log.Error(ex.Message);
+                log.Error(string.Format("读取错误：section={0}，key={1} => {2}", section, key, ex.Message), ex);
                 return def;
             }
         }
 
         /// <summary>
-        /// 删除指定的节点。
+        /// 删除节点
         /// </summary>
         /// <param name="section">节点</param>
         /// <returns>操作是否成功</returns>
@@ -171,12 +185,42 @@ namespace TextLocator.Util
                 {
                     throw new ArgumentException("必须指定节点名称", "section");
                 }
+                lock (locker)
+                {
+                    if (_AppIniCache.ContainsKey(section))
+                    {
+                        _AppIniCache.Remove(section);
+                    }
+                }
                 WritePrivateProfileString(section, null, null, _AppIniFile);
             }
             catch (Exception ex)
             {
-                log.Error(ex.Message);
+                log.Error(string.Format("删除错误：section={0}，key={1} => {2}", section, ex.Message), ex);
             }
+        }
+
+        public static List<string> ReadSectionList(string section)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(section))
+                {
+                    throw new ArgumentException("必须指定节点名称", "section");
+                }
+                lock (locker)
+                {
+                    if (_AppIniCache.ContainsKey(section))
+                    {
+                        return _AppIniCache[section].Keys.ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("读取错误：section={0}，key={1} => {2}", section, ex.Message), ex);
+            }
+            return null;
         }
 
         /// <summary>
@@ -190,8 +234,8 @@ namespace TextLocator.Util
             {
                 try
                 {
-                    // 默认为32767
-                    uint MAX_BUFFER = 32767;
+                    // 默认为32767（32.767KB），设置为128000000（128MB）
+                    uint MAX_BUFFER = 256000000;
                     // 返回值[返回值形式为 key=value,例如 Color=Red]
                     string[] items = new string[0];      
 
@@ -213,25 +257,23 @@ namespace TextLocator.Util
                     {
                         string[] v = entry.Split('=');
 
-                        _AppIniCache[GetCacheKey(section, v[0])] = v[1];
+                        // 获取 section 节点
+                        Dictionary<string, string> sectionDic = _AppIniCache.ContainsKey(section) ? _AppIniCache[section] : new Dictionary<string, string>();
+                        // 设置 section 节点子项
+                        sectionDic[v[0]] = v[1];
+                        // 回写 section 节点
+                        _AppIniCache[section] = sectionDic;
                     }
                     log.Debug("加载" + section + "节点下全部键值，总数：" + _AppIniCache.Count);
-                } catch { }
+                }
+                catch { }
             });
             t.Priority = ThreadPriority.AboveNormal;
             t.Start();
         }
+        #endregion
 
-        /// <summary>
-        /// 获取缓存Key（节点名称 + Key）
-        /// </summary>
-        /// <param name="section"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        private static string GetCacheKey(string section, string key)
-        {
-            return section + "_" + key;
-        }
+        #region Win32API
         /// <summary>
         /// 将指定的键和值写到指定的节点，如果已经存在则替换
         /// </summary>
@@ -274,6 +316,26 @@ namespace TextLocator.Util
         /// <returns>内容的实际长度,为0表示没有内容,为nSize-2表示内存大小不够</returns>
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
         private static extern uint GetPrivateProfileSection(string lpAppName, IntPtr lpReturnedString, uint nSize, string lpFileName);
+
+        /// <summary>
+        /// 获取所有节点名称(Section)
+        /// </summary>
+        /// <param name="lpszReturnBuffer">存放节点名称的内存地址,每个节点之间用\0分隔</param>
+        /// <param name="nSize">内存大小(characters)</param>
+        /// <param name="lpFileName">Ini文件</param>
+        /// <returns>内容的实际长度,为0表示没有内容,为nSize-2表示内存大小不够</returns>
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+
+        private static extern uint GetPrivateProfileSectionNames(IntPtr lpszReturnBuffer, uint nSize, string lpFileName);
+
+        /// <summary>
+        /// 获取窗口线程进程ID
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <param name="ID"></param>
+        /// <returns></returns>
+        [DllImport("User32.dll", CharSet = CharSet.Auto)]
+        public static extern int GetWindowThreadProcessId(IntPtr hwnd, out int ID);
         #endregion
     }
 }

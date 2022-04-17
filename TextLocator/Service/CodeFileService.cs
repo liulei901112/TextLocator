@@ -2,15 +2,16 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using TextLocator.Core;
+using TextLocator.Factory;
+using TextLocator.Util;
 
 namespace TextLocator.Service
 {
     /// <summary>
     /// 开发者文件服务
     /// </summary>
-    public class DevelopFileService : IFileInfoService
+    public class CodeFileService : IFileInfoService
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -24,7 +25,7 @@ namespace TextLocator.Service
             {
                 using (FileStream fs = File.OpenRead(filePath))
                 {
-                    using (StreamReader reader = new StreamReader(fs, Encoding.UTF8))
+                    using (StreamReader reader = new StreamReader(fs, FileUtil.GetEncoding(filePath)))
                     {
                         string line;
                         while ((line = reader.ReadLine()) != null)

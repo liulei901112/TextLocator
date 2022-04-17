@@ -1,6 +1,7 @@
 ﻿using log4net;
 using System;
 using System.Text;
+using TextLocator.Factory;
 using TextLocator.Util;
 
 namespace TextLocator.Service

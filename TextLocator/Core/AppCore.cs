@@ -42,16 +42,34 @@ namespace TextLocator.Core
         /// <summary>
         /// 设置线程池大小
         /// </summary>
-        public static void SetThreadPoolSize()
+        public static void SetThreadPoolSize(bool optimalPerformance = true)
         {
-            bool setMinThread = ThreadPool.SetMinThreads(AppConst.THREAD_POOL_MIN_SIZE, AppConst.THREAD_POOL_MIN_SIZE);
-            log.Debug("修改线程池最小线程数量：" + AppConst.THREAD_POOL_MIN_SIZE + " => " + setMinThread);
-            bool setMaxThread = ThreadPool.SetMaxThreads(AppConst.THREAD_POOL_MAX_SIZE, AppConst.THREAD_POOL_MAX_SIZE);
-            log.Debug("修改线程池最大线程数量：" + AppConst.THREAD_POOL_MAX_SIZE + " => " + setMaxThread);
+            if (optimalPerformance)
+            {
+                bool setMinThread = ThreadPool.SetMinThreads(AppConst.THREAD_POOL_MIN_SIZE, AppConst.THREAD_POOL_MIN_SIZE);
+                log.Debug("修改线程池最小线程数量：" + AppConst.THREAD_POOL_MIN_SIZE + " => " + setMinThread);
+                bool setMaxThread = ThreadPool.SetMaxThreads(AppConst.THREAD_POOL_MAX_SIZE, AppConst.THREAD_POOL_MAX_SIZE);
+                log.Debug("修改线程池最大线程数量：" + AppConst.THREAD_POOL_MAX_SIZE + " => " + setMaxThread);
+                // 保存线程池
+                AppUtil.WriteValue("ThreadPool", "MinSize", AppConst.THREAD_POOL_MIN_SIZE + "");
+                AppUtil.WriteValue("ThreadPool", "MaxSize", AppConst.THREAD_POOL_MAX_SIZE + "");
+            }
+            else
+            {
+                bool setMinThread = ThreadPool.SetMinThreads(6, 6);
+                log.Debug("临时修改线程池最小线程数量：" + 6 + " => " + setMinThread);
+                bool setMaxThread = ThreadPool.SetMaxThreads(12, 12);
+                log.Debug("临时修改线程池最大线程数量：" + 12 + " => " + setMaxThread);
+            }
+        }
 
-            // 保存线程池
-            AppUtil.WriteValue("ThreadPool", "MinSize", AppConst.THREAD_POOL_MIN_SIZE + "");
-            AppUtil.WriteValue("ThreadPool", "MaxSize", AppConst.THREAD_POOL_MAX_SIZE + "");
+        /// <summary>
+        /// 垃圾回收
+        /// </summary>
+        public static void ManualGC()
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
     }
 }

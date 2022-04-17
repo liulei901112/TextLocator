@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using TextLocator.Core;
 using TextLocator.HotKey;
+using TextLocator.Message;
 using TextLocator.Util;
 
 namespace TextLocator
@@ -68,6 +69,11 @@ namespace TextLocator
 
             // 缓存池容量
             this.CachePoolCapacity.Text = AppConst.CACHE_POOL_CAPACITY + "";
+
+            // 启用索引更新任务
+            this.EnableIndexUpdateTask.IsChecked = AppConst.ENABLE_INDEX_UPDATE_TASK;
+            // 索引更新时间间隔
+            this.IndexUpdateTaskInterval.Text = AppConst.INDEX_UPDATE_TASK_INTERVAL + "";
         }
 
         #region 保存并关闭
@@ -88,7 +94,7 @@ namespace TextLocator
             }
             catch
             {
-                Message.ShowWarning("MessageContainer", "最小线程数错误");
+                MessageCore.ShowWarning("最小线程数错误");
                 return;
             }
             int maxThreads = 0;
@@ -98,17 +104,17 @@ namespace TextLocator
             }
             catch
             {
-                Message.ShowWarning("MessageContainer", "最大线程数错误");
+                MessageCore.ShowWarning("最大线程数错误");
                 return;
             }
             if (minThreads > maxThreads)
             {
-                Message.ShowWarning("MessageContainer", "最小线程数大于最大线程数");
+                MessageCore.ShowWarning("最小线程数大于最大线程数");
                 return;
             }
             if (maxThreads > 128)
             {
-                var result = await MessageBoxR.ConfirmInContainer("DialogContaioner", "线程数不是越大越好，你确定吗？", "提示");
+                var result = await MessageCore.Confirm("线程数不是越大越好，你确定吗？", "确认提示");
                 if (result == MessageBoxResult.Cancel)
                 {
                     return;
@@ -124,12 +130,12 @@ namespace TextLocator
             }
             catch
             {
-                Message.ShowWarning("MessageContainer", "缓存池容量设置错误");
+                MessageCore.ShowWarning("缓存池容量设置错误");
                 return;
             }
             if (cachePoolCapacity < 50000 || cachePoolCapacity > 500000)
             {
-                Message.ShowWarning("MessageContainer", "建议设置在5-50W范围内");
+                MessageCore.ShowWarning("建议设置在5-50W范围内");
                 return;
             }
 
@@ -142,12 +148,12 @@ namespace TextLocator
             }
             catch
             {
-                Message.ShowWarning("MessageContainer", "分页条数错误");
+                MessageCore.ShowWarning("分页条数错误");
                 return;
             }
             if (ResultListPageSize < 50 || ResultListPageSize > 300)
             {
-                Message.ShowWarning("MessageContainer", "建议设置在50 - 300范围内");
+                MessageCore.ShowWarning("建议设置在50 - 300范围内");
                 return;
             }
 
@@ -160,13 +166,38 @@ namespace TextLocator
             }
             catch
             {
-                Message.ShowWarning("MessageContainer", "文件读取超时时间错误");
+                MessageCore.ShowWarning("文件读取超时时间错误");
                 return;
             }
             if (fileReadTimeout < 5 * 60 || fileReadTimeout > 15 * 60)
             {
-                Message.ShowWarning("MessageContainer", "建议设置在5 - 15分钟范围内");
+                MessageCore.ShowWarning("建议设置在5 - 15分钟范围内");
                 return;
+            }
+
+            // 启用索引更新任务
+            bool enableIndexUpdateTask = (bool)this.EnableIndexUpdateTask.IsChecked;
+
+            if (enableIndexUpdateTask)
+            {
+                // 索引更新时间间隔
+                string indexUpdateTaskIntervalText = this.IndexUpdateTaskInterval.Text;
+                int indexUpdateTaskInterval = 0;
+                try
+                {
+                    fileReadTimeout = int.Parse(indexUpdateTaskIntervalText);
+                }
+                catch
+                {
+                    MessageCore.ShowWarning("索引更新任务间隔时间错误");
+                }
+                if (fileReadTimeout < 5 || fileReadTimeout > 30)
+                {
+                    MessageCore.ShowWarning("建议设置在5 - 30分钟范围内");
+                    return;
+                }
+
+                AppConst.INDEX_UPDATE_TASK_INTERVAL = indexUpdateTaskInterval;
             }
 
             // 刷新、保存
@@ -186,6 +217,16 @@ namespace TextLocator
             AppUtil.WriteValue("AppConfig", "FileReadTimeout", AppConst.FILE_READ_TIMEOUT + "");
             log.Debug("修改文件读取超时时间：" + AppConst.FILE_READ_TIMEOUT);
 
+            AppConst.ENABLE_INDEX_UPDATE_TASK = enableIndexUpdateTask;
+            AppUtil.WriteValue("AppConfig", "EnableIndexUpdateTask", AppConst.ENABLE_INDEX_UPDATE_TASK + "");
+            log.Debug("修改使用索引更新任务：" + AppConst.ENABLE_INDEX_UPDATE_TASK);
+
+            if (enableIndexUpdateTask)
+            {                
+                AppUtil.WriteValue("AppConfig", "IndexUpdateTaskInterval", AppConst.INDEX_UPDATE_TASK_INTERVAL + "");
+                log.Debug("修改索引更新任务间隔时间：" + AppConst.INDEX_UPDATE_TASK_INTERVAL);
+            }
+
             this.Close();
         }
         #endregion
@@ -197,6 +238,7 @@ namespace TextLocator
         /// <param name="e"></param>
         private void Window_Closed(object sender, EventArgs e)
         {
+            _instance.Topmost = false;
             _instance = null;
         }
 

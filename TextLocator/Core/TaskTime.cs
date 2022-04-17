@@ -20,7 +20,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 构造函数
         /// </summary>
-        public TaskTime()
+        private TaskTime()
         {
             beginTime = DateTime.Now;
         }

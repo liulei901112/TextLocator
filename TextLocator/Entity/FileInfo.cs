@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using TextLocator.Enums;
 
 namespace TextLocator.Entity
@@ -29,13 +25,17 @@ namespace TextLocator.Entity
         /// </summary>
         public long FileSize { get; set; }
         /// <summary>
+        /// 文件内容（预览内容，匹配词计算时需要先替换----\d+----）
+        /// </summary>
+        public string Preview { get; set; }
+        /// <summary>
         /// 创建时间
         /// </summary>
         public string CreateTime { get; set; }
         /// <summary>
-        ///  摘要
+        /// 更新时间
         /// </summary>
-        public string Breviary { get; set; }
+        public string UpdateTime { get; set; }
         /// <summary>
         /// 关键词
         /// </summary>

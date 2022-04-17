@@ -25,7 +25,9 @@
                             <!-- 搜索 -->
                             <StackPanel Margin="0,15,10,0" Orientation="Horizontal" >
                                 <!-- 搜索框 -->
-                                <TextBox x:Name="SearchText" Width="900" Height="36" FontSize="20" HorizontalAlignment="Left" VerticalContentAlignment="Center" BorderThickness="1" BorderBrush="Green" PreviewKeyUp="SearchText_PreviewKeyUp" TextChanged="SearchText_TextChanged">
+                                <TextBox x:Name="SearchText" Width="900" Height="36" FontSize="20" HorizontalAlignment="Left" VerticalContentAlignment="Center" BorderThickness="1" BorderBrush="Green" 
+                                         PreviewKeyUp="SearchText_PreviewKeyUp" 
+                                         TextChanged="SearchText_TextChanged">
                                     <TextBox.Resources>
                                         <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
                                             <VisualBrush.Visual>
@@ -49,9 +51,6 @@
                                             </Style.Triggers>
                                         </Style>
                                     </TextBox.Style>
-                                    <TextBox.InputBindings>
-                                        <KeyBinding Command="{Binding KeyEventCommand}" Key="Enter"/>
-                                    </TextBox.InputBindings>
                                 </TextBox>
                                 <!-- 清空按钮 -->
                                 <Button x:Name="CleanButton" Content="X" Margin="-36,0,0,0" Width="35" Height="35" Background="Red" Click="CleanButton_Click" Visibility="Hidden"/>
@@ -61,16 +60,16 @@
 
                             <!-- 条件和排序 -->
                             <Grid Margin="0,10,10,0" VerticalAlignment="Top" Height="40" Background="#F3F3F3">
-                                <StackPanel x:Name="FileTypeFilter" Orientation="Horizontal">
+                                <StackPanel x:Name="FileTypeFilter" Orientation="Horizontal" HorizontalAlignment="Left">
                                     <RadioButton GroupName="FileTypeFilter" Width="80" x:Name="FileTypeAll" Margin="1" IsChecked="True">全部</RadioButton>
                                     <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">Word文档</RadioButton>
                                     <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">Excel表格</RadioButton>
                                     <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">PPT文稿</RadioButton>
                                     <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">PDF文档</RadioButton>
                                     <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">DOM文档</RadioButton>
-                                    <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">图片</RadioButton>
-                                    <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">代码</RadioButton>
-                                    <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">纯文本</RadioButton>
+                                    <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">TXT文本</RadioButton>
+                                    <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">常用图片</RadioButton>
+                                    <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">代码文件</RadioButton>
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
@@ -91,9 +90,8 @@
                                                 <Button Content="PPT文稿" Background="Gray" Height="20" Margin="2,0,0,0"/>
                                                 <Button Content="PDF文档" Background="Gray" Height="20" Margin="2,0,0,0"/>
                                                 <Button Content="DOM文档" Background="Gray" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="图片" Background="Gray" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="代码" Background="Gray" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="纯文本" Background="Gray" Height="20" Margin="2,0,0,0"/>
+                                                <Button Content="TXT文本" Background="Gray" Height="20" Margin="2,0,0,0"/>
+                                                <Button Content="常用图片" Background="Gray" Height="20" Margin="2,0,0,0"/>                                                
                                             </StackPanel>
                                         </Border>
                                     </Grid>
@@ -207,6 +205,7 @@
                                     </Grid>
                                 </ListBoxItem>
                             </ListBox>
+
                             <!-- 分页 -->
                             <rubyer:PageBar x:Name="PageBar" VerticalAlignment="Bottom" HorizontalAlignment="Center"
                                     PageSize="{Binding PageSize}"
@@ -243,7 +242,7 @@
                                 <Grid x:Name="PreviewSearch" VerticalAlignment="Top" HorizontalAlignment="Right" Height="40">
                                     <!-- 搜索框 -->
                                     <TextBox x:Name="PreviewSearchText" Margin="0,0,40,0" Width="200" Height="25" FontSize="14" HorizontalAlignment="Right" VerticalContentAlignment="Center" 
-                                             PreviewKeyUp="PreviewSearchText_PreviewKeyUp" TextChanged="PreviewSearchText_TextChanged">                                        
+                                             PreviewKeyUp="PreviewSearchText_PreviewKeyUp">                                        
                                     </TextBox>
                                     <!-- 搜索按钮 -->
                                     <Button x:Name="PreviewSearchButton" HorizontalAlignment="Right" Margin="0,0,10,0" BorderBrush="Gray" BorderThickness="0.5" Width="25" Height="25" Click="PreviewSearchButton_Click">
@@ -257,7 +256,7 @@
                             </Grid>
 
                             <!-- 内容预览 -->
-                            <ScrollViewer Margin="0,80,0,0">
+                            <ScrollViewer x:Name="PreviewScrollViewer" Margin="0,80,0,0">
                                 <Grid>
                                     <!-- 预览图片 -->
                                     <Image x:Name="PreviewImage"/>
@@ -812,7 +811,7 @@
                                     </RichTextBox>
                                 </Grid>
                             </ScrollViewer>
-                            
+
                             <!-- 功能键 -->
                             <Grid x:Name="SwitchPreview" VerticalAlignment="Bottom" Visibility="Collapsed">
                                 <Image x:Name="BtnLeft" ToolTip="上一个" Source="/Resource/btn_left.png" Width="30" HorizontalAlignment="Left" Margin="10,0,0,0"  MouseUp="BtnLast_MouseUp"/>
@@ -833,8 +832,8 @@
                     </Grid>
 
                     <!-- 消息容器 -->
-                    <rubyer:MessageContainer Identifier="MessageContainer" Grid.ColumnSpan="2"/>
-                    <rubyer:MessageBoxContainer Identifier="DialogContaioner" Grid.ColumnSpan="2"/>
+                    <rubyer:MessageContainer Identifier="MessageContainers" Grid.ColumnSpan="2"/>
+                    <rubyer:MessageBoxContainer Identifier="ConfirmContainers" Grid.ColumnSpan="2"/>
                 </Grid>
             </Canvas>
         </Viewbox>

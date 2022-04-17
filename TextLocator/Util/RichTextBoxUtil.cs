@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+using TextLocator.Core;
 
 namespace TextLocator.Util
 {
@@ -43,8 +44,10 @@ namespace TextLocator.Util
         /// <param name="keywords">关键词</param>
         public static void Highlighted(RichTextBox richTextBox, Color color, List<string> keywords, bool background = false)
         {
+            if (keywords == null || keywords.Count <= 0) return;
             foreach (string keyword in keywords)
             {
+                if (string.IsNullOrEmpty(keyword)) continue;
                 // 设置文字指针为Document初始位置           
                 // richBox.Document.FlowDirection            
                 TextPointer position = richTextBox.Document.ContentStart;
@@ -55,19 +58,33 @@ namespace TextLocator.Util
                     {
                         // 拿出Run的Text                    
                         string text = position.GetTextInRun(LogicalDirection.Forward);
-                        // 可能包含多个keyword,做遍历查找                    
-                        int index = text.IndexOf(keyword, 0, StringComparison.CurrentCultureIgnoreCase);
-                        if (index != -1)
+                        // 关键词是正则表达式
+                        if (AppConst.REGEX_SUPPORT_WILDCARDS.IsMatch(keyword))
                         {
-                            TextPointer start = position.GetPositionAtOffset(index);
-                            TextPointer end = start.GetPositionAtOffset(keyword.Length);
-                            position = Selecta(richTextBox, color, start, end, background);
+                            Regex regex = new Regex(keyword, RegexOptions.IgnoreCase);
+                            Match matches = regex.Match(text);
+                            if (matches.Success)
+                            {
+                                TextPointer start = position.GetPositionAtOffset(matches.Index);
+                                TextPointer end = start.GetPositionAtOffset(matches.Length);
+                                position = Selecta(richTextBox, color, start, end, background);
+                            }
+                        }
+                        else
+                        {
+                            // 可能包含多个keyword,做遍历查找                    
+                            int index = text.IndexOf(keyword, 0, StringComparison.CurrentCultureIgnoreCase);
+                            if (index != -1)
+                            {
+                                TextPointer start = position.GetPositionAtOffset(index);
+                                TextPointer end = start.GetPositionAtOffset(keyword.Length);
+                                position = Selecta(richTextBox, color, start, end, background);
+                            }
                         }
                     }
                     // 文字指针向前偏移
                     position = position.GetNextContextPosition(LogicalDirection.Forward);
                 }
-
             }
         }
 

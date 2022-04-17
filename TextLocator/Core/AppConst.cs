@@ -1,5 +1,7 @@
 ﻿using JiebaNet.Segmenter;
+using Lucene.Net.Analysis;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 using TextLocator.Jieba;
@@ -36,42 +38,62 @@ namespace TextLocator.Core
         /// 缓存池容量
         /// </summary>
         public static int CACHE_POOL_CAPACITY = int.Parse(AppUtil.ReadValue("AppConfig", "CachePoolCapacity", "100000"));
-
+        /// <summary>
+        /// 启用索引更新任务，默认启用
+        /// </summary>
+        public static bool ENABLE_INDEX_UPDATE_TASK = bool.Parse(AppUtil.ReadValue("AppConfig", "EnableIndexUpdateTask", "True"));
+        /// <summary>
+        /// 索引更新任务间隔时间，单位：分
+        /// </summary>
+        public static int INDEX_UPDATE_TASK_INTERVAL = int.Parse(AppUtil.ReadValue("AppConfig", "IndexUpdateTaskInterval", "10"));
+        /// <summary>
+        /// 启用XpsDocument预览
+        /// </summary>
+        public static bool ENABLE_XPSDOCUMENT_VIEW = bool.Parse(AppUtil.ReadValue("AppConfig", "EnableXpsDocumentView", "True"));
 
         /// <summary>
-        /// 索引路径：_AppDir\\_AppName\\Index\\
+        /// AppName
         /// </summary>
-        public static readonly string APP_INDEX_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Index");
+        public static readonly string APP_NAME = Process.GetCurrentProcess().ProcessName.Replace(".exe", "");
         /// <summary>
-        /// 临时目录：_AppDir\\_AppName\\Temp\\
+        /// AppDir
         /// </summary>
-        public static readonly string APP_TEMP_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Temp");
+        public static readonly string APP_DIR = AppDomain.CurrentDomain.BaseDirectory;
+        /// <summary>
+        /// AppDataDir：C:\Users\${User}\AppData\Roaming\
+        /// </summary>
+        public static readonly string APP_DATA_DIR = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        /// <summary>
+        /// 索引路径：AppDir\Index\
+        /// </summary>
+        public static readonly string APP_INDEX_DIR = Path.Combine(APP_DIR, "Index");
+        /// <summary>
+        /// 临时目录：AppDir\Temp\
+        /// </summary>
+        public static readonly string APP_TEMP_DIR = Path.Combine(APP_DIR, "Temp");
         /// <summary>
         /// 分词器
         /// new Lucene.Net.Analysis.Cn.ChineseAnalyzer();
         /// new Lucene.Net.Analysis.Standard.StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);// 用standardAnalyzer分词器
         /// </summary>
-        public static readonly Lucene.Net.Analysis.Analyzer INDEX_ANALYZER = new JiebaAnalyzer(); //new Lucene.Net.Analysis.PanGuAnalyzer();
+        public static readonly Analyzer INDEX_ANALYZER = new JiebaAnalyzer(); //new Lucene.Net.Analysis.PanGuAnalyzer();
         /// <summary>
         /// 分割器
         /// </summary>
         public static readonly JiebaSegmenter INDEX_SEGMENTER = new JiebaSegmenter();
-        /// <summary>
-        /// 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
-        /// 磁盘路径：Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(_AppIndexDir))
-        /// 内存：new Lucene.Net.Store.RAMDirectory()
-        /// </summary>
-        public static readonly Lucene.Net.Store.FSDirectory INDEX_DIRECTORY = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(APP_INDEX_DIR));
-        
 
         /// <summary>
-        /// 匹配特殊字符
+        /// 匹配Lucene.NET内置关键词
         /// </summary>
-        public static readonly Regex REGEX_SPECIAL_CHARACTER = new Regex("`|~|!|@|#|\\$|%|\\^|&|\\*|\\(|\\)|_|\\-|\\+|\\=|\\[|\\]|\\{|\\}|\\\\|\\||;|:|'|\"|,|\\<|\\.|\\>|\\/|\\?|");
+        public static readonly Regex REGEX_BUILT_IN_SYMBOL = new Regex("AND|OR|NOT|\\&\\&|\\|\\|");
+        /// <summary>
+        /// 匹配支持的通配符
+        /// </summary>
+        public static readonly Regex REGEX_SUPPORT_WILDCARDS = new Regex("\\+|\\-|\\||\\!|\\(|\\)|\\{|\\}|\\[|\\]|\\^|\"|\\~|\\*|\\?|\\:|\\/"); 
         /// <summary>
         /// 匹配空白和换行
         /// </summary>
-        public static readonly Regex REGEX_LINE_BREAKS_AND_WHITESPACE = new Regex("  |\r|\n|┄|\\s");
+        public static readonly Regex REGEX_LINE_BREAKS_AND_WHITESPACE = new Regex(@"  |\r\r|\n\n|┄|\. \. \. |\.\.\.|\s");
         /// <summary>
         /// 匹配HTML和XML标签
         /// </summary>
@@ -88,6 +110,10 @@ namespace TextLocator.Core
         /// 匹配开始字符
         /// </summary>
         public static readonly Regex REGEX_START_WITH = new Regex(@"^(\`|\$|\~|\.)");
+        /// <summary>
+        /// 匹配内容分页符
+        /// </summary>
+        public static readonly Regex REGEX_CONTENT_PAGE = new Regex(@"----\d+----");
 
 
         /// <summary>
@@ -102,6 +128,10 @@ namespace TextLocator.Core
         /// 文件内容缩略信息截取值
         /// </summary>
         public const int FILE_CONTENT_SUB_LENGTH = 120;
-        
+        /// <summary>
+        /// 加密解密秘钥（不能随意修改，随意修改将导致注册码失效）
+        /// </summary>
+        public const string AES_KEY = "TextLocator_Activation_2022";
+
     }
 }

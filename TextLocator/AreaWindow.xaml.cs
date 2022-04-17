@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using TextLocator.Message;
 using TextLocator.Util;
 
 namespace TextLocator
@@ -102,7 +103,7 @@ namespace TextLocator
                 // 判断是否已选过
                 if (_indexFolder.Contains(folderPath))
                 {
-                    Message.ShowWarning("MessageContainer", "选定目录已存在");
+                    MessageCore.ShowWarning("选定目录已存在");
                     return;
                 }
 
@@ -151,14 +152,14 @@ namespace TextLocator
                 // 判断是否已选过
                 if (_exclusionFolder.Contains(folderPath))
                 {
-                    Message.ShowWarning("MessageContainer", "选定目录已存在");
+                    MessageCore.ShowWarning("选定目录已存在");
                     return;
                 }
 
                 // 判断是否存在于搜索区
                 if (_indexFolder.Contains(folderPath))
                 {
-                    Message.ShowWarning("MessageContainer", "不能排除搜索区目录");
+                    MessageCore.ShowWarning("不能排除搜索区目录");
                     return;
                 }
 
@@ -185,7 +186,7 @@ namespace TextLocator
         {
             if (this.FolderList.Items.Count <= 0)
             {
-                Message.ShowWarning("至少保留一个被搜索文件夹哦");
+                MessageCore.ShowWarning("至少保留一个被搜索文件夹哦");
                 return;
             }
             // 搜索区文件夹

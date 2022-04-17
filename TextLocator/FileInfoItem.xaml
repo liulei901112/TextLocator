@@ -28,7 +28,7 @@
                     <TextBlock x:Name="FileSize" Text="1MB" Foreground="#545454" HorizontalAlignment="Right"/>
                     <TextBlock Text="•" Foreground="#545454" HorizontalAlignment="Right" Margin="20,0,20,0"/>
                     <!-- 文件大小 -->
-                    <TextBlock x:Name="CreateTime" Text="2021-08-31" Foreground="#545454" HorizontalAlignment="Right"/>
+                    <TextBlock x:Name="UpdateTime" Text="2021-08-31" Foreground="#545454" HorizontalAlignment="Right"/>
                 </StackPanel>
             </Grid>
 
@@ -42,7 +42,7 @@
             </RichTextBox>
 
             <!-- 预览 -->
-            <RichTextBox x:Name="FileContent" Margin="-5,50,0,0" IsHitTestVisible="False" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="True">
+            <RichTextBox x:Name="ContentBreviary" Margin="-5,50,0,0" IsHitTestVisible="False" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="True">
                 <FlowDocument>
                     <Paragraph>
                         <Run Foreground="#545454">项目1、乙方为甲方网站的服务器进行维护和管理，包括：病毒排查和清除、网站数据的备份，网站空间的定期清理和维护，服务器帐号的管理等服务，保证网站的正常运行和网站数据的完整性以及网站服务器帐号的安全。 项目2、乙方为甲方网站的系统程序进行维护和管理......</Run>

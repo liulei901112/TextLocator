@@ -1,11 +1,9 @@
-﻿using java.io;
-using log4net;
+﻿using log4net;
 using org.apache.pdfbox.pdmodel;
 using org.apache.pdfbox.util;
 using System;
 using System.IO;
 using System.Text;
-using TextLocator.Factory;
 
 namespace TextLocator.Service
 {

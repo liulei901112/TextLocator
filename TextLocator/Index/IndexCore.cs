@@ -61,42 +61,52 @@ namespace TextLocator.Index
         #region 索引写入器
         /// <summary>
         /// 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
+        /// * 但目录修改为10个目录随机分开写，防止索引太大OOM（思想上的解决方案，具体有待实现验证）
         /// </summary>
-        private static volatile Lucene.Net.Index.IndexWriter _indexWriter;
+        private static volatile List<Lucene.Net.Index.IndexWriter> indexWriters = new List<Lucene.Net.Index.IndexWriter>();
         /// <summary>
         /// 索引写入目录（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
         /// 磁盘路径：FSDirectory.Open(new DirectoryInfo(_AppIndexDir))
         /// 内存：new RAMDirectory()
+        /// * 索引目录和写入器对应
         /// </summary>
-        private static volatile Lucene.Net.Store.FSDirectory _indexWriterDirectory;
+        private static volatile List<Lucene.Net.Store.FSDirectory> indexWriterDirs = new List<Lucene.Net.Store.FSDirectory>();
 
         /// <summary>
         /// 创建索引写入器
         /// </summary>
         /// <param name="create">是否是创建</param>
-        private static Lucene.Net.Index.IndexWriter CreateIndexWriter(bool create = false)
+        /// <param name="index">索引写入器下标</param>
+        private static void CreateIndexWriter(bool create, int index = -1)
         {
-            if (_indexWriter == null)
+            if (index != -1)
             {
-                _indexWriterDirectory = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(AppConst.APP_INDEX_DIR), new Lucene.Net.Store.NativeFSLockFactory());
-                // 如果是更新
+                // 索引子目录
+                string appIndexDirSub = Path.Combine(AppConst.APP_INDEX_DIR, index + "");
+                if (!Directory.Exists(appIndexDirSub)) Directory.CreateDirectory(appIndexDirSub);
+
+                // ---- 索引目录
+                Lucene.Net.Store.FSDirectory indexWriterDir = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(appIndexDirSub), new Lucene.Net.Store.NativeFSLockFactory());
+                indexWriterDirs[index] = indexWriterDir;
+
+                // ---- 索引写入器
                 if (!create)
                 {
                     //  如果索引目录被锁定（比如索引过程中程序异常退出），则首先解锁
                     //  Lucene.Net在写索引库之前会自动加锁，在Close的时候会自动解锁
                     //  不能多线程执行，只能处理意外被永远锁定的情况
-                    if (Lucene.Net.Index.IndexWriter.IsLocked(_indexWriterDirectory))
+                    if (Lucene.Net.Index.IndexWriter.IsLocked(indexWriterDir))
                     {
                         // UnLock：强制解锁
-                        Lucene.Net.Index.IndexWriter.Unlock(_indexWriterDirectory);
+                        Lucene.Net.Index.IndexWriter.Unlock(indexWriterDir);
                     }
                 }
 
                 // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
                 // 补充：使用IndexWriter打开Directory时会自动对索引库文件上锁
-                _indexWriter = new Lucene.Net.Index.IndexWriter(
+                Lucene.Net.Index.IndexWriter indexWriter = new Lucene.Net.Index.IndexWriter(
                     // 索引目录
-                    _indexWriterDirectory,
+                    indexWriterDir,
                     // 分词器
                     AppConst.INDEX_ANALYZER,
                     // 是否创建
@@ -105,30 +115,97 @@ namespace TextLocator.Index
                     Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
 
                 // 设置Buffer内存上限，默认值16MB
-                _indexWriter.SetRAMBufferSizeMB(512);
-                // 设置Buffer内存文档上线
-                _indexWriter.SetMaxBufferedDocs(10000);
+                    indexWriter.SetRAMBufferSizeMB(64);
+                    // 设置Buffer内存文档上线
+                    indexWriter.SetMaxBufferedDocs(1000);
+
+                indexWriters[index] = indexWriter;
             }
-            return _indexWriter;
+            else
+            {
+                // 创建10个写入器
+                for (int i = 0; i < 10; i++)
+                {
+                    // 索引子目录
+                    string appIndexDirSub = Path.Combine(AppConst.APP_INDEX_DIR, i + "");
+                    if (!Directory.Exists(appIndexDirSub)) Directory.CreateDirectory(appIndexDirSub);
+
+                    // ---- 索引目录
+                    Lucene.Net.Store.FSDirectory indexWriterDir = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(appIndexDirSub), new Lucene.Net.Store.NativeFSLockFactory());
+                    indexWriterDirs.Add(indexWriterDir);
+
+                    // ---- 索引写入器
+                    if (!create)
+                    {
+                        //  如果索引目录被锁定（比如索引过程中程序异常退出），则首先解锁
+                        //  Lucene.Net在写索引库之前会自动加锁，在Close的时候会自动解锁
+                        //  不能多线程执行，只能处理意外被永远锁定的情况
+                        if (Lucene.Net.Index.IndexWriter.IsLocked(indexWriterDir))
+                        {
+                            // UnLock：强制解锁
+                            Lucene.Net.Index.IndexWriter.Unlock(indexWriterDir);
+                        }
+                    }
+
+                    // 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
+                    // 补充：使用IndexWriter打开Directory时会自动对索引库文件上锁
+                    Lucene.Net.Index.IndexWriter indexWriter = new Lucene.Net.Index.IndexWriter(
+                        // 索引目录
+                        indexWriterDir,
+                        // 分词器
+                        AppConst.INDEX_ANALYZER,
+                        // 是否创建
+                        create,
+                        // 字段限制
+                        Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
+
+                    // 设置Buffer内存上限，默认值16MB
+                    indexWriter.SetRAMBufferSizeMB(64);
+                    // 设置Buffer内存文档上线
+                    indexWriter.SetMaxBufferedDocs(1000);
+
+                    indexWriters.Add(indexWriter);
+                }
+            }
         }
 
         /// <summary>
         /// 关闭索引写入器
         /// </summary>
-        private static void CloseIndexWriter()
+        private static void CloseIndexWriter(int index = -1)
         {
-            if (_indexWriter != null)
+            if (index == -1)
             {
-                // 销毁索引写入器
-                _indexWriter.Dispose();
-                // 索引写入器置为NULL
-                _indexWriter = null;
+                for(int i = 0; i < indexWriters.Count; i++)
+                {
+                    Lucene.Net.Index.IndexWriter indexWriter = indexWriters[i];
+                    if (indexWriter != null)
+                    {
+                        // 销毁索引写入器
+                        indexWriter.Dispose();
+                    }
+                    Lucene.Net.Store.FSDirectory indexWriterDir = indexWriterDirs[i];
+                    if (indexWriterDir != null)
+                    {
+                        indexWriterDir.Dispose();
+                    }
+                }
             }
-            if (_indexWriterDirectory != null)
+            else
             {
-                _indexWriterDirectory.Dispose();
-                _indexWriterDirectory = null;
+                Lucene.Net.Index.IndexWriter indexWriter = indexWriters[index];
+                if (indexWriter != null)
+                {
+                    // 销毁索引写入器
+                    indexWriter.Dispose();
+                }
+                Lucene.Net.Store.FSDirectory indexWriterDir = indexWriterDirs[index];
+                if (indexWriterDir != null)
+                {
+                    indexWriterDir.Dispose();
+                }
             }
+            
         }
         #endregion
 
@@ -190,8 +267,11 @@ namespace TextLocator.Index
             {
                 try
                 {
-                    // 索引优化
-                    _indexWriter.Optimize();
+                    foreach(Lucene.Net.Index.IndexWriter indexWriter in indexWriters)
+                    {
+                        // 索引优化
+                        indexWriter.Optimize();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -261,7 +341,17 @@ namespace TextLocator.Index
                 {
                     // 文件标记
                     string id = MD5Util.GetMD5Hash(filePath);
-                    _indexWriter.DeleteDocuments(new Lucene.Net.Index.Term("Id", id));
+                    try
+                    {
+                        foreach (Lucene.Net.Index.IndexWriter indexWriter in indexWriters)
+                        {
+                            indexWriter.DeleteDocuments(new Lucene.Net.Index.Term("Id", id));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("删除索引失败：" + ex.Message, ex);
+                    }
 
                     // 删除标记和缓存
                     AppUtil.WriteValue("FileIndex", filePath, null);
@@ -287,7 +377,10 @@ namespace TextLocator.Index
                     {
                         try
                         {
-                            _indexWriter.GetReader().DeleteDocument(_indexDeleted.Dequeue());
+                            foreach (Lucene.Net.Index.IndexWriter indexWriter in indexWriters)
+                            {
+                                indexWriter.GetReader().DeleteDocument(_indexDeleted.Dequeue());
+                            }                            
                         }
                         catch (Exception ex)
                         {
@@ -465,12 +558,16 @@ namespace TextLocator.Index
         /// <param name="doc">文件索引Doc</param>
         private static void AddDocument(string filePath, Lucene.Net.Documents.Document doc)
         {
+            // -------- 获取索引写入器
+            // 随机索引写入器
+            int index = new Random().Next(10);
+
             try
             {
                 // 文件标记
                 string fileMark = MD5Util.GetMD5Hash(filePath);
 
-                _indexWriter.UpdateDocument(new Lucene.Net.Index.Term("FileMark", fileMark), doc);
+                indexWriters[index].UpdateDocument(new Lucene.Net.Index.Term("FileMark", fileMark), doc);
             }
             catch(Exception ex)
             {
@@ -481,7 +578,7 @@ namespace TextLocator.Index
                 CloseIndexWriter();
 
                 // 创建索引写入器
-                CreateIndexWriter();
+                CreateIndexWriter(false, index);
 
                 log.Debug(filePath + " -> 重新执行添加操作");
 
@@ -506,18 +603,22 @@ namespace TextLocator.Index
             // 开始时间标记
             var taskMark = TaskTime.StartNew();
 
-            Lucene.Net.Store.FSDirectory directory = null;
-            Lucene.Net.Index.IndexReader reader = null;
-            Lucene.Net.Search.IndexSearcher searcher = null;
+            Lucene.Net.Store.FSDirectory[] directorys = new Lucene.Net.Store.FSDirectory[10];
+            Lucene.Net.Search.IndexSearcher[] searchers = new Lucene.Net.Search.IndexSearcher[10];
+            // 索引读取目录（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
+            // 磁盘路径：FSDirectory.Open(new DirectoryInfo(_AppIndexDir))
+            // 内存：new RAMDirectory()
+            for (int i = 0; i < 10; i++)
+            {
+                string appIndexDirSub = Path.Combine(AppConst.APP_INDEX_DIR, i + "");
+                Lucene.Net.Store.FSDirectory directory = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(appIndexDirSub), new Lucene.Net.Store.NoLockFactory());
+                directorys[i] = directory;
+                searchers[i] = new Lucene.Net.Search.IndexSearcher(directory, true);
+            }
+            // 并行多搜索器（搜索结果去重合并）
+            Lucene.Net.Search.ParallelMultiSearcher parallelMultiSearcher = new Lucene.Net.Search.ParallelMultiSearcher(searchers);
             try
             {
-                // 索引读取目录（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
-                // 磁盘路径：FSDirectory.Open(new DirectoryInfo(_AppIndexDir))
-                // 内存：new RAMDirectory()
-                directory = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(AppConst.APP_INDEX_DIR), new Lucene.Net.Store.NoLockFactory());
-                reader = Lucene.Net.Index.IndexReader.Open(directory, true);
-                searcher = new Lucene.Net.Search.IndexSearcher(reader);
-
                 // 搜索域加权
                 Dictionary<string, float> boosts = new Dictionary<string, float>();
                 boosts["Content"] = 1.2f;
@@ -607,7 +708,7 @@ namespace TextLocator.Index
                 }
 
                 // 查询数据分页
-                Lucene.Net.Search.TopFieldDocs topDocs = searcher.Search(boolQuery, filter, param.PageIndex * param.PageSize, sort);
+                Lucene.Net.Search.TopFieldDocs topDocs = parallelMultiSearcher.Search(boolQuery, filter, param.PageIndex * param.PageSize, sort);
                 // 结果数组
                 Lucene.Net.Search.ScoreDoc[] scores = topDocs.ScoreDocs;
 
@@ -631,7 +732,7 @@ namespace TextLocator.Index
                     // 该文件的在索引里的文档号,Doc是该文档进入索引时Lucene的编号，默认按照顺序编的
                     int docId = scores[i].Doc;
                     // 获取文档对象
-                    doc = reader.Document(docId);
+                    doc = parallelMultiSearcher.Doc(docId);// reader.Document(docId);
 
                     Lucene.Net.Documents.Field fileTypeField = doc.GetField("FileType");
                     Lucene.Net.Documents.Field fileNameField = doc.GetField("FileName");
@@ -651,6 +752,7 @@ namespace TextLocator.Index
                         {
                             // 记录为需要删除的索引，索引更新任务执行结束，执行索引删除操作
                             _indexDeleted.Enqueue(docId);
+                            deleteCount++;
                         }
                         continue;
                     }
@@ -703,18 +805,25 @@ namespace TextLocator.Index
             }
             finally
             {
-                try
+                for (int i = 0; i < 10; i++)
                 {
-                    if (searcher != null)
-                        searcher.Dispose();
-
-                    if (reader != null)
-                        reader.Dispose();
-
-                    if (directory != null)
-                        directory.Dispose();
+                    try
+                    {
+                        if (searchers[i] != null)
+                        {
+                            searchers[i].Dispose();
+                        }
+                    }
+                    catch { }
+                    try
+                    {
+                        if (directorys[i] != null)
+                        {
+                            directorys[i].Dispose();
+                        }
+                    }
+                    catch { }
                 }
-                catch { }
             }
         }
 

@@ -68,10 +68,6 @@ namespace TextLocator.Core
         /// </summary>
         public static readonly string APP_INDEX_DIR = Path.Combine(APP_DIR, "Index");
         /// <summary>
-        /// 临时目录：AppDir\Temp\
-        /// </summary>
-        public static readonly string APP_TEMP_DIR = Path.Combine(APP_DIR, "Temp");
-        /// <summary>
         /// 分词器
         /// new Lucene.Net.Analysis.Cn.ChineseAnalyzer();
         /// new Lucene.Net.Analysis.Standard.StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);// 用standardAnalyzer分词器

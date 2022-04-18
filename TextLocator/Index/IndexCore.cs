@@ -105,9 +105,9 @@ namespace TextLocator.Index
                     Lucene.Net.Index.IndexWriter.MaxFieldLength.UNLIMITED);
 
                 // 设置Buffer内存上限，默认值16MB
-                _indexWriter.SetRAMBufferSizeMB(512);
+                _indexWriter.SetRAMBufferSizeMB(128);
                 // 设置Buffer内存文档上线
-                _indexWriter.SetMaxBufferedDocs(10000);
+                _indexWriter.SetMaxBufferedDocs(5000);
             }
             return _indexWriter;
         }

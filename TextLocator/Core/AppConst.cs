@@ -128,6 +128,10 @@ namespace TextLocator.Core
         /// 加密解密秘钥（不能随意修改，随意修改将导致注册码失效）
         /// </summary>
         public const string AES_KEY = "TextLocator_Activation_2022";
+        /// <summary>
+        /// 区域配置
+        /// </summary>
+        public const string AREA_CONFIG_KEY = "AreaConfig";
 
     }
 }

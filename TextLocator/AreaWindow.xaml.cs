@@ -1,9 +1,8 @@
-﻿using Rubyer;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
+using TextLocator.Entity;
 using TextLocator.Message;
 using TextLocator.Util;
 
@@ -15,207 +14,218 @@ namespace TextLocator
     public partial class AreaWindow : Window
     {
         /// <summary>
-        /// 索引区文件夹
+        /// 区域信息列表
         /// </summary>
-        private List<string> _indexFolder = new List<string>();
-        /// <summary>
-        /// 排除区文件夹
-        /// </summary>
-        private List<string> _exclusionFolder = new List<string>();
+        private List<AreaInfo> _areaInfos;
 
         public AreaWindow()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// 加载完毕
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // 获取搜索文件夹
-            string folderPaths = AppUtil.ReadValue("AppConfig", "FolderPaths", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "," + Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
-            // 清空
-            this.FolderList.Items.Clear();
-            if (!string.IsNullOrEmpty(folderPaths))
-            {                
-                FolderInfoItem folder;
-                foreach (string folderPath in folderPaths.Split(','))
-                {
-                    folder = new FolderInfoItem(folderPath);
-                    folder.DeleteButton.Click += DeleteButton_Click;
-                    folder.DeleteButton.Tag = folderPath;
+            // 加载区域信息列表
+            LoadAreaInfoList();
+        }
 
-                    this.FolderList.Items.Add(folder);
-
-                    _indexFolder.Add(folderPath);
-                }
+        /// <summary>
+        /// 加载区域信息列表
+        /// <param name="areaInfos">区域信息列表</param>
+        /// </summary>
+        private void LoadAreaInfoList(List<AreaInfo> areaInfos = null)
+        {
+            // 外部传入区域信息列表为空
+            if (areaInfos == null)
+            {
+                // 重新获取新的列表
+                areaInfos = AreaUtil.GetAreaInfoList();
             }
 
-            // 获取排除文件夹
-            string exclusionPaths = AppUtil.ReadValue("AppConfig", "ExclusionPaths", "");
-            // 清空
-            this.ExclusionList.Items.Clear();
-            if(!string.IsNullOrEmpty(exclusionPaths))
+            if (areaInfos != null)
             {
-                FolderInfoItem exclusion;
-                foreach (string folderPath in exclusionPaths.Split(','))
+                this.AreaInfoList.Children.Clear();
+                foreach (AreaInfo areaInfo in areaInfos)
                 {
-                    exclusion = new FolderInfoItem(folderPath);
-                    exclusion.FolderPath.Foreground = new SolidColorBrush(Colors.Gray);
-                    exclusion.DeleteButton.Click += DeleteExclusionButton_Click;
-                    exclusion.DeleteButton.Tag = folderPath;
+                    AreaInfoItem item = new AreaInfoItem(areaInfo);
+                    // 编辑按钮
+                    item.EditButton.Tag = areaInfo;
+                    item.EditButton.Click += EditButton_Click;
+                    // 删除按钮
+                    item.DeleteButton.Tag = areaInfo;
+                    item.DeleteButton.Click += DelButton_Click;
+                    // 选中或取消选中事件
+                    item.AreaIsEnable.Tag = areaInfo;
+                    item.AreaIsEnable.Checked += AreaIsEnable_Checked;
+                    item.AreaIsEnable.Unchecked += AreaIsEnable_Unchecked;
+                    this.AreaInfoList.Children.Add(item);
+                }
+            }
+            _areaInfos = areaInfos;
+        }
 
-                    this.ExclusionList.Items.Add(exclusion);
+        /// <summary>
+        /// 区域是否取用未选中
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AreaIsEnable_Unchecked(object sender, RoutedEventArgs e)
+        {
+            AreaInfo areaInfo = (AreaInfo)(sender as CheckBox).Tag;
+            areaInfo.IsEnable = false;
 
-                    _exclusionFolder.Add(folderPath);
+            // 修改本地列表缓存
+            if (_areaInfos!= null)
+            {
+                for(int i = 0; i < _areaInfos.Count; i++)
+                {
+                    AreaInfo info = _areaInfos[i];
+                    if (info.AreaId.Equals(areaInfo.AreaId))
+                    {
+                        info = areaInfo;
+                        _areaInfos[i] = info;
+                    }
                 }
             }
         }
 
-        #region 搜索区文件夹
         /// <summary>
-        /// 条目删除按钮
+        /// 区域是否启用选中
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        private void AreaIsEnable_Checked(object sender, RoutedEventArgs e)
         {
-            for(int i = 0; i < this.FolderList.Items.Count; i++)
+            AreaInfo areaInfo = (AreaInfo)(sender as CheckBox).Tag;
+            areaInfo.IsEnable = true;
+
+            // 修改本地列表缓存
+            if (_areaInfos != null)
             {
-                if ((this.FolderList.Items[i] as FolderInfoItem).FolderPath.Text.Equals((sender as Button).Tag))
+                for (int i = 0; i < _areaInfos.Count; i++)
                 {
-                    this.FolderList.Items.RemoveAt(i);
-                    break;
+                    AreaInfo info = _areaInfos[i];
+                    if (info.AreaId.Equals(areaInfo.AreaId))
+                    {
+                        info = areaInfo;
+                        _areaInfos[i] = info;
+                    }
                 }
             }
         }
 
         /// <summary>
-        /// 添加文件夹
+        /// 删除
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void AddFolder_Click(object sender, RoutedEventArgs e)
+        private void DelButton_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.Forms.FolderBrowserDialog browserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            if (browserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            AreaInfo areaInfo = (AreaInfo)(sender as Button).Tag;
+            if (areaInfo != null)
             {
-                string folderPath = browserDialog.SelectedPath;
-
-                // 判断是否已选过
-                if (_indexFolder.Contains(folderPath))
+                // AreaUtil.DeleteAreaInfo(areaInfo);
+                for( int i = 0; i < _areaInfos.Count; i++)
                 {
-                    MessageCore.ShowWarning("选定目录已存在");
+                    if (_areaInfos[i].AreaId == areaInfo.AreaId)
+                    {
+                        _areaInfos.RemoveAt(i);
+                        break;
+                    }
+                }
+
+                // 重新加载区域信息列表（刷新）
+                LoadAreaInfoList(_areaInfos);
+            }
+        }
+
+        /// <summary>
+        /// 编辑
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            AreaInfo areaInfo = (AreaInfo)(sender as Button).Tag;
+            CacheUtil.Put("AreaInfos", _areaInfos);
+            ShowAreaEditDialog(areaInfo);
+        }
+
+        /// <summary>
+        /// 新增
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AddButton_Click(object sender, RoutedEventArgs e)
+        {
+            CacheUtil.Put("AreaInfos", _areaInfos);
+            ShowAreaEditDialog();
+        }
+
+        /// <summary>
+        /// 保存
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 修改本地列表缓存
+            if (_areaInfos != null)
+            {
+                int enableCount = 0;
+                foreach (AreaInfo info in _areaInfos)
+                {
+                    if (info.IsEnable) enableCount++;
+                }
+
+                if (enableCount < 1)
+                {
+                    MessageCore.ShowWarning("至少保留一个启用的搜索区");
                     return;
                 }
 
-                // 加入列表
-                FolderInfoItem folder = new FolderInfoItem(folderPath);
-                folder.DeleteButton.Click += DeleteButton_Click;
-                folder.DeleteButton.Tag = folderPath;
-
-                this.FolderList.Items.Add(folder);
-
-                _indexFolder.Add(folderPath);
-            }
-        }
-        #endregion
-
-        #region 排除文件夹
-        /// <summary>
-        /// 排除文件夹条目删除按钮
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void DeleteExclusionButton_Click(object sender, RoutedEventArgs e)
-        {
-            for (int i = 0; i < this.ExclusionList.Items.Count; i++)
-            {
-                if ((this.ExclusionList.Items[i] as FolderInfoItem).FolderPath.Text.Equals((sender as Button).Tag))
+                foreach (AreaInfo areaInfo in _areaInfos)
                 {
-                    this.ExclusionList.Items.RemoveAt(i);
-                    break;
+                    AreaUtil.SaveAreaInfo(areaInfo);
                 }
             }
-        }
-        /// <summary>
-        /// 添加排除文件夹
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void AddExclusionFolder_Click(object sender, RoutedEventArgs e)
-        {
-            System.Windows.Forms.FolderBrowserDialog browserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            if (browserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                // 获得选定文件夹
-                string folderPath = browserDialog.SelectedPath;
-
-                // 判断是否已选过
-                if (_exclusionFolder.Contains(folderPath))
-                {
-                    MessageCore.ShowWarning("选定目录已存在");
-                    return;
-                }
-
-                // 判断是否存在于搜索区
-                if (_indexFolder.Contains(folderPath))
-                {
-                    MessageCore.ShowWarning("不能排除搜索区目录");
-                    return;
-                }
-
-                // 加入列表
-                FolderInfoItem folder = new FolderInfoItem(folderPath);
-                folder.FolderPath.Foreground = new SolidColorBrush(Colors.Gray);
-                folder.DeleteButton.Click += DeleteExclusionButton_Click;
-                folder.DeleteButton.Tag = folderPath;
-
-                this.ExclusionList.Items.Add(folder);
-
-                _exclusionFolder.Add(folderPath);
-            }
-        }
-        #endregion
-
-        #region 保存并关闭
-        /// <summary>
-        /// 保存并关闭
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SaveClose_Click(object sender, RoutedEventArgs e)
-        {
-            if (this.FolderList.Items.Count <= 0)
-            {
-                MessageCore.ShowWarning("至少保留一个被搜索文件夹哦");
-                return;
-            }
-            // 搜索区文件夹
-            string folderPaths = "";
-            foreach(FolderInfoItem item in this.FolderList.Items)
-            {
-                folderPaths += item.FolderPath.Text + ",";
-            }
-            folderPaths = folderPaths.Substring(0, folderPaths.Length - 1);
-            // 保存到配置文件
-            AppUtil.WriteValue("AppConfig", "FolderPaths", folderPaths);
-
-            // 排除文件夹
-            string exclusionPaths = "";
-            foreach (FolderInfoItem item in this.ExclusionList.Items)
-            {
-                exclusionPaths += item.FolderPath.Text + ",";
-            }
-            if (!string.IsNullOrEmpty(exclusionPaths))
-            {
-                exclusionPaths = exclusionPaths.Substring(0, exclusionPaths.Length - 1);
-            }
-            // 保存到配置文件
-            AppUtil.WriteValue("AppConfig", "ExclusionPaths", exclusionPaths);
-
             this.DialogResult = true;
-
-            this.Close();
         }
-        #endregion
+
+        /// <summary>
+        /// 退出
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = false;
+        }
+
+
+
+        /// <summary>
+        /// 显示区域编辑
+        /// </summary>
+        /// <param name="areaInfo"></param>
+        private void ShowAreaEditDialog(AreaInfo areaInfo = null)
+        {
+            AreaEditWindow editDialog = new AreaEditWindow(areaInfo);
+            editDialog.Topmost = true;
+            editDialog.Owner = this;
+            editDialog.ShowDialog();
+
+            if (editDialog.DialogResult == true)
+            {
+                _areaInfos = CacheUtil.Get<List<AreaInfo>>("AreaInfos");
+                // 重新加载区域信息列表（刷新）
+                LoadAreaInfoList(_areaInfos);
+            }
+        }
     }
 }

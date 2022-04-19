@@ -264,8 +264,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AreaEditWindow.xaml.cs">
+      <DependentUpon>AreaEditWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AreaInfoItem.xaml.cs">
+      <DependentUpon>AreaInfoItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Cache\LFUCache.cs" />
     <Compile Include="Cache\LFUCacheEntity.cs" />
+    <Compile Include="Entity\AreaInfo.cs" />
     <Compile Include="Entity\SearchParam.cs" />
     <Compile Include="Entity\SearchResult.cs" />
     <Compile Include="Exceptions\FileSizeTooBigException.cs" />
@@ -323,12 +330,21 @@
     <Compile Include="Service\WordFileService.cs" />
     <Compile Include="Service\DomFileService.cs" />
     <Compile Include="Util\AppUtil.cs" />
+    <Compile Include="Util\AreaUtil.cs" />
     <Compile Include="Util\CacheUtil.cs" />
     <Compile Include="Util\FileTypeUtil.cs" />
     <Compile Include="Util\FileUtil.cs" />
     <Compile Include="Util\ListUtil.cs" />
     <Compile Include="Util\MD5Util.cs" />
     <Compile Include="Util\RichTextBoxUtil.cs" />
+    <Page Include="AreaEditWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="AreaInfoItem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SettingWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

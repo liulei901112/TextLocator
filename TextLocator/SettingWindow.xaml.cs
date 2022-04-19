@@ -74,6 +74,9 @@ namespace TextLocator
             this.EnableIndexUpdateTask.IsChecked = AppConst.ENABLE_INDEX_UPDATE_TASK;
             // 索引更新时间间隔
             this.IndexUpdateTaskInterval.Text = AppConst.INDEX_UPDATE_TASK_INTERVAL + "";
+
+            // 启用XpsDocument预览
+            this.EnableXpsDocument.IsChecked = AppConst.ENABLE_XPSDOCUMENT_VIEW;
         }
 
         #region 保存并关闭
@@ -226,6 +229,10 @@ namespace TextLocator
                 AppUtil.WriteValue("AppConfig", "IndexUpdateTaskInterval", AppConst.INDEX_UPDATE_TASK_INTERVAL + "");
                 log.Debug("修改索引更新任务间隔时间：" + AppConst.INDEX_UPDATE_TASK_INTERVAL);
             }
+
+            AppConst.ENABLE_XPSDOCUMENT_VIEW = (bool)this.EnableXpsDocument.IsChecked;
+            AppUtil.WriteValue("AppConfig", "EnableXpsDocumentView", AppConst.ENABLE_XPSDOCUMENT_VIEW + "");
+            log.Debug("修改使用XpsDocument预览：" + AppConst.ENABLE_XPSDOCUMENT_VIEW);
 
             this.Close();
         }

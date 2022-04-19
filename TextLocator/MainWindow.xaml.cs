@@ -1,11 +1,12 @@
 ﻿using log4net;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -38,25 +39,18 @@ namespace TextLocator
         /// </summary>
         private RadioButton _radioButtonAll;
         /// <summary>
-        /// 索引文件夹列表
-        /// </summary>
-        private List<string> _indexFolders = new List<string>();
-        /// <summary>
-        /// 排除文件夹列表
-        /// </summary>
-        private List<string> _exclusionFolders = new List<string>();
-        /// <summary>
-        /// 正则匹配排除文件夹
-        /// </summary>
-        private Regex _exclusionFolderRegex;
-        /// <summary>
         /// 时间戳
         /// </summary>
         private long _timestamp;
         /// <summary>
+        /// 总条数
+        /// </summary>
+        private int _totalCount = 0;
+        /// <summary>
         /// 搜索参数
         /// </summary>
         private Entity.SearchParam _searchParam;
+
         /// <summary>
         /// 上次预览区搜索文本
         /// </summary>
@@ -66,6 +60,10 @@ namespace TextLocator
         /// 索引构建中
         /// </summary>
         private static volatile bool build = false;
+        /// <summary>
+        /// 数据导出中
+        /// </summary>
+        private static volatile bool export = false;
 
         #region 热键
         /// <summary>
@@ -175,7 +173,7 @@ namespace TextLocator
             Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 
             // 设置标题
-            this.Title = string.Format("{0} v{1} ({2})", this.Title, version, "开放版");
+            this.Title = string.Format("{0} v{1} (开放版)", this.Title, version);
         }
 
         /// <summary>
@@ -254,40 +252,33 @@ namespace TextLocator
         private void InitializeAppConfig()
         {
             TaskTime taskTime = TaskTime.StartNew();
-            // 初始化显示被索引的文件夹列表
-            _indexFolders.Clear();
 
-            // 读取被索引文件夹配置信息，如果配置信息为空：默认为我的文档和我的桌面
-            string folderPaths = AppUtil.ReadValue("AppConfig", "FolderPaths", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "," + Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
-            // 配置信息不为空
-            if (!string.IsNullOrEmpty(folderPaths))
+            // 启用的搜索区域信息显示
+            List<Entity.AreaInfo> enableAreaInfos = AreaUtil.GetEnableAreaInfoList();
+            string enableAreaNames = "";
+            string enableAreaNameDescs = "";
+            foreach (Entity.AreaInfo areaInfo in enableAreaInfos)
             {
-                string[] folderPathArray = folderPaths.Split(',');
-                foreach (string folderPath in folderPathArray)
-                {
-                    _indexFolders.Add(folderPath);
-                }
+                enableAreaNames += areaInfo.AreaName + "，";
+                enableAreaNameDescs += areaInfo.AreaName + "：" + string.Join(",", areaInfo.AreaFolders.ToArray()) + "\r\n";
             }
-            FolderPaths.Text = folderPaths;
-            FolderPaths.ToolTip = FolderPaths.Text;
+            this.EnableAreaInfos.Text = enableAreaNames.Substring(0, enableAreaNames.Length - 1);
+            this.EnableAreaInfos.ToolTip = enableAreaNameDescs.Substring(0, enableAreaNameDescs.Length - 2);
 
-            // 读取排除文件夹，
-            string exclusionPaths = AppUtil.ReadValue("AppConfig", "ExclusionPaths", "");
-            if (!string.IsNullOrEmpty(exclusionPaths))
+            // 未启用的搜索区域信息显示
+            List<Entity.AreaInfo> disableAreaInfos = AreaUtil.GetDisableAreaInfoList();
+            string disableAreaNames = "";
+            string disableAreaNameDescs = "";
+            foreach (Entity.AreaInfo areaInfo in disableAreaInfos)
             {
-                string[] exclusionPathArray = exclusionPaths.Split(',');
-                foreach (string exclusionPath in exclusionPathArray)
-                {
-                    _exclusionFolders.Add(exclusionPath);
-                }
-                _exclusionFolderRegex = new Regex(@"(" + exclusionPaths.Replace("\\", "\\\\").Replace(',', '|') + ")");
+                disableAreaNames += areaInfo.AreaName + "，";
+                disableAreaNameDescs += areaInfo.AreaName + "：" + string.Join(",", areaInfo.AreaFolders.ToArray()) + "\r\n";
             }
-            else
+            this.DisableAreaInfos.Text = string.IsNullOrEmpty(disableAreaNames) ? disableAreaNames : disableAreaNames.Substring(0, disableAreaNames.Length - 1);
+            if (!string.IsNullOrEmpty(disableAreaNameDescs))
             {
-                _exclusionFolderRegex = null;
-            }
-            ExclusionPaths.Text = exclusionPaths;
-            ExclusionPaths.ToolTip = ExclusionPaths.Text;
+                this.DisableAreaInfos.ToolTip = disableAreaNameDescs.Substring(0, disableAreaNameDescs.Length - 2);
+            }            
 
             // 读取分页每页显示条数
             if (string.IsNullOrEmpty(AppUtil.ReadValue("AppConfig", "ResultListPageSize", "")))
@@ -334,7 +325,6 @@ namespace TextLocator
                 if (!win.IsVisible)
                 {
                     win.Topmost = true;
-                    win.Owner = this;
                     win.ShowDialog();
                 }
                 else
@@ -409,6 +399,56 @@ namespace TextLocator
         #endregion
 
         #region 搜索
+        /// <summary>
+        /// 搜索文本框双击
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SearchText_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog()
+            {
+                Filter = "关键词 (*.txt)|*.txt"
+            };
+            var result = openFileDialog.ShowDialog();
+            if (result == true)
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    try
+                    {
+                        // 打开文本，解析内容调用搜索
+                        if (File.Exists(openFileDialog.FileName))
+                        {
+                            StringBuilder builder = new StringBuilder();
+                            using (FileStream fs = File.OpenRead(openFileDialog.FileName))
+                            {
+                                using (StreamReader reader = new StreamReader(fs, FileUtil.GetEncoding(openFileDialog.FileName)))
+                                {
+                                    string line;
+                                    while ((line = reader.ReadLine()) != null)
+                                    {
+                                        // 按行分词
+                                        builder.Append(line + " ");
+                                    }
+                                }
+                            }
+                            this.Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                this.SearchText.Text = builder.ToString().Trim();
+
+                                // 搜索前
+                                BeforeSearch();
+                            }));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("读取关键词文档错误：" + ex.Message, ex);
+                    }
+                });
+            }
+        }
         /// <summary>
         /// 搜索
         /// </summary>
@@ -509,6 +549,8 @@ namespace TextLocator
             {
                 try
                 {
+                    // 重置总数未0
+                    _totalCount = 0;
                     // 清空搜索结果列表
                     Dispatcher.Invoke(new Action(() =>
                     {
@@ -539,6 +581,9 @@ namespace TextLocator
                         }));
                         return;
                     }
+
+                    // 标记总数
+                    _totalCount = searchResult.Total;
 
                     // 遍历结果
                     foreach (Entity.FileInfo fileInfo in searchResult.Results)
@@ -964,13 +1009,12 @@ namespace TextLocator
         private void FolderPaths_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             AreaWindow areaDialog = new AreaWindow();
-            areaDialog.Topmost = true;
             areaDialog.Owner = this;
+            areaDialog.Topmost = true;
             areaDialog.ShowDialog();
-            if (areaDialog.DialogResult == true)
-            {
-                InitializeAppConfig();
-            }
+
+            // 不管是否修改都刷新
+            InitializeAppConfig();
         }
 
         /// <summary>
@@ -1082,120 +1126,153 @@ namespace TextLocator
                 // 提示语
                 string tag = isRebuild ? "重建" : "更新";
 
-                var taskMark = TaskTime.StartNew();
+                // --------定义总数
+                // 文件总数
+                int fileTotalCount = 0;
+                // 更新总数
+                int updateTotalCount = 0;
+                // 删除总数
+                int deleteTotalCount = 0;
+                // 错误总数
+                int errorTotalCount = 0;
 
-                // 1、-------- 开始获取文件列表
-                string msg = string.Format("开始{0}索引，正在扫描文件...", tag);
-                log.Info(msg);
-                ShowStatus(msg);
-                var fileScanMark = TaskTime.StartNew();
-                // 定义全部文件列表
-                List<string> allFilePaths = new List<string>();
-                // 定义更新文件列表
-                List<string> updateFilePaths = new List<string>();
-                // 定义删除文件列表
-                List<string> deleteFilePaths = new List<string>();
+                // 总任务消耗时间
+                var totalTaskMark = TaskTime.StartNew();
 
-                // 扫描需要建立索引的文件列表
-                foreach (string s in _indexFolders)
+                // ---------------- 遍历搜索区
+                List<Entity.AreaInfo> areaInfos = AreaUtil.GetEnableAreaInfoList();
+                foreach(Entity.AreaInfo areaInfo in areaInfos)
                 {
-                    log.Info("目录：" + s);
-                    // 获取文件信息列表
-                    FileUtil.GetAllFiles(allFilePaths, s, _exclusionFolderRegex);
-                }
+                    var singleTaskMark = TaskTime.StartNew();
 
-                msg = string.Format("文件扫描完成，文件总数：{0}，耗时：{1}。开始分析需要更新的文件列表...", allFilePaths.Count, fileScanMark.ConsumeTime);
-                log.Info(msg);
-                ShowStatus(msg);
+                    // 不同区域，索引分开记录
+                    string areaIdIndex = areaInfo.AreaId + "Index";
 
-                var fileAnalysisMark = TaskTime.StartNew();
-                // 如果是更新操作，判断文件格式是否变化 -> 判断文件更新时间变化找到最终需要更新的文件列表
-                // 2、-------- 获取需要删除的文件列表
-                if (AppUtil.ReadSectionList("FileIndex") != null)
-                {
-                    foreach (string filePath in AppUtil.ReadSectionList("FileIndex"))
+                    // -------- 开始获取文件列表
+                    string msg = string.Format("搜索区【{0}】，开始扫描文件...", areaInfo.AreaName);
+                    log.Info(msg);
+                    ShowStatus(msg);
+
+                    var scanTaskMark = TaskTime.StartNew();
+                    // 定义全部文件列表
+                    List<string> allFilePaths = new List<string>();
+                    // 定义更新文件列表
+                    List<string> updateFilePaths = new List<string>();
+                    // 定义删除文件列表
+                    List<string> deleteFilePaths = new List<string>();
+
+                    // 扫描需要建立索引的文件列表
+                    foreach (string s in areaInfo.AreaFolders)
                     {
-                        // 不存在，则表示文件已删除
-                        if (!allFilePaths.Contains(filePath))
-                        {
-                            deleteFilePaths.Add(filePath);
-                            AppUtil.WriteValue("FileIndex", filePath, null);
-                        }
+                        log.Info("目录：" + s);
+                        // 获取文件信息列表
+                        FileUtil.GetAllFiles(allFilePaths, s, null);
                     }
-                }
-                
-                // 3、-------- 更新是才需要校验，重建是直接跳过
-                if (isRebuild)
-                {
-                    // 3.1、重建时为全部文件
-                    updateFilePaths.AddRange(allFilePaths);
-                }
-                else
-                {
-                    // 3.2、获取需要更新的文件列表
-                    foreach (string filePath in allFilePaths)
-                    {
-                        try
-                        {
-                            FileInfo fileInfo = new FileInfo(filePath);
-                            // 当前文件修改时间
-                            string lastWriteTime = fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss.ffff");
-                            // 上次索引时文件修改时间标记
-                            string lastWriteTimeTag = AppUtil.ReadValue("FileIndex", filePath);
 
-                            // 文件修改时间不一致，说明文件已修改
-                            if (!lastWriteTime.Equals(lastWriteTimeTag))
+                    msg = string.Format("搜索区【{0}】，文件扫描完成；文件数：{1}，耗时：{2}；开始分析需要更新的文件列表...", areaInfo.AreaName, allFilePaths.Count, scanTaskMark.ConsumeTime);
+                    log.Info(msg);
+                    ShowStatus(msg);
+
+                    // -------- 获取需要删除的文件列表
+                    if (AppUtil.ReadSectionList(areaIdIndex) != null)
+                    {
+                        foreach (string filePath in AppUtil.ReadSectionList(areaIdIndex))
+                        {
+                            // 不存在，则表示文件已删除
+                            if (!allFilePaths.Contains(filePath))
                             {
-                                updateFilePaths.Add(filePath);
+                                deleteFilePaths.Add(filePath);
+                                AppUtil.WriteValue(areaIdIndex, filePath, null);
                             }
                         }
-                        catch { }
                     }
+
+                    // -------- 如果是更新操作，判断文件格式是否变化 -> 判断文件更新时间变化找到最终需要更新的文件列表
+                    var analysisTaskMark = TaskTime.StartNew();
+                    // 更新是才需要校验，重建是直接跳过
+                    if (!isRebuild)
+                    {
+                        // 更新：需要更新的文件列表
+                        foreach (string filePath in allFilePaths)
+                        {
+                            try
+                            {
+                                FileInfo fileInfo = new FileInfo(filePath);
+                                // 当前文件修改时间
+                                string lastWriteTime = fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss.ffff");
+                                // 上次索引时文件修改时间标记
+                                string lastWriteTimeTag = AppUtil.ReadValue(areaIdIndex, filePath);
+
+                                // 文件修改时间不一致，说明文件已修改
+                                if (!lastWriteTime.Equals(lastWriteTimeTag))
+                                {
+                                    updateFilePaths.Add(filePath);
+                                }
+                            }
+                            catch { }
+                        }
+                    }
+                    else
+                    {
+                        // 重建：全部文件列表
+                        updateFilePaths.AddRange(allFilePaths);
+                    }
+
+                    msg = string.Format("搜索区【{0}】，文件分析完成；{1}数：{2}，删除数：{3}，耗时：{4}；开始{5}索引...", areaInfo.AreaName, tag, updateFilePaths.Count, deleteFilePaths.Count, analysisTaskMark.ConsumeTime, tag);
+                    log.Info(msg);
+                    ShowStatus(msg);
+
+                    // -------- 验证扫描文件列表是否为空（如果是更新操作，判断文件格式是否变化 -> 判断文件更新时间变化找到最终需要更新的文件列表）
+                    if (updateFilePaths.Count <= 0 && deleteFilePaths.Count <= 0)
+                    {
+                        build = false;
+                        msg = string.Format("搜索区【{0}】，无更新文件和删除文件，不{1}索引...", areaInfo.AreaName, tag);
+                        log.Info(msg);
+                        ShowStatus(msg);
+                        continue;
+                    }
+
+                    // 后台执行时修改为最小线程单位，反之恢复为系统配置线程数
+                    AppCore.SetThreadPoolSize(!isBackground);
+
+                    // -------- 创建索引方法
+                    int errorCount = IndexCore.CreateIndex(areaInfo.AreaId, updateFilePaths, deleteFilePaths, isRebuild, ShowStatus);
+
+                    // 索引完成日志
+                    msg = string.Format("搜索区【{0}】，索引{1}完成；{2}数：{3}，删除数：{4}，错误数：{5}，共用时：{6}。", areaInfo.AreaName, tag, tag, updateFilePaths.Count, deleteFilePaths.Count, errorCount, singleTaskMark.ConsumeTime);
+                    log.Info(msg);
+                    ShowStatus(msg);
+
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        MessageCore.ShowSuccess(msg);
+                    }));
+
+
+                    // 记录文件总数、更新总数、删除总数、错误总数
+                    fileTotalCount = fileTotalCount + allFilePaths.Count;
+                    updateTotalCount = updateTotalCount + updateFilePaths.Count;
+                    deleteTotalCount = deleteTotalCount + deleteFilePaths.Count;
+                    errorTotalCount = errorTotalCount + errorCount;
                 }
 
-                msg = string.Format("文件分析完成，{0}总数：{1}，删除总数：{2}，耗时：{3}。开始{4}索引...", tag, updateFilePaths.Count, deleteFilePaths.Count, fileAnalysisMark.ConsumeTime, tag);
-                log.Info(msg);
-                ShowStatus(msg);
-
-                // 4、-------- 如果是更新操作，判断文件格式是否变化 -> 判断文件更新时间变化找到最终需要更新的文件列表
-                // 验证扫描文件列表是否为空
-                if (updateFilePaths.Count <= 0 && deleteFilePaths.Count <= 0)
-                {
-                    build = false;
-
-                    ShowStatus("就绪");
-
-                    // 标记索引文件数量 和 最后更新时间
-                    AppUtil.WriteValue("AppConfig", "IndexFileCount", allFilePaths.Count + "");
-                    AppUtil.WriteValue("AppConfig", "LastIndexTime", DateTime.Now.ToString());
-                    return;
-                }
-
-                // 后台执行时修改为最小线程单位，反之恢复为系统配置线程数
-                AppCore.SetThreadPoolSize(!isBackground);
-
-                // 5、-------- 创建索引方法
-                int errorCount = IndexCore.CreateIndex(updateFilePaths, deleteFilePaths, isRebuild, ShowStatus);
-                msg = string.Format("索引{0}完成，{1}总数：{2}，删除数：{3}，错误数：{4}，共用时：{5}。", tag, tag, updateFilePaths.Count, deleteFilePaths.Count, errorCount, taskMark.ConsumeTime);
-                log.Info(msg);
-                // 显示状态
-                ShowStatus(msg);
-
-                Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    MessageCore.ShowSuccess(msg);
-                }));
+                // 索引完成日志
+                string message = string.Format("索引{0}完成。区域数：{1}，{2}数：{3}，删除数：{4}，错误数：{5}，共用时：{6}。", tag, areaInfos.Count, tag, updateTotalCount, deleteTotalCount, errorTotalCount, totalTaskMark.ConsumeTime);
+                log.Info(message);
+                ShowStatus(message);
 
                 // 标记索引文件数量 和 最后更新时间
-                AppUtil.WriteValue("AppConfig", "IndexFileCount", allFilePaths.Count + "");
+                AppUtil.WriteValue("AppConfig", "FileTotalCount", fileTotalCount + "");
                 AppUtil.WriteValue("AppConfig", "LastIndexTime", DateTime.Now.ToString());
 
-                // 6、-------- 构建结束
+                // 构建结束
                 build = false;
             }
             catch (Exception ex)
             {
                 log.Error("构建索引错误：" + ex.Message, ex);
+
+                build = false;
             }
         }
 
@@ -1230,7 +1307,7 @@ namespace TextLocator
         {
             if (OpenFile.Tag != null)
             {
-                string filePath = OpenFile.Tag + "";
+                string filePath = OpenFile.Tag + "";                
                 try
                 {
                     System.Diagnostics.Process.Start(filePath);
@@ -1274,6 +1351,7 @@ namespace TextLocator
             // 预览搜索关键词高亮
             PreviewSearchTextHighlighted();
         }
+
         /// <summary>
         /// 预览搜索关键词高亮
         /// </summary>

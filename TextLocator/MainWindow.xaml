@@ -27,7 +27,8 @@
                                 <!-- 搜索框 -->
                                 <TextBox x:Name="SearchText" Width="900" Height="36" FontSize="20" HorizontalAlignment="Left" VerticalContentAlignment="Center" BorderThickness="1" BorderBrush="Green" 
                                          PreviewKeyUp="SearchText_PreviewKeyUp" 
-                                         TextChanged="SearchText_TextChanged">
+                                         TextChanged="SearchText_TextChanged" 
+                                         MouseDoubleClick="SearchText_MouseDoubleClick">
                                     <TextBox.Resources>
                                         <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
                                             <VisualBrush.Visual>
@@ -97,13 +98,13 @@
                                     </Grid>
                                     <!-- 搜索区域 -->
                                     <Grid>
-                                        <TextBlock Text="搜索区域：" Margin="0,5,0,0" HorizontalAlignment="Left"/>
-                                        <TextBox x:Name="FolderPaths" Text="C:\Users\{User}\Document" IsReadOnly="true" Width="485" Height="25" Margin="65,5,0,0" HorizontalAlignment="Left" MouseDoubleClick="FolderPaths_MouseDoubleClick"/>
+                                        <TextBlock Text="启用搜索区：" Margin="0,5,0,0" HorizontalAlignment="Left"/>
+                                        <TextBox x:Name="EnableAreaInfos" Text="默认区域" IsReadOnly="true" Width="470" Height="25" Margin="80,5,0,0" HorizontalAlignment="Left" MouseDoubleClick="FolderPaths_MouseDoubleClick"/>
                                     </Grid>
                                     <!-- 排除区域 -->
                                     <Grid>
-                                        <TextBlock Text="排除区域：" Margin="0,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="ExclusionPaths" Text="" Foreground="Gray" IsReadOnly="true" Width="485" Height="25" Margin="65,5,0,0" HorizontalAlignment="Left" MouseDoubleClick="FolderPaths_MouseDoubleClick" Grid.ColumnSpan="2" Cursor="IBeam"/>
+                                        <TextBlock Text="禁用搜索区：" Margin="0,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                        <TextBox x:Name="DisableAreaInfos" Text="" Foreground="Gray" IsReadOnly="true" Width="470" Height="25" Margin="80,5,0,0" HorizontalAlignment="Left" MouseDoubleClick="FolderPaths_MouseDoubleClick" Grid.ColumnSpan="2" Cursor="IBeam"/>
                                     </Grid>
                                 </StackPanel>
                             </StackPanel>
@@ -205,6 +206,9 @@
                                     </Grid>
                                 </ListBoxItem>
                             </ListBox>
+
+                            <!-- 搜索加载中 -->
+                            <TextBlock x:Name="_searchLoading" Text="搜索处理中..." FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#2196f3" Margin="0,130,0,0" Visibility="Collapsed"/>
 
                             <!-- 分页 -->
                             <rubyer:PageBar x:Name="PageBar" VerticalAlignment="Bottom" HorizontalAlignment="Center"

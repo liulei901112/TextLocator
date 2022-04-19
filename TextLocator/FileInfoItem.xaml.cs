@@ -71,6 +71,18 @@ namespace TextLocator
                     RichTextBoxUtil.Highlighted(this.ContentBreviary, Colors.Red, fileInfo.Keywords);
                 }));
             });
+
+            // 词频统计
+            Task.Factory.StartNew(() => {
+                string keywordFrequency = IndexCore.GetKeywordFrequency(fileInfo);
+                this.Dispatcher.BeginInvoke(new Action(() => {
+                    if (!string.IsNullOrWhiteSpace(keywordFrequency))
+                    {
+                        // 关键词匹配次数
+                        this.FileTypeIcon.ToolTip = keywordFrequency;
+                    }
+                }));
+            });
         }
     }
 }

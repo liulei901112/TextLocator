@@ -571,7 +571,7 @@ namespace TextLocator.Index
         {
             // -------- 获取索引写入器
             // 随机索引写入器
-            int index = new Random().Next(10);
+            int index = filePath.Length % 10;
 
             try
             {
@@ -580,12 +580,12 @@ namespace TextLocator.Index
 
                 indexWriters[index].UpdateDocument(new Lucene.Net.Index.Term("FileMark", fileMark), doc);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 log.Error(filePath + " -> " + ex.Message + " => 重启索引写入器！", ex);
 
 
-                // 关闭索引写入器（区域ID + 写入器索引）
+                // 关闭索引写入器（写入器索引）
                 CloseIndexWriter(index);
 
                 // 创建索引写入器（区域ID + 更新 + 写入器索引）

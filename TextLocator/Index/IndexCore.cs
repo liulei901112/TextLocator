@@ -571,7 +571,7 @@ namespace TextLocator.Index
         {
             // -------- 获取索引写入器
             // 随机索引写入器
-            int index = filePath.Length % 10;
+            int index = filePath.Length % 10; // new Random().Next(10);
 
             try
             {

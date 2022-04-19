@@ -1166,7 +1166,7 @@ namespace TextLocator
                     {
                         log.Info("目录：" + s);
                         // 获取文件信息列表
-                        FileUtil.GetAllFiles(allFilePaths, s, null);
+                        FileUtil.GetAllFiles(allFilePaths, s);
                     }
 
                     msg = string.Format("搜索区【{0}】，文件扫描完成；文件数：{1}，耗时：{2}；开始分析需要更新的文件列表...", areaInfo.AreaName, allFilePaths.Count, scanTaskMark.ConsumeTime);

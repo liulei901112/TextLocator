@@ -125,8 +125,7 @@ namespace TextLocator.Util
         /// </summary>
         /// <param name="filePaths">文档列表</param>
         /// <param name="rootPath">根目录路径</param>
-        /// <param name="regexExclude">过滤列表</param>
-        public static void GetAllFiles(List<string> filePaths, string rootPath, Regex regexExclude = null)
+        public static void GetAllFiles(List<string> filePaths, string rootPath)
         {
             // 根目录
             DirectoryInfo rootDir = new DirectoryInfo(rootPath);
@@ -144,12 +143,12 @@ namespace TextLocator.Util
                     string dirPath = dir.FullName;
                     // 系统过滤：$RECYCLE|360REC|SYSTEM|TEMP|SYSTEM VOLUME INFOMATION
                     // 自定义过滤：
-                    if (AppConst.REGEX_EXCLUDE_KEYWORD.IsMatch(dirPath.ToUpper()) || (regexExclude != null && regexExclude.IsMatch(dirPath)))
+                    if (AppConst.REGEX_EXCLUDE_KEYWORD.IsMatch(dirPath.ToUpper()))
                     {
                         continue;
                     }
                     // 递归调用
-                    GetAllFiles(filePaths, dirPath, regexExclude);
+                    GetAllFiles(filePaths, dirPath);
                 }
             }
             catch (UnauthorizedAccessException ex) {

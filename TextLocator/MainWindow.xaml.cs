@@ -334,6 +334,7 @@ namespace TextLocator
                 if (!win.IsVisible)
                 {
                     win.Topmost = true;
+                    win.Owner = this;
                     win.ShowDialog();
                 }
                 else
@@ -964,6 +965,7 @@ namespace TextLocator
         {
             AreaWindow areaDialog = new AreaWindow();
             areaDialog.Topmost = true;
+            areaDialog.Owner = this;
             areaDialog.ShowDialog();
             if (areaDialog.DialogResult == true)
             {

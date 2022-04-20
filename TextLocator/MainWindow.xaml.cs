@@ -199,7 +199,6 @@ namespace TextLocator
             TaskTime taskTime = TaskTime.StartNew();
             // 文件类型筛选下拉框数据初始化
             FileTypeFilter.Children.Clear();
-            FileTypeNames.Children.Clear();
 
             _radioButtonAll = new RadioButton()
             {
@@ -232,16 +231,6 @@ namespace TextLocator
                 };
                 radioButton.Checked += FileType_Checked;
                 FileTypeFilter.Children.Add(radioButton);
-
-                // 标签
-                FileTypeNames.Children.Add(new Button()
-                {
-                    Content = fileType.ToString(),
-                    Height = 20,
-                    Margin = new Thickness(2, 0, 0, 0),
-                    ToolTip = fileType.GetDescription(),
-                    Background = Brushes.DarkGray
-                });
             }
             log.Debug("InitializeFileTypeFilters 耗时：" + taskTime.ConsumeTime + "。");
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using TextLocator.Entity;
@@ -14,9 +15,13 @@ namespace TextLocator
     public partial class AreaWindow : Window
     {
         /// <summary>
-        /// 区域信息列表
+        /// 正常区域列表区域信息列表
         /// </summary>
-        private List<AreaInfo> _areaInfos;
+        private List<AreaInfo> _normalAreaInfos = new List<AreaInfo>();
+        /// <summary>
+        /// 删除区域信息列表
+        /// </summary>
+        private List<AreaInfo> _deleteAreaInfos = new List<AreaInfo>();
 
         public AreaWindow()
         {
@@ -66,7 +71,7 @@ namespace TextLocator
                     this.AreaInfoList.Children.Add(item);
                 }
             }
-            _areaInfos = areaInfos;
+            _normalAreaInfos.AddRange(areaInfos);
         }
 
         /// <summary>
@@ -77,18 +82,14 @@ namespace TextLocator
         private void AreaIsEnable_Unchecked(object sender, RoutedEventArgs e)
         {
             AreaInfo areaInfo = (AreaInfo)(sender as CheckBox).Tag;
-            areaInfo.IsEnable = false;
-
             // 修改本地列表缓存
-            if (_areaInfos!= null)
+            if (_normalAreaInfos!= null)
             {
-                for(int i = 0; i < _areaInfos.Count; i++)
+                for(int i = 0; i < _normalAreaInfos.Count; i++)
                 {
-                    AreaInfo info = _areaInfos[i];
-                    if (info.AreaId.Equals(areaInfo.AreaId))
+                    if (_normalAreaInfos[i].AreaId.Equals(areaInfo.AreaId))
                     {
-                        info = areaInfo;
-                        _areaInfos[i] = info;
+                        _normalAreaInfos[i].IsEnable = false;
                     }
                 }
             }
@@ -102,18 +103,15 @@ namespace TextLocator
         private void AreaIsEnable_Checked(object sender, RoutedEventArgs e)
         {
             AreaInfo areaInfo = (AreaInfo)(sender as CheckBox).Tag;
-            areaInfo.IsEnable = true;
 
             // 修改本地列表缓存
-            if (_areaInfos != null)
+            if (_normalAreaInfos != null)
             {
-                for (int i = 0; i < _areaInfos.Count; i++)
+                for (int i = 0; i < _normalAreaInfos.Count; i++)
                 {
-                    AreaInfo info = _areaInfos[i];
-                    if (info.AreaId.Equals(areaInfo.AreaId))
+                    if (_normalAreaInfos[i].AreaId.Equals(areaInfo.AreaId))
                     {
-                        info = areaInfo;
-                        _areaInfos[i] = info;
+                        _normalAreaInfos[i].IsEnable = true;
                     }
                 }
             }
@@ -129,18 +127,19 @@ namespace TextLocator
             AreaInfo areaInfo = (AreaInfo)(sender as Button).Tag;
             if (areaInfo != null)
             {
-                // AreaUtil.DeleteAreaInfo(areaInfo);
-                for( int i = 0; i < _areaInfos.Count; i++)
+                for( int i = 0; i < _normalAreaInfos.Count; i++)
                 {
-                    if (_areaInfos[i].AreaId == areaInfo.AreaId)
+                    AreaInfo normalAreaInfo = _normalAreaInfos[i];
+                    if (normalAreaInfo.AreaId == areaInfo.AreaId)
                     {
-                        _areaInfos.RemoveAt(i);
+                        _normalAreaInfos.RemoveAt(i);
+                        _deleteAreaInfos.Add(normalAreaInfo);
                         break;
                     }
                 }
 
                 // 重新加载区域信息列表（刷新）
-                LoadAreaInfoList(_areaInfos);
+                LoadAreaInfoList(_normalAreaInfos);
             }
         }
 
@@ -152,7 +151,7 @@ namespace TextLocator
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
             AreaInfo areaInfo = (AreaInfo)(sender as Button).Tag;
-            CacheUtil.Put("AreaInfos", _areaInfos);
+            CacheUtil.Put("AreaInfos", _normalAreaInfos);
             ShowAreaEditDialog(areaInfo);
         }
 
@@ -163,7 +162,7 @@ namespace TextLocator
         /// <param name="e"></param>
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            CacheUtil.Put("AreaInfos", _areaInfos);
+            CacheUtil.Put("AreaInfos", _normalAreaInfos);
             ShowAreaEditDialog();
         }
 
@@ -174,11 +173,11 @@ namespace TextLocator
         /// <param name="e"></param>
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            // 修改本地列表缓存
-            if (_areaInfos != null)
+            // 保存正常的区域信息列表
+            if (_normalAreaInfos != null)
             {
                 int enableCount = 0;
-                foreach (AreaInfo info in _areaInfos)
+                foreach (AreaInfo info in _normalAreaInfos)
                 {
                     if (info.IsEnable) enableCount++;
                 }
@@ -189,9 +188,19 @@ namespace TextLocator
                     return;
                 }
 
-                foreach (AreaInfo areaInfo in _areaInfos)
+                foreach (AreaInfo areaInfo in _normalAreaInfos)
                 {
                     AreaUtil.SaveAreaInfo(areaInfo);
+                }
+            }
+            // 保存删除的区域信息列表
+            if (_deleteAreaInfos.Count > 0)
+            {
+                foreach (AreaInfo areaInfo in _deleteAreaInfos)
+                {
+                    areaInfo.AreaName = null;
+                    areaInfo.AreaFolders = null;
+                    AreaUtil.DeleteAreaInfo(areaInfo);
                 }
             }
             this.DialogResult = true;
@@ -222,9 +231,9 @@ namespace TextLocator
 
             if (editDialog.DialogResult == true)
             {
-                _areaInfos = CacheUtil.Get<List<AreaInfo>>("AreaInfos");
+                _normalAreaInfos = CacheUtil.Get<List<AreaInfo>>("AreaInfos");
                 // 重新加载区域信息列表（刷新）
-                LoadAreaInfoList(_areaInfos);
+                LoadAreaInfoList(_normalAreaInfos);
             }
         }
     }

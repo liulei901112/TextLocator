@@ -453,11 +453,21 @@ namespace TextLocator
                 return;
             }
 
-            // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
+            // ---- 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
+            // 取消匹配全词
             MatchWords.IsChecked = false;
+            // 取消区分大小写
             OnlyFileName.IsChecked = false;
-            (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
+
+            // 全部文件类型
+            ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(_radioButtonAll);
+            IToggleProvider toggleProvider = toggleButtonAutomationPeer.GetPattern(PatternInterface.Toggle) as IToggleProvider;
+            toggleProvider.Toggle();
+
+            // 默认排序
             SortOptions.SelectedIndex = 0;
+            // 文件名和内容
+            //SearchScope.SelectedIndex = 0;
 
             BeforeSearch();
         }
@@ -471,14 +481,24 @@ namespace TextLocator
         {
             if (e.Key == Key.Enter)
             {
-                // 光标移除文本框
+                // ---- 光标移除文本框
                 SearchText.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
 
-                // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
+                // ---- 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
+                // 取消匹配全词
                 MatchWords.IsChecked = false;
+                // 取消区分大小写
                 OnlyFileName.IsChecked = false;
-                (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
+
+                // 全部文件类型
+                ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(_radioButtonAll);
+                IToggleProvider toggleProvider = toggleButtonAutomationPeer.GetPattern(PatternInterface.Toggle) as IToggleProvider;
+                toggleProvider.Toggle();
+
+                // 默认排序
                 SortOptions.SelectedIndex = 0;
+                // 文件名和内容
+                //SearchScope.SelectedIndex = 0;
 
                 BeforeSearch();
 
@@ -496,36 +516,14 @@ namespace TextLocator
         {
             // 如果文本为空则隐藏清空按钮，如果不为空则显示清空按钮
             this.CleanButton.Visibility = this.SearchText.Text.Length > 0 ? Visibility.Visible : Visibility.Hidden;
-            /*try
-            {
-                // 搜索关键词
-                string text = SearchText.Text;
-
-                // 替换特殊字符
-                text = AppConst.REGEX_SPECIAL_CHARACTER.Replace(text, "");
-
-                // 回写处理过的字符
-                SearchText.Text = text;
-
-                // 光标定位到最后
-                SearchText.SelectionStart = SearchText.Text.Length;
-
-                // 如果文本为空则隐藏清空按钮，如果不为空则显示清空按钮
-                CleanButton.Visibility = text.Length > 0 ? Visibility.Visible : Visibility.Hidden;
-            }
-            catch { }*/
         }
 
         /// <summary>
         /// 搜索
         /// </summary>
         /// <param name="timestamp">时间戳，用于校验为同一子任务；时间戳不相同表名父任务结束，子任务跳过执行</param>
-        /// <param name="keywords">关键词</param>
-        /// <param name="fileType">文件类型</param>
-        /// <param name="sortType">排序类型</param>
-        /// <param name="onlyFileName">仅文件名</param>
-        /// <param name="matchWords">匹配全词</param>
-        private void Search(long timestamp, List<string> keywords, string fileType, SortType sortType, bool onlyFileName = false, bool matchWords = false)
+        /// <param name="searchParam">搜索条件</param>
+        private void Search(long timestamp, Entity.SearchParam searchParam)
         {
             if (!CheckIndexExist())
             {
@@ -546,20 +544,8 @@ namespace TextLocator
                         this.SearchResultList.Items.Clear();
                     }));
 
-                    // 保存当前搜索条件
-                    _searchParam = new Entity.SearchParam()
-                    {
-                        Keywords = keywords,
-                        FileType = fileType,
-                        SortType = sortType,
-                        IsMatchWords = matchWords,
-                        IsOnlyFileName = onlyFileName,
-                        PageSize = PageSize,
-                        PageIndex = PageNow
-                    };
-
                     // 查询列表（参数，消息回调）
-                    Entity.SearchResult searchResult = IndexCore.Search(_searchParam, ShowStatus);
+                    Entity.SearchResult searchResult = IndexCore.Search(searchParam, ShowStatus);
 
                     // 验证列表数据
                     if (null == searchResult || searchResult.Results.Count <= 0)
@@ -639,18 +625,23 @@ namespace TextLocator
             }
         }
 
+        /// <summary>
+        /// 分页切换
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PageBar_PageIndexChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
         {
             log.Debug($"pageIndex : {e.OldValue} => {e.NewValue}");
 
-            // 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
-            MatchWords.IsChecked = false;
-            OnlyFileName.IsChecked = false;
-            (this.FindName("FileTypeAll") as RadioButton).IsChecked = true;
-
             BeforeSearch(e.NewValue);
         }
 
+        /// <summary>
+        /// 分页条数改变
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PageBar_PageSizeChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
         {
             log.Debug($"pageSize : {e.OldValue} => {e.NewValue}");
@@ -704,7 +695,7 @@ namespace TextLocator
             MatchWords.IsChecked = false;
 
             // 排序类型切换为默认
-            this.SortOptions.SelectedIndex = 0;
+            SortOptions.SelectedIndex = 0;
 
             // -------- 搜索结果列表
             // 搜索结果列表清空
@@ -1500,14 +1491,22 @@ namespace TextLocator
             // 记录时间戳
             _timestamp = Convert.ToInt64((DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds);
 
+            // 保存当前搜索条件
+            _searchParam = new Entity.SearchParam()
+            {
+                Keywords = keywords,
+                FileType = filter == null ? null : filter + "",
+                SortType = (SortType)SortOptions.SelectedValue,
+                IsMatchWords = (bool)MatchWords.IsChecked,
+                IsOnlyFileName = (bool)OnlyFileName.IsChecked,
+                // SearchRegion = (SearchRegion)SearchScope.SelectedValue,
+                PageSize = PageSize,
+                PageIndex = PageNow
+            };
             // 搜索
             Search(
                 _timestamp,
-                keywords,
-                filter == null ? null : filter + "",
-                (SortType)SortOptions.SelectedValue,
-                (bool)OnlyFileName.IsChecked,
-                (bool)MatchWords.IsChecked
+                _searchParam
             );
         }
         #endregion

@@ -124,9 +124,7 @@ namespace TextLocator.Util
                             sectionDic[key] = value;
                     }
                     else
-                    {
-                        sectionDic.Add(key, value);
-                    }
+                    	sectionDic.Add(key, value);
                     if (_AppIniCache.ContainsKey(section))
                         _AppIniCache[section] = sectionDic;
                     else
@@ -178,7 +176,11 @@ namespace TextLocator.Util
                     lock(locker)
                     {
                         Dictionary<string, string> sectionDic = _AppIniCache.ContainsKey(section) ? _AppIniCache[section] : new Dictionary<string, string>();
-                        sectionDic[key] = def;
+                        if (sectionDic.ContainsKey(key))
+                            sectionDic[key] = def;
+                        else
+                            sectionDic.Add(key, def);
+
                         if (_AppIniCache.ContainsKey(section))
                             _AppIniCache[section] = sectionDic;
                         else

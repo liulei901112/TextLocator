@@ -43,10 +43,6 @@ namespace TextLocator
         /// </summary>
         private long _timestamp;
         /// <summary>
-        /// 总条数
-        /// </summary>
-        private int _totalCount = 0;
-        /// <summary>
         /// 搜索参数
         /// </summary>
         private Entity.SearchParam _searchParam;
@@ -126,6 +122,9 @@ namespace TextLocator
             // 初始化排序类型列表
             InitializeSortType();
 
+            // 初始化搜索域列表
+            InitializeSearchRegion();
+
             // 清理事件（必须放在初始化之后，否则类型筛选的选中Reset可能存在错误）
             ResetSearchResult();
 
@@ -174,6 +173,21 @@ namespace TextLocator
 
             // 设置标题
             this.Title = string.Format("{0} v{1} (开放版)", this.Title, version);
+        }
+
+        /// <summary>
+        /// 初始化搜索域
+        /// </summary>
+        private void InitializeSearchRegion()
+        {
+            TaskTime taskTime = TaskTime.StartNew();
+            Array regions = Enum.GetValues(typeof(SearchRegion));
+            SearchScope.Items.Clear();
+            foreach (var region in regions)
+            {
+                SearchScope.Items.Add(region);
+            }
+            log.Debug("InitializeSearchRegion 耗时：" + taskTime.ConsumeTime + "。");
         }
 
         /// <summary>
@@ -277,7 +291,6 @@ namespace TextLocator
 
             log.Debug("InitializeAppConfig 耗时：" + taskTime.ConsumeTime + "。");
         }
-
         #endregion
 
         #region 热键注册
@@ -425,6 +438,8 @@ namespace TextLocator
                             this.Dispatcher.BeginInvoke(new Action(() =>
                             {
                                 this.SearchText.Text = builder.ToString().Trim();
+                                // 标记为文件
+                                this.SearchText.Tag = "File";
 
                                 // 搜索前
                                 BeforeSearch();
@@ -512,6 +527,11 @@ namespace TextLocator
         {
             // 如果文本为空则隐藏清空按钮，如果不为空则显示清空按钮
             this.CleanButton.Visibility = this.SearchText.Text.Length > 0 ? Visibility.Visible : Visibility.Hidden;
+            // 文本框为空时还原为默认
+            if (this.SearchText.Text.Length <= 0)
+            {
+                this.SearchText.Tag = null;
+            }
         }
 
         /// <summary>
@@ -532,8 +552,6 @@ namespace TextLocator
             {
                 try
                 {
-                    // 重置总数未0
-                    _totalCount = 0;
                     // 清空搜索结果列表
                     Dispatcher.Invoke(new Action(() =>
                     {
@@ -552,9 +570,6 @@ namespace TextLocator
                         }));
                         return;
                     }
-
-                    // 标记总数
-                    _totalCount = searchResult.Total;
 
                     // 遍历结果
                     foreach (Entity.FileInfo fileInfo in searchResult.Results)

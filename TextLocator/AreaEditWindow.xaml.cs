@@ -71,11 +71,23 @@ namespace TextLocator
         /// <param name="e"></param>
         private void DelButton_Click(object sender, RoutedEventArgs e)
         {
+            // 当前删除文件夹路径
+            string deleteFolderPath = (sender as Button).Tag + "";
+            // UI层删除
             for (int i = 0; i < this.AreaFolders.Items.Count; i++)
             {
-                if ((this.AreaFolders.Items[i] as FolderInfoItem).FolderPath.Text.Equals((sender as Button).Tag))
+                if ((this.AreaFolders.Items[i] as FolderInfoItem).FolderPath.Text.Equals(deleteFolderPath))
                 {
                     this.AreaFolders.Items.RemoveAt(i);
+                    break;
+                }
+            }
+            // 缓存列表层删除
+            for (int i = 0; i < _areaFolders.Count; i++)
+            {
+                if (_areaFolders[i].Equals(deleteFolderPath))
+                {
+                    _areaFolders.RemoveAt(i);
                     break;
                 }
             }

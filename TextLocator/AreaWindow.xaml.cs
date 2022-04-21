@@ -1,8 +1,10 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using TextLocator.Core;
 using TextLocator.Entity;
 using TextLocator.Message;
 using TextLocator.Util;
@@ -14,6 +16,8 @@ namespace TextLocator
     /// </summary>
     public partial class AreaWindow : Window
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         /// <summary>
         /// 正常区域列表区域信息列表
         /// </summary>
@@ -71,7 +75,7 @@ namespace TextLocator
                     this.AreaInfoList.Children.Add(item);
                 }
             }
-            _normalAreaInfos.AddRange(areaInfos);
+            _normalAreaInfos = areaInfos;
         }
 
         /// <summary>
@@ -82,14 +86,18 @@ namespace TextLocator
         private void AreaIsEnable_Unchecked(object sender, RoutedEventArgs e)
         {
             AreaInfo areaInfo = (AreaInfo)(sender as CheckBox).Tag;
+            areaInfo.IsEnable = false;
+
             // 修改本地列表缓存
             if (_normalAreaInfos!= null)
             {
                 for(int i = 0; i < _normalAreaInfos.Count; i++)
                 {
-                    if (_normalAreaInfos[i].AreaId.Equals(areaInfo.AreaId))
+                    AreaInfo info = _normalAreaInfos[i];
+                    if (info.AreaId.Equals(areaInfo.AreaId))
                     {
-                        _normalAreaInfos[i].IsEnable = false;
+                        info = areaInfo;
+                        _normalAreaInfos[i] = info;
                     }
                 }
             }
@@ -103,15 +111,18 @@ namespace TextLocator
         private void AreaIsEnable_Checked(object sender, RoutedEventArgs e)
         {
             AreaInfo areaInfo = (AreaInfo)(sender as CheckBox).Tag;
+            areaInfo.IsEnable = true;
 
             // 修改本地列表缓存
             if (_normalAreaInfos != null)
             {
                 for (int i = 0; i < _normalAreaInfos.Count; i++)
                 {
-                    if (_normalAreaInfos[i].AreaId.Equals(areaInfo.AreaId))
+                    AreaInfo info = _normalAreaInfos[i];
+                    if (info.AreaId.Equals(areaInfo.AreaId))
                     {
-                        _normalAreaInfos[i].IsEnable = true;
+                        info = areaInfo;
+                        _normalAreaInfos[i] = info;
                     }
                 }
             }
@@ -127,6 +138,7 @@ namespace TextLocator
             AreaInfo areaInfo = (AreaInfo)(sender as Button).Tag;
             if (areaInfo != null)
             {
+                // AreaUtil.DeleteAreaInfo(areaInfo);
                 for( int i = 0; i < _normalAreaInfos.Count; i++)
                 {
                     AreaInfo normalAreaInfo = _normalAreaInfos[i];
@@ -201,6 +213,21 @@ namespace TextLocator
                     areaInfo.AreaName = null;
                     areaInfo.AreaFolders = null;
                     AreaUtil.DeleteAreaInfo(areaInfo);
+
+
+                    // 删除区域索引目录
+                    try
+                    {
+                        string areaIndexDir = Path.Combine(AppConst.APP_INDEX_DIR, areaInfo.AreaId);
+                        if (Directory.Exists(areaIndexDir))
+                        {
+                            Directory.Delete(areaIndexDir, true);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("删除区域【" + areaInfo.AreaId + "】索引目录失败：" + ex.Message, ex);
+                    }
                 }
             }
             this.DialogResult = true;
@@ -215,8 +242,6 @@ namespace TextLocator
         {
             this.DialogResult = false;
         }
-
-
 
         /// <summary>
         /// 显示区域编辑

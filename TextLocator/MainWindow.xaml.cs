@@ -580,7 +580,7 @@ namespace TextLocator
                         }
                         this.Dispatcher.Invoke(new Action(() =>
                         {
-                            this.SearchResultList.Items.Add(new FileInfoItem(fileInfo));
+                            this.SearchResultList.Items.Add(new FileInfoItem(fileInfo, searchParam.SearchRegion));
                         }));
                     }
 

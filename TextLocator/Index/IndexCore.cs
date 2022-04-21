@@ -864,53 +864,54 @@ namespace TextLocator.Index
         /// 获取关键词词频
         /// </summary>
         /// <param name="fileInfo">文件信息</param>
+        /// <param name="searchRegion">搜索域</param>
         /// <param name="autoNewLine">自动换行</param>
         /// <returns></returns>
-        public static string GetKeywordFrequency(Entity.FileInfo fileInfo, bool autoNewLine = true)
-        {
-            return GetKeywordFrequency(fileInfo.Keywords, fileInfo.FileName, fileInfo.Preview, autoNewLine);
-        }
-
-        /// <summary>
-        /// 获取关键词词频
-        /// </summary>
-        /// <param name="keywords">关键词列表</param>
-        /// <param name="fileName">文件名</param>
-        /// <param name="preview">文件内容</param>
-        /// <param name="autoNewLine">自动换行</param>
-        /// <returns></returns>
-        private static string GetKeywordFrequency(List<string> keywords, string fileName, string preview, bool autoNewLine = true)
+        public static string GetKeywordFrequency(Entity.FileInfo fileInfo, SearchRegion searchRegion, bool autoNewLine = true)
         {
             try
             {
-                // 获取内容（预览内容替换----\d+----）
-                string content = AppConst.REGEX_CONTENT_PAGE.Replace(preview, "");
-
                 TaskTime taskTime = TaskTime.StartNew();
                 // 定义词频词典
                 Dictionary<string, int> frequencyDic = new Dictionary<string, int>();
 
                 // 遍历关键词
-                foreach (string keyword in keywords)
+                foreach (string keyword in fileInfo.Keywords)
                 {
-                    // 声明正则
-                    Regex regex = new Regex(keyword);
-                    // 匹配文件名
-                    Match matchName = regex.Match(fileName), matchContent = regex.Match(content);
                     // 匹配内容
                     int matchNameCount = 0, matchContentCount = 0;
-                    // 文件名匹配成功
-                    if (matchName.Success)
+                    // 声明正则
+                    Regex regex = new Regex(keyword);
+
+                    // ---- 匹配文件名
+                    if (searchRegion == SearchRegion.文件名和内容 || searchRegion == SearchRegion.仅文件名)
                     {
-                        // 获取匹配次数
-                        matchNameCount = regex.Matches(fileName).Count;
+                        // 匹配文件名
+                        Match matchName = regex.Match(fileInfo.FileName);
+                        // 文件名匹配成功
+                        if (matchName.Success)
+                        {
+                            // 获取匹配次数
+                            matchNameCount = regex.Matches(fileInfo.FileName).Count;
+                        }
                     }
-                    // 文件内容匹配成功
-                    if (matchContent.Success)
+
+                    // ---- 匹配文件内容
+                    if (searchRegion == SearchRegion.文件名和内容 || searchRegion == SearchRegion.仅文件内容)
                     {
-                        // 获取匹配次数
-                        matchContentCount = regex.Matches(content).Count;
+                        // 获取内容（预览内容替换----\d+----）
+                        string content = AppConst.REGEX_CONTENT_PAGE.Replace(fileInfo.Preview, "");
+
+                        // 匹配文件内容
+                        Match matchContent = regex.Match(content);
+                        // 文件内容匹配成功
+                        if (matchContent.Success)
+                        {
+                            // 获取匹配次数
+                            matchContentCount = regex.Matches(content).Count;
+                        }
                     }
+                    
                     // 匹配数量合并
                     int count = matchNameCount + matchContentCount;
                     // 匹配次数大于才是有效值
@@ -936,7 +937,7 @@ namespace TextLocator.Index
                 {
                     text = text.Substring(0, text.Length - 1);
                 }
-                log.Debug(fileName + " -> 词频统计耗时：" + taskTime.ConsumeTime + " 统计词频：" + text);
+                log.Debug(fileInfo.FileName + " -> 词频统计耗时：" + taskTime.ConsumeTime + " 统计词频：" + text);
                 return text;
             }
             catch (Exception ex)

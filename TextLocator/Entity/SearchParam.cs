@@ -29,9 +29,9 @@ namespace TextLocator.Entity
         /// </summary>
         public bool IsMatchWords { get; set; }
         /// <summary>
-        /// 仅文件名
+        /// 搜索域
         /// </summary>
-        public bool IsOnlyFileName { get; set; }
+        public SearchRegion SearchRegion { get; set; }
         /// <summary>
         /// 分页索引
         /// </summary>

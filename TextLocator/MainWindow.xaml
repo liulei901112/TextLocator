@@ -119,11 +119,15 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Grid Margin="10">
                                         <!-- 匹配全词 -->
-                                        <CheckBox x:Name="MatchWords" Content="匹配全词" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center" Checked="MatchWords_Checked" Unchecked="MatchWords_Unchecked"/>
+                                        <CheckBox x:Name="MatchWords" Content="匹配全词" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center" Checked="CheckBoxCheckStatusChange" Unchecked="CheckBoxCheckStatusChange"/>
                                     </Grid>
-                                    <Grid Margin="10">
-                                        <!-- 仅文件名 -->
-                                        <CheckBox x:Name="OnlyFileName" Content="仅文件名" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center" Checked="OnlyFileName_Checked" Unchecked="OnlyFileName_Unchecked"/>
+                                    <!-- 搜索范围 -->
+                                    <Grid Margin="10,0,0,0">
+                                        <ComboBox x:Name="SearchScope" Margin="0,0,10,0" FontSize="16" Width="130" Height="30" HorizontalAlignment="Left" SelectionChanged="SearchScope_SelectionChanged">
+                                            <ComboBoxItem Content="文件名和内容" IsSelected="True"/>
+                                            <ComboBoxItem Content="仅文件名"/>
+                                            <ComboBoxItem Content="仅文件内容"/>
+                                        </ComboBox>
                                     </Grid>
                                 </StackPanel>
                                 <!-- 排序 -->

@@ -456,8 +456,6 @@ namespace TextLocator
             // ---- 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
             // 取消匹配全词
             MatchWords.IsChecked = false;
-            // 取消区分大小写
-            OnlyFileName.IsChecked = false;
 
             // 全部文件类型
             ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(_radioButtonAll);
@@ -467,7 +465,7 @@ namespace TextLocator
             // 默认排序
             SortOptions.SelectedIndex = 0;
             // 文件名和内容
-            //SearchScope.SelectedIndex = 0;
+            SearchScope.SelectedIndex = 0;
 
             BeforeSearch();
         }
@@ -487,8 +485,6 @@ namespace TextLocator
                 // ---- 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
                 // 取消匹配全词
                 MatchWords.IsChecked = false;
-                // 取消区分大小写
-                OnlyFileName.IsChecked = false;
 
                 // 全部文件类型
                 ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(_radioButtonAll);
@@ -498,7 +494,7 @@ namespace TextLocator
                 // 默认排序
                 SortOptions.SelectedIndex = 0;
                 // 文件名和内容
-                //SearchScope.SelectedIndex = 0;
+                SearchScope.SelectedIndex = 0;
 
                 BeforeSearch();
 
@@ -690,12 +686,13 @@ namespace TextLocator
             IToggleProvider toggleProvider = toggleButtonAutomationPeer.GetPattern(PatternInterface.Toggle) as IToggleProvider;
             toggleProvider.Toggle();
 
-            // 仅文件名 和 全词匹配取消选中
-            OnlyFileName.IsChecked = false;
+            // 全词匹配取消选中
             MatchWords.IsChecked = false;
 
             // 排序类型切换为默认
             SortOptions.SelectedIndex = 0;
+            // 文件名和内容
+            SearchScope.SelectedIndex = 0;
 
             // -------- 搜索结果列表
             // 搜索结果列表清空
@@ -864,6 +861,15 @@ namespace TextLocator
 
         #region 界面事件
         /// <summary>
+        /// 搜索域切换
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SearchScope_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            BeforeSearch();
+        }
+        /// <summary>
         /// 文件类型过滤器选中事件
         /// </summary>
         /// <param name="sender"></param>
@@ -882,43 +888,11 @@ namespace TextLocator
         }
 
         /// <summary>
-        /// 仅文件名选中时
+        /// 复选框选中状态切换
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnlyFileName_Checked(object sender, RoutedEventArgs e)
-        {
-
-            BeforeSearch();
-        }
-
-        /// <summary>
-        /// 仅文件名取消选中时
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnlyFileName_Unchecked(object sender, RoutedEventArgs e)
-        {
-            BeforeSearch();
-        }
-
-        /// <summary>
-        /// 匹配全瓷选中
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MatchWords_Checked(object sender, RoutedEventArgs e)
-        {
-
-            BeforeSearch();
-        }
-
-        /// <summary>
-        /// 匹配全瓷取消选中
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MatchWords_Unchecked(object sender, RoutedEventArgs e)
+        private void CheckBoxCheckStatusChange(object sender, RoutedEventArgs e)
         {
             BeforeSearch();
         }
@@ -1127,6 +1101,13 @@ namespace TextLocator
 
                     // 不同区域，索引分开记录
                     string areaIdIndex = areaInfo.AreaId + "Index";
+
+                    // 重建则删除全部标记
+                    if (isRebuild)
+                    {
+                        // 重建时，删除全部标记
+                        AppUtil.DeleteSection(areaIdIndex);
+                    }
 
                     // -------- 开始获取文件列表
                     string msg = string.Format("搜索区【{0}】，开始扫描文件...", areaInfo.AreaName);
@@ -1498,8 +1479,7 @@ namespace TextLocator
                 FileType = filter == null ? null : filter + "",
                 SortType = (SortType)SortOptions.SelectedValue,
                 IsMatchWords = (bool)MatchWords.IsChecked,
-                IsOnlyFileName = (bool)OnlyFileName.IsChecked,
-                // SearchRegion = (SearchRegion)SearchScope.SelectedValue,
+                SearchRegion = (SearchRegion)SearchScope.SelectedValue,
                 PageSize = PageSize,
                 PageIndex = PageNow
             };

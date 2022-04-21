@@ -241,7 +241,7 @@ namespace TextLocator.Index
                 create = isRebuild;
             }
 
-            // 创建还是更新？
+            // 创建则删除全部标记
             if (create)
             {
                 // 重建时，删除全部标记
@@ -647,21 +647,23 @@ namespace TextLocator.Index
             {
                 // 搜索域加权
                 Dictionary<string, float> boosts = new Dictionary<string, float>();
-                boosts["Content"] = 1.2f;
-                boosts["FileName"] = 1.0f;
-
                 // 搜索域列表
                 List<string> fields = new List<string>();
-                fields.Add("FileName");
 
-                if (!param.IsOnlyFileName)
+                // 搜索域设置
+                if (param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件名)
                 {
+                    boosts["FileName"] = 1.0f;
+                    fields.Add("FileName");
+                }
+                if (param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件内容)
+                {
+                    boosts["Content"] = 1.2f;
                     fields.Add("Content");
                 }
 
                 // 查询转换器
-                Lucene.Net.QueryParsers.QueryParser parser =
-                    new Lucene.Net.QueryParsers.MultiFieldQueryParser(
+                Lucene.Net.QueryParsers.QueryParser queryParser = new Lucene.Net.QueryParsers.MultiFieldQueryParser(
                         // Lucence版本
                         Lucene.Net.Util.Version.LUCENE_30,
                         // 搜索域列表
@@ -684,21 +686,25 @@ namespace TextLocator.Index
                     if (AppConst.REGEX_SUPPORT_WILDCARDS.IsMatch(keyword))
                     {
                         tag = "正则";
-                        // 文件名
-                        RegexQuery regexFileName = new RegexQuery(new Lucene.Net.Index.Term("FileName", keyword));
-                        boolQuery.Add(regexFileName, Lucene.Net.Search.Occur.SHOULD);
 
-                        if (!param.IsOnlyFileName)
+                        // 搜索域设置
+                        if (param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件名)
+                        {
+                            // 文件名
+                            RegexQuery regexFileName = new RegexQuery(new Lucene.Net.Index.Term("FileName", keyword));
+                            boolQuery.Add(regexFileName, Lucene.Net.Search.Occur.SHOULD);
+                        }
+                        if (param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件内容)
                         {
                             // 文件内容
                             RegexQuery regexContentQuery = new RegexQuery(new Lucene.Net.Index.Term("Content", keyword));
                             boolQuery.Add(regexContentQuery, Lucene.Net.Search.Occur.SHOULD);
-                        }                        
+                        }
                     }
                     // 常规
                     else
                     {
-                        Lucene.Net.Search.Query query = parser.Parse(Lucene.Net.QueryParsers.QueryParser.Escape(keyword));
+                        Lucene.Net.Search.Query query = queryParser.Parse(Lucene.Net.QueryParsers.QueryParser.Escape(keyword));
                         boolQuery.Add(query, param.IsMatchWords ? Lucene.Net.Search.Occur.MUST : Lucene.Net.Search.Occur.SHOULD);
                     }
                 }

@@ -275,6 +275,7 @@
     <Compile Include="Entity\AreaInfo.cs" />
     <Compile Include="Entity\SearchParam.cs" />
     <Compile Include="Entity\SearchResult.cs" />
+    <Compile Include="Enums\SearchRegion.cs" />
     <Compile Include="Exceptions\FileSizeTooBigException.cs" />
     <Compile Include="Exceptions\NotFoundFileServiceException.cs" />
     <Compile Include="Index\RegexQuery.cs" />

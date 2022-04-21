@@ -144,7 +144,7 @@ namespace TextLocator.Index
             if (index <= -1)
             {
                 // 创建10个写入器
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < AppConst.INDEX_PARTITION_COUNT; i++)
                 {
                     BuiltIn(i, true);
                 }                
@@ -571,7 +571,7 @@ namespace TextLocator.Index
         {
             // -------- 获取索引写入器
             // 随机索引写入器
-            int index = filePath.Length % 10; // new Random().Next(10);
+            int index = filePath.Length % AppConst.INDEX_PARTITION_COUNT; // new Random().Next(10);
 
             try
             {
@@ -625,7 +625,7 @@ namespace TextLocator.Index
             // 构造全部搜索区索引路径
             foreach(Entity.AreaInfo areaInfo in AreaUtil.GetEnableAreaInfoList())
             {
-                for(int i = 0; i < 10; i++)
+                for(int i = 0; i < AppConst.INDEX_PARTITION_COUNT; i++)
                 {
                     try
                     {

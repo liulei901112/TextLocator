@@ -113,6 +113,10 @@ namespace TextLocator.Core
 
 
         /// <summary>
+        /// 索引写入器
+        /// </summary>
+        public const int INDEX_PARTITION_COUNT = 5;
+        /// <summary>
         /// 比例最小值
         /// </summary>
         public const int MIN_PERCENT = 0;

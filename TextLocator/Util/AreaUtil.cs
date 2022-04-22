@@ -71,6 +71,12 @@ namespace TextLocator.Util
                             areaFileTypes.Add((Enums.FileType)System.Enum.Parse(typeof(Enums.FileType), tmp));
                         }
                     }
+
+                    // 旧数据或者配置信息被破坏时，错误兼容
+                    if (areaFileTypes.Count <= 0)
+                    {
+                        areaFileTypes = FileTypeUtil.GetFileTypesNotAll();
+                    }
                     
                     // 构造数据对象
                     AreaInfo areaInfo = new AreaInfo()
@@ -79,7 +85,7 @@ namespace TextLocator.Util
                         AreaId = areaId,
                         AreaName = areaName,
                         AreaFolders = areaFolders,
-                        AreaFileTypes = areaFileTypes
+                        AreaFileTypes = areaFileTypes,
                     };
                     // 全部搜索区
                     areaInfoList.Add(areaInfo);

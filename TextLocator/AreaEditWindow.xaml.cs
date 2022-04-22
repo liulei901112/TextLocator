@@ -109,7 +109,8 @@ namespace TextLocator
                 CheckBox checkbox = new CheckBox()
                 {
                     Name = "FileType_" + (int)fileType,
-                    Margin = new Thickness(10),
+                    Margin = new Thickness(10,5,10,5),
+                    Height = 20,
                     Tag = fileType,
                     Content = fileType.ToString() + "（" + fileType.GetDescription() + "）"
                 };

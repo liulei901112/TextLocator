@@ -46,10 +46,6 @@ namespace TextLocator.Core
         /// 索引更新任务间隔时间，单位：分
         /// </summary>
         public static int INDEX_UPDATE_TASK_INTERVAL = int.Parse(AppUtil.ReadValue("AppConfig", "IndexUpdateTaskInterval", "10"));
-        /// <summary>
-        /// 启用XpsDocument预览
-        /// </summary>
-        public static bool ENABLE_XPSDOCUMENT_VIEW = bool.Parse(AppUtil.ReadValue("AppConfig", "EnableXpsDocumentView", "True"));
 
         /// <summary>
         /// AppName
@@ -95,10 +91,6 @@ namespace TextLocator.Core
         /// </summary>
         public static readonly Regex REGEX_TAG = new Regex("\\<.[^<>]*\\>");
         /// <summary>
-        /// 匹配文件后缀
-        /// </summary>
-        public static readonly Regex REGEX_FILE_EXT = new Regex(@"^.+\.(" + FileTypeUtil.GetFileTypeExts("|") + ")$");
-        /// <summary>
         /// 匹配排除关键词
         /// </summary>
         public static readonly Regex REGEX_EXCLUDE_KEYWORD = new Regex(@"(\$RECYCLE|360REC|SYSTEM|TEMP|SYSTEM VOLUME INFOMATION|\{(.*)\})");
@@ -111,7 +103,10 @@ namespace TextLocator.Core
         /// </summary>
         public static readonly Regex REGEX_CONTENT_PAGE = new Regex(@"----\d+----");
 
-
+        /// <summary>
+        /// 索引写入器
+        /// </summary>
+        public const int INDEX_PARTITION_COUNT = 5;
         /// <summary>
         /// 比例最小值
         /// </summary>
@@ -128,6 +123,9 @@ namespace TextLocator.Core
         /// 加密解密秘钥（不能随意修改，随意修改将导致注册码失效）
         /// </summary>
         public const string AES_KEY = "TextLocator_Activation_2022";
-
+        /// <summary>
+        /// 区域配置
+        /// </summary>
+        public const string AREA_CONFIG_KEY = "AreaConfig";
     }
 }

@@ -60,16 +60,16 @@
 
                             <!-- 条件和排序 -->
                             <Grid Margin="0,10,10,0" VerticalAlignment="Top" Height="40" Background="#F3F3F3">
-                                <StackPanel x:Name="FileTypeFilter" Orientation="Horizontal" HorizontalAlignment="Left">
-                                    <RadioButton GroupName="FileTypeFilter" Width="80" x:Name="FileTypeAll" Margin="1" IsChecked="True">全部</RadioButton>
-                                    <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">Word文档</RadioButton>
-                                    <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">Excel表格</RadioButton>
-                                    <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">PPT文稿</RadioButton>
-                                    <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">PDF文档</RadioButton>
-                                    <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">DOM文档</RadioButton>
-                                    <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">TXT文本</RadioButton>
-                                    <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">常用图片</RadioButton>
-                                    <RadioButton GroupName="FileTypeFilter" Width="80" Margin="1">代码文件</RadioButton>
+                                <StackPanel x:Name="SearchFileType" Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <RadioButton GroupName="SearchFileType" Width="80" Margin="1" IsChecked="True">全部</RadioButton>
+                                    <RadioButton GroupName="SearchFileType" Width="80" Margin="1">Word文档</RadioButton>
+                                    <RadioButton GroupName="SearchFileType" Width="80" Margin="1">Excel表格</RadioButton>
+                                    <RadioButton GroupName="SearchFileType" Width="80" Margin="1">PPT文稿</RadioButton>
+                                    <RadioButton GroupName="SearchFileType" Width="80" Margin="1">PDF文档</RadioButton>
+                                    <RadioButton GroupName="SearchFileType" Width="80" Margin="1">DOM文档</RadioButton>
+                                    <RadioButton GroupName="SearchFileType" Width="80" Margin="1">TXT文本</RadioButton>
+                                    <RadioButton GroupName="SearchFileType" Width="80" Margin="1">常用图片</RadioButton>
+                                    <RadioButton GroupName="SearchFileType" Width="80" Margin="1">代码文件</RadioButton>
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
@@ -81,29 +81,15 @@
                             <StackPanel Margin="0,10,10,0" Orientation="Horizontal" >
                                 <!-- 扩展信息 -->
                                 <StackPanel>
-                                    <Grid Visibility="Collapsed">
-                                        <TextBlock Text="文件类型：" HorizontalAlignment="Left" Margin="0,5,0,0"/>
-                                        <Border Width="485" Height="25" Margin="65,5,0,0" HorizontalAlignment="Left" BorderBrush="Gray" BorderThickness="1">
-                                            <StackPanel x:Name="FileTypeNames" Orientation="Horizontal">
-                                                <Button Content="Word文档" Background="Gray" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="Excel表格" Background="Gray" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="PPT文稿" Background="Gray" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="PDF文档" Background="Gray" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="DOM文档" Background="Gray" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="TXT文本" Background="Gray" Height="20" Margin="2,0,0,0"/>
-                                                <Button Content="常用图片" Background="Gray" Height="20" Margin="2,0,0,0"/>                                                
-                                            </StackPanel>
-                                        </Border>
-                                    </Grid>
                                     <!-- 搜索区域 -->
                                     <Grid>
-                                        <TextBlock Text="搜索区域：" Margin="0,5,0,0" HorizontalAlignment="Left"/>
-                                        <TextBox x:Name="FolderPaths" Text="C:\Users\{User}\Document" IsReadOnly="true" Width="485" Height="25" Margin="65,5,0,0" HorizontalAlignment="Left" MouseDoubleClick="FolderPaths_MouseDoubleClick"/>
+                                        <TextBlock Text="启用搜索区：" Margin="0,5,0,0" HorizontalAlignment="Left"/>
+                                        <TextBox x:Name="EnableAreaInfos" Text="默认区域" IsReadOnly="true" Width="470" Height="25" Margin="80,5,0,0" HorizontalAlignment="Left" MouseDoubleClick="AreaInfos_MouseDoubleClick"/>
                                     </Grid>
                                     <!-- 排除区域 -->
                                     <Grid>
-                                        <TextBlock Text="排除区域：" Margin="0,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="ExclusionPaths" Text="" Foreground="Gray" IsReadOnly="true" Width="485" Height="25" Margin="65,5,0,0" HorizontalAlignment="Left" MouseDoubleClick="FolderPaths_MouseDoubleClick" Grid.ColumnSpan="2" Cursor="IBeam"/>
+                                        <TextBlock Text="禁用搜索区：" Margin="0,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                        <TextBox x:Name="DisableAreaInfos" Text="" Foreground="Gray" IsReadOnly="true" Width="470" Height="25" Margin="80,5,0,0" HorizontalAlignment="Left" MouseDoubleClick="AreaInfos_MouseDoubleClick" Grid.ColumnSpan="2" Cursor="IBeam"/>
                                     </Grid>
                                 </StackPanel>
                             </StackPanel>
@@ -128,33 +114,30 @@
                         <Grid HorizontalAlignment="Stretch" Grid.Column="0">
                             <!-- 条件和排序 -->
                             <Grid Height="40" VerticalAlignment="Top" Background="#F3F3F3">
-                                <!-- 复选框 -->
+                                <!-- 条件 -->
                                 <StackPanel Orientation="Horizontal">
-                                    <Grid Margin="10">
-                                        <!-- 匹配全词 -->
-                                        <CheckBox x:Name="MatchWords" Content="匹配全词" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center" Checked="MatchWords_Checked" Unchecked="MatchWords_Unchecked"/>
+                                    <!-- 搜索域 -->
+                                    <Grid Margin="10,0,10,0">
+                                        <ComboBox x:Name="SearchScope" Margin="0,0,10,0" FontSize="16" Width="130" HorizontalAlignment="Left" VerticalAlignment="Center" SelectionChanged="SearchScope_SelectionChanged">
+                                            <ComboBoxItem Content="文件名和内容" IsSelected="True"/>
+                                            <ComboBoxItem Content="仅文件名"/>
+                                            <ComboBoxItem Content="仅文件内容"/>
+                                        </ComboBox>
                                     </Grid>
-                                    <Grid Margin="10">
-                                        <!-- 仅文件名 -->
-                                        <CheckBox x:Name="OnlyFileName" Content="仅文件名" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center" Checked="OnlyFileName_Checked" Unchecked="OnlyFileName_Unchecked"/>
+                                    <!-- 匹配全词 -->
+                                    <Grid Margin="10">                                        
+                                        <CheckBox x:Name="MatchWords" Content="匹配全词" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center" Checked="CheckChange" Unchecked="CheckChange"/>
                                     </Grid>
                                 </StackPanel>
                                 <!-- 排序 -->
-                                <!-- <Button Content="默认排序" Margin="0,0,10,0"  Width="65" Height="25" HorizontalAlignment="Right"/> -->
-                                <Label Content="排序：" FontSize="14"  Margin="0,0,110,0"  Height="25" HorizontalAlignment="Right" VerticalContentAlignment="Center" />
-                                <ComboBox x:Name="SortOptions" Margin="0,0,10,0"  Width="100" Height="25" HorizontalAlignment="Right" SelectionChanged="SortOptions_SelectionChanged">
+                                <Label Content="排序：" FontSize="14"  Margin="0,0,110,0" HorizontalAlignment="Right" VerticalContentAlignment="Center" />
+                                <ComboBox x:Name="SortOptions" Margin="0,0,10,0"  Width="100" HorizontalAlignment="Right" VerticalAlignment="Center" SelectionChanged="SortOptions_SelectionChanged">
                                     <ComboBoxItem Content="默认排序" IsSelected="True"/>
                                     <ComboBoxItem Content="从远到近"/>
                                     <ComboBoxItem Content="从近到远"/>
                                     <ComboBoxItem Content="从小到大"/>
                                     <ComboBoxItem Content="从大到小"/>
                                 </ComboBox>
-                                <!-- <TextBlock Text="排序：" Margin="0,0,280,0" HorizontalAlignment="Right"/>
-                                <Button x:Name="SortDefault" Content="默认" Margin="0,0,220,0"  Width="60" Height="20" HorizontalAlignment="Right"/>
-                                <Button Content="匹配度" Margin="0,0,150,0"  Width="60" Height="20" HorizontalAlignment="Right" Background="Gray"/>
-
-                                <Button x:Name="SortTime" Content="时间" Margin="0,0,80,0" Width="60" Height="20" HorizontalAlignment="Right" Background="Gray"/>
-                                <Button x:Name="SortSize" Content="大小" Margin="0,0,10,0" Width="60" Height="20" HorizontalAlignment="Right" Background="Gray"/> -->
 
                                 <!-- 分割线 -->
                                 <GridSplitter Grid.Column="1" Height="1" Cursor="Arrow" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
@@ -205,6 +188,9 @@
                                     </Grid>
                                 </ListBoxItem>
                             </ListBox>
+
+                            <!-- 搜索加载中 -->
+                            <TextBlock x:Name="_searchLoading" Text="搜索处理中..." FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#2196f3" Margin="0,130,0,0" Visibility="Collapsed"/>
 
                             <!-- 分页 -->
                             <rubyer:PageBar x:Name="PageBar" VerticalAlignment="Bottom" HorizontalAlignment="Center"

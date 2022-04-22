@@ -19,7 +19,7 @@ namespace TextLocator.Entity
         /// <summary>
         /// 文件类型
         /// </summary>
-        public string FileType { get; set; }
+        public FileType FileType { get; set; }
         /// <summary>
         /// 排序规则
         /// </summary>
@@ -29,9 +29,13 @@ namespace TextLocator.Entity
         /// </summary>
         public bool IsMatchWords { get; set; }
         /// <summary>
-        /// 仅文件名
+        /// 区分大小写
         /// </summary>
-        public bool IsOnlyFileName { get; set; }
+        public bool IsMatchCase { get; set; }
+        /// <summary>
+        /// 搜索域
+        /// </summary>
+        public SearchRegion SearchRegion { get; set; }
         /// <summary>
         /// 分页索引
         /// </summary>

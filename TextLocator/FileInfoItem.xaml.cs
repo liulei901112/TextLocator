@@ -15,7 +15,12 @@ namespace TextLocator
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public FileInfoItem(Entity.FileInfo fileInfo)
+        /// <summary>
+        /// 文件信息显示条目
+        /// </summary>
+        /// <param name="fileInfo">文件信息</param>
+        /// <param name="searchRegion">搜索域</param>
+        public FileInfoItem(Entity.FileInfo fileInfo, Enums.SearchRegion searchRegion)
         {
             InitializeComponent();
 
@@ -23,14 +28,14 @@ namespace TextLocator
 
             try
             {
-                Refresh(fileInfo);
+                Refresh(fileInfo, searchRegion);
             }
             catch {
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     try
                     {
-                        Refresh(fileInfo);
+                        Refresh(fileInfo, searchRegion);
                     }
                     catch (Exception ex)
                     {
@@ -43,8 +48,9 @@ namespace TextLocator
         /// <summary>
         /// 刷新数据
         /// </summary>
-        /// <param name="fileInfo"></param>
-        public void Refresh(Entity.FileInfo fileInfo)
+        /// <param name="fileInfo">文件信息</param>
+        /// <param name="searchRegion">搜索域</param>
+        public void Refresh(Entity.FileInfo fileInfo, Enums.SearchRegion searchRegion)
         {
             // 根据文件类型显示图标
             this.FileTypeIcon.Source = FileUtil.GetFileIcon(fileInfo.FileType);
@@ -56,7 +62,10 @@ namespace TextLocator
             string fileName = fileInfo.FileName;
             // 显示文件名称
             RichTextBoxUtil.FillingData(this.FileName, fileName.Length > 55 ? fileName.Substring(0, 55) + "..." : fileName, (Brush)new BrushConverter().ConvertFromString("#1A0DAB"), true);
-            RichTextBoxUtil.Highlighted(this.FileName, Colors.Red, fileInfo.Keywords);
+            if (searchRegion == Enums.SearchRegion.文件名和内容 || searchRegion == Enums.SearchRegion.仅文件名)
+            {
+                RichTextBoxUtil.Highlighted(this.FileName, Colors.Red, fileInfo.Keywords);
+            }
 
             string filePath = fileInfo.FilePath.Replace(fileInfo.FileName, "");
             // 文件路径
@@ -68,9 +77,24 @@ namespace TextLocator
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     RichTextBoxUtil.FillingData(this.ContentBreviary, breviary, (Brush)new BrushConverter().ConvertFromString("#545454"));
-                    RichTextBoxUtil.Highlighted(this.ContentBreviary, Colors.Red, fileInfo.Keywords);
+                    if (searchRegion == Enums.SearchRegion.文件名和内容 || searchRegion == Enums.SearchRegion.仅文件内容)
+                    {
+                        RichTextBoxUtil.Highlighted(this.ContentBreviary, Colors.Red, fileInfo.Keywords);
+                    }
                 }));
             });
+
+            /*// 词频统计
+            Task.Factory.StartNew(() => {
+                string keywordFrequency = IndexCore.GetKeywordFrequency(fileInfo, searchRegion);
+                this.Dispatcher.BeginInvoke(new Action(() => {
+                    if (!string.IsNullOrWhiteSpace(keywordFrequency))
+                    {
+                        // 关键词匹配次数
+                        this.FileTypeIcon.ToolTip = keywordFrequency;
+                    }
+                }));
+            });*/
         }
     }
 }

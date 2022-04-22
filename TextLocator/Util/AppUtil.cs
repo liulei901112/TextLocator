@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using TextLocator.Core;
 
 namespace TextLocator.Util
 {
@@ -48,8 +49,23 @@ namespace TextLocator.Util
             // ini文件初始化
             Initialize();
 
-            // 加载节点下全部Key-Value
-            LoadAllKeyValue("FileIndex");
+            Thread t = new Thread(() =>
+            {
+                // 加载区域配置
+                LoadAllKeyValue(AppConst.AREA_CONFIG_KEY);
+
+                List<string> areaList = ReadSectionList(AppConst.AREA_CONFIG_KEY);
+                foreach (string areaId in areaList)
+                {
+                    LoadAllKeyValue(areaId);
+                }
+            });
+            t.Priority = ThreadPriority.AboveNormal;
+            t.Start();
+            
+
+
+            
         }
 
         /// <summary>
@@ -103,15 +119,16 @@ namespace TextLocator.Util
                     if (sectionDic.ContainsKey(key))
                     {
                         if (string.IsNullOrEmpty(value))
-                        {
                             sectionDic.Remove(key);
-                        }
                         else
-                        {
                             sectionDic[key] = value;
-                        }
                     }
-                    _AppIniCache[section] = sectionDic;
+                    else
+                    	sectionDic.Add(key, value);
+                    if (_AppIniCache.ContainsKey(section))
+                        _AppIniCache[section] = sectionDic;
+                    else
+                        _AppIniCache.Add(section, sectionDic);
 
                     WritePrivateProfileString(section, key, value, _AppIniFile);
                 }
@@ -159,8 +176,15 @@ namespace TextLocator.Util
                     lock(locker)
                     {
                         Dictionary<string, string> sectionDic = _AppIniCache.ContainsKey(section) ? _AppIniCache[section] : new Dictionary<string, string>();
-                        sectionDic[key] = def;
-                        _AppIniCache[section] = sectionDic;
+                        if (sectionDic.ContainsKey(key))
+                            sectionDic[key] = def;
+                        else
+                            sectionDic.Add(key, def);
+
+                        if (_AppIniCache.ContainsKey(section))
+                            _AppIniCache[section] = sectionDic;
+                        else
+                            _AppIniCache.Add(section, sectionDic);
                     }                    
                 }
                 return def;
@@ -230,46 +254,47 @@ namespace TextLocator.Util
         /// <returns></returns>
         private static void LoadAllKeyValue(string section)
         {
-            Thread t = new Thread(() =>
+            try
             {
-                try
+                // 默认为32767（32.767KB），设置为128000000（128MB）
+                uint MAX_BUFFER = 256000000;
+                // 返回值[返回值形式为 key=value,例如 Color=Red]
+                string[] items = new string[0];
+
+                //分配内存
+                IntPtr pReturnedString = Marshal.AllocCoTaskMem((int)MAX_BUFFER * sizeof(char));
+
+                uint bytesReturned = GetPrivateProfileSection(section, pReturnedString, MAX_BUFFER, _AppIniFile);
+
+                if (!(bytesReturned == MAX_BUFFER - 2) || (bytesReturned == 0))
                 {
-                    // 默认为32767（32.767KB），设置为128000000（128MB）
-                    uint MAX_BUFFER = 256000000;
-                    // 返回值[返回值形式为 key=value,例如 Color=Red]
-                    string[] items = new string[0];      
-
-                    //分配内存
-                    IntPtr pReturnedString = Marshal.AllocCoTaskMem((int)MAX_BUFFER * sizeof(char));
-
-                    uint bytesReturned = GetPrivateProfileSection(section, pReturnedString, MAX_BUFFER, _AppIniFile);
-
-                    if (!(bytesReturned == MAX_BUFFER - 2) || (bytesReturned == 0))
-                    {
-                        string returnedString = Marshal.PtrToStringAuto(pReturnedString, (int)bytesReturned);
-                        items = returnedString.Split(new char[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
-                    }
-
-                    // 释放内存
-                    Marshal.FreeCoTaskMem(pReturnedString);
-
-                    foreach (string entry in items)
-                    {
-                        string[] v = entry.Split('=');
-
-                        // 获取 section 节点
-                        Dictionary<string, string> sectionDic = _AppIniCache.ContainsKey(section) ? _AppIniCache[section] : new Dictionary<string, string>();
-                        // 设置 section 节点子项
-                        sectionDic[v[0]] = v[1];
-                        // 回写 section 节点
-                        _AppIniCache[section] = sectionDic;
-                    }
-                    log.Debug("加载" + section + "节点下全部键值，总数：" + _AppIniCache.Count);
+                    string returnedString = Marshal.PtrToStringAuto(pReturnedString, (int)bytesReturned);
+                    items = returnedString.Split(new char[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
                 }
-                catch { }
-            });
-            t.Priority = ThreadPriority.AboveNormal;
-            t.Start();
+
+                // 释放内存
+                Marshal.FreeCoTaskMem(pReturnedString);
+
+                foreach (string entry in items)
+                {
+                    string[] v = entry.Split('=');
+
+                    // 获取 section 节点
+                    Dictionary<string, string> sectionDic = _AppIniCache.ContainsKey(section) ? _AppIniCache[section] : new Dictionary<string, string>();
+                    // 设置 section 节点子项
+                    if (sectionDic.ContainsKey(v[0]))
+                        sectionDic[v[0]] = v[1];
+                    else
+                        sectionDic.Add(v[0], v[1]);
+                    // 回写 section 节点
+                    if (_AppIniCache.ContainsKey(section))
+                        _AppIniCache[section] = sectionDic;
+                    else
+                        _AppIniCache.Add(section, sectionDic);
+                }
+                log.Debug("加载" + section + "节点下全部键值，总数：" + _AppIniCache.Count);
+            }
+            catch { }
         }
         #endregion
 

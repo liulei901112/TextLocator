@@ -5,11 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TextLocator"
              mc:Ignorable="d" 
-             d:DesignWidth="430" d:DesignHeight="40">
-    <Grid Width="430" Height="40">
-        <TextBlock x:Name="FolderPath" Text="D:\桌面文档" Margin="10,0,0,0" FontSize="16" HorizontalAlignment="Left"/>
-        <Button x:Name="DeleteButton" Content="删除" Margin="0,0,10,0" Background="OrangeRed" HorizontalAlignment="Right"/>
+             d:DesignWidth="430" d:DesignHeight="30">
+    <Grid Width="430" Height="30">
+        <TextBlock x:Name="FolderPath" Text="D:\桌面文档" Margin="0,0,0,0" FontSize="14" HorizontalAlignment="Left"/>
+        <Button x:Name="DelButton" Content="删除" Margin="0,0,10,0" Height="20" Background="OrangeRed" HorizontalAlignment="Right"/>
         <!-- 分割线 -->
-        <Line X1="0" Y1="0" X2="455" Y2="0" VerticalAlignment="Bottom" Stroke="Gray" StrokeThickness="1"></Line>
+        <Line X1="0" Y1="0" X2="430" Y2="0" VerticalAlignment="Bottom" Stroke="Gray" StrokeThickness="1"></Line>
     </Grid>
 </UserControl>

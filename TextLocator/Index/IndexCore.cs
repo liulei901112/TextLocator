@@ -57,7 +57,7 @@ namespace TextLocator.Index
         /// 删除索引
         /// </summary>
         private static volatile Queue<int> _indexDeleted = new Queue<int>();
-        
+
         #region 索引写入器
         /// <summary>
         /// 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
@@ -75,15 +75,16 @@ namespace TextLocator.Index
         /// <summary>
         /// 创建索引写入器
         /// </summary>
+        /// <param name="areaId">区域ID（区域索引标识符）</param>
         /// <param name="create">是否是创建</param>
         /// <param name="index">索引写入器下标</param>
-        private static void CreateIndexWriter(bool create, int index = -1)
+        private static void CreateIndexWriter(string areaId, bool create, int index = -1)
         {
             // 内部函数
             void BuiltIn(int subIndex, bool isNew = false)
             {
                 // 索引子目录
-                string appIndexDirSub = Path.Combine(AppConst.APP_INDEX_DIR, subIndex + "");
+                string appIndexDirSub = Path.Combine(AppConst.APP_INDEX_DIR, areaId, subIndex + "");
                 if (!Directory.Exists(appIndexDirSub)) Directory.CreateDirectory(appIndexDirSub);
 
                 // 如果目录下的文件为空，说明是新建
@@ -95,9 +96,13 @@ namespace TextLocator.Index
                 // ---- 索引目录
                 Lucene.Net.Store.FSDirectory indexWriterDir = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(appIndexDirSub), new Lucene.Net.Store.NativeFSLockFactory());
                 if (isNew)
+                {
                     indexWriterDirs.Add(indexWriterDir);
+                }
                 else
+                {
                     indexWriterDirs[subIndex] = indexWriterDir;
+                }               
 
                 //  如果索引目录被锁定（比如索引过程中程序异常退出），则首先解锁
                 //  Lucene.Net在写索引库之前会自动加锁，在Close的时候会自动解锁
@@ -139,10 +144,10 @@ namespace TextLocator.Index
             if (index <= -1)
             {
                 // 创建10个写入器
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < AppConst.INDEX_PARTITION_COUNT; i++)
                 {
                     BuiltIn(i, true);
-                }
+                }                
             }
             else
             {
@@ -173,7 +178,7 @@ namespace TextLocator.Index
             }
             if (index <= -1)
             {
-                for (int i = 0; i < indexWriters.Count; i++)
+                for(int i = 0; i < indexWriters.Count; i++)
                 {
                     BuiltIn(i);
                 }
@@ -184,6 +189,18 @@ namespace TextLocator.Index
             {
                 BuiltIn(index);
             }
+            
+        }
+
+        /// <summary>
+        /// 区域索引标记
+        /// </summary>
+        /// <param name="areaId">区域ID，不允许为空</param>
+        /// <returns></returns>
+        private static string AreaIndexTag(string areaId)
+        {
+            // 不同区域，索引分开记录
+            return areaId + "Index";
         }
         #endregion
 
@@ -191,12 +208,16 @@ namespace TextLocator.Index
         /// <summary>
         /// 创建或更新索引
         /// </summary>
+        /// <param name="areaId">区域ID（区域索引标识符）</param>
         /// <param name="updateFilePaths">文件列表</param>
         /// <param name="deleteFilePaths">删除文件列表</param>
         /// <param name="isRebuild">是否重建，true表示重建，false表示更新</param>
         /// <param name="callback">消息回调</param>
-        public static int CreateIndex(List<string> updateFilePaths, List<string> deleteFilePaths, bool isRebuild, CallbackStatus callback)
+        public static int CreateIndex(string areaId, List<string> updateFilePaths, List<string> deleteFilePaths, bool isRebuild, CallbackStatus callback)
         {
+            // 不同区域，索引分开记录
+            string areaIdIndex = AreaIndexTag(areaId);
+
             // 排重 => 排序
             updateFilePaths = ListUtil.Shuffle(updateFilePaths.Distinct().ToList());
 
@@ -213,30 +234,30 @@ namespace TextLocator.Index
             _errorCount = 0;
 
             // 判断是创建索引还是增量索引（如果索引目录不存在，重建）
-            bool create = !Directory.Exists(AppConst.APP_INDEX_DIR);
+            bool create = !Directory.Exists(Path.Combine(AppConst.APP_INDEX_DIR, areaId));
             // 入参为true，表示重建
             if (isRebuild)
             {
                 create = isRebuild;
             }
 
-            // 创建还是更新？
+            // 创建则删除全部标记
             if (create)
             {
                 // 重建时，删除全部标记
-                AppUtil.DeleteSection("FileIndex");
+                AppUtil.DeleteSection(areaIdIndex);
             }
 
             // -------- 以下4个函数调用顺序不能更改 --------
 
             // 1、-------- 创建索引写入器（创建索引任务执行前，创建写入器很关键）
-            CreateIndexWriter(create);
+            CreateIndexWriter(areaId, create);
 
-            // 2、-------- 删除文件索引（更新ini文件的FileIndex标记，便于更新方法检测时使用）
-            DeleteFileIndex(deleteFilePaths);
+            // 2、-------- 删除文件索引（更新ini文件的AreaIdIndex标记，便于更新方法检测时使用）
+            DeleteFileIndex(areaId, deleteFilePaths);
 
             // 3、-------- 更新文件索引
-            UpdateFileIndex(updateFilePaths, create);
+            UpdateFileIndex(areaId, updateFilePaths, create);
 
             // 4、-------- 删除搜索时标记的索引
             DeleteFileIndexForSearch();
@@ -270,10 +291,11 @@ namespace TextLocator.Index
         /// <summary>
         /// 更新文件索引
         /// </summary>
+        /// <param name="areaId">区域ID（区域索引标识符）</param>
         /// <param name="updateFilePaths">更新文件列表</param>
         /// <param name="create">是否是创建</param>
         /// <returns></returns>
-        private static void UpdateFileIndex(List<string> updateFilePaths, bool create)
+        private static void UpdateFileIndex(string areaId, List<string> updateFilePaths, bool create)
         {
             if (updateFilePaths.Count > 0)
             {
@@ -284,13 +306,14 @@ namespace TextLocator.Index
                     {
                         string filePath = updateFilePaths[i];
                         // 忽略已存在索引的文件
-                        if (SkipFile(create, filePath, resetEvent))
+                        if (SkipFile(areaId, create, filePath, resetEvent))
                         {
                             continue;
                         }
                         // 加入线程池
                         ThreadPool.QueueUserWorkItem(new WaitCallback(CreateIndexTask), new TaskInfo()
                         {
+                            AreaId = areaId,
                             FilePath = filePath,
                             ResetEvent = resetEvent
                         });
@@ -309,12 +332,16 @@ namespace TextLocator.Index
         /// <summary>
         /// 删除文件索引
         /// </summary>
+        /// <param name="areaId">区域ID（区域索引标识符）</param>
         /// <param name="deleteFilePaths">删除文件列表</param>
         /// <returns></returns>
-        private static void DeleteFileIndex(List<string> deleteFilePaths)
+        private static void DeleteFileIndex(string areaId, List<string> deleteFilePaths)
         {
             if (deleteFilePaths.Count > 0)
             {
+                // 不同区域，索引分开记录
+                string areaIdIndex = AreaIndexTag(areaId);
+
                 foreach (string filePath in deleteFilePaths)
                 {
                     // 文件标记
@@ -332,7 +359,7 @@ namespace TextLocator.Index
                     }
 
                     // 删除标记和缓存
-                    AppUtil.WriteValue("FileIndex", filePath, null);
+                    AppUtil.WriteValue(areaIdIndex, filePath, null);
                 }
             }
             else
@@ -376,18 +403,22 @@ namespace TextLocator.Index
         /// <summary>
         /// 忽略文件
         /// </summary>
+        /// <param name="areaId">区域ID（区域索引标识符），不允许为空</param>
         /// <param name="create">是否是创建，true为创建、false为更新</param>
         /// <param name="filePath">文件路径</param>
         /// <param name="resetEvent">多线程任务标记</param>
-        private static bool SkipFile(bool create, string filePath, MutipleThreadResetEvent resetEvent)
+        private static bool SkipFile(string areaId, bool create, string filePath, MutipleThreadResetEvent resetEvent)
         {
             try
             {
+                // 不同区域，索引分开记录
+                string areaIdIndex = AreaIndexTag(areaId);
+
                 FileInfo fileInfo = new FileInfo(filePath);
                 // 当前文件修改时间
                 string lastWriteTime = fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss.ffff");
                 // 上次索引时文件修改时间标记
-                string lastWriteTimeTag = AppUtil.ReadValue("FileIndex", filePath);
+                string lastWriteTimeTag = AppUtil.ReadValue(areaIdIndex, filePath);
 
                 // 非重建 && 文件已经被索引过
                 bool isUpdate = !create;
@@ -409,9 +440,7 @@ namespace TextLocator.Index
                     // 当前任务执行完成，唤醒等待线程继续执行
                     resetEvent.SetOne();
 
-#if !DEBUG
                     log.Debug(skip);
-#endif
                     return true;
                 }
             }
@@ -423,12 +452,15 @@ namespace TextLocator.Index
         /// <summary>
         /// 创建索引任务方法
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="obj">实际传入TaskInfo</param>
         private static void CreateIndexTask(object obj)
         {
             TaskInfo taskInfo = obj as TaskInfo;
             try
             {
+                // 不同区域，索引分开记录
+                string areaIdIndex = AreaIndexTag(taskInfo.AreaId);
+
                 // 解析时间
                 var taskMark = TaskTime.StartNew();
 
@@ -447,7 +479,7 @@ namespace TextLocator.Index
                 string updateTime = fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
 
                 // ---- 写入已索引标记 ----
-                AppUtil.WriteValue("FileIndex", filePath, fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss.ffff"));
+                AppUtil.WriteValue(areaIdIndex, filePath, fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss.ffff"));
 
                 // 根据文件路径获取文件类型（自定义文件类型分类）
                 FileType fileType = FileTypeUtil.GetFileType(filePath);
@@ -496,7 +528,7 @@ namespace TextLocator.Index
                         doc.Add(new Lucene.Net.Documents.Field("Preview", content, Lucene.Net.Documents.Field.Store.YES, Lucene.Net.Documents.Field.Index.NOT_ANALYZED));
 
                         // 执行删除、添加逻辑
-                        AddDocument(filePath, doc);
+                        AddDocument(taskInfo.AreaId, filePath, doc);
                     }
                     msg.Append("，索引：" + taskMark.ConsumeTime);
                 }
@@ -532,13 +564,14 @@ namespace TextLocator.Index
         /// <summary>
         /// 添加文件索引Doc
         /// </summary>
+        /// <param name="areaId">区域ID（区域索引标识符），不允许为null</param>
         /// <param name="filePath">文件路径</param>
-        /// <param name="doc">文件索引Doc</param>
-        private static void AddDocument(string filePath, Lucene.Net.Documents.Document doc)
+        /// <param name="doc">文件索引Doc对象</param>
+        private static void AddDocument(string areaId, string filePath, Lucene.Net.Documents.Document doc)
         {
             // -------- 获取索引写入器
             // 随机索引写入器
-            int index = new Random().Next(10);
+            int index = filePath.Length % AppConst.INDEX_PARTITION_COUNT; // new Random().Next(10);
 
             try
             {
@@ -547,20 +580,20 @@ namespace TextLocator.Index
 
                 indexWriters[index].UpdateDocument(new Lucene.Net.Index.Term("FileMark", fileMark), doc);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 log.Error(filePath + " -> " + ex.Message + " => 重启索引写入器！", ex);
 
 
-                // 关闭索引写入器
-                CloseIndexWriter();
+                // 关闭索引写入器（写入器索引）
+                CloseIndexWriter(index);
 
-                // 创建索引写入器
-                CreateIndexWriter(false, index);
+                // 创建索引写入器（区域ID + 更新 + 写入器索引）
+                CreateIndexWriter(areaId, false, index);
 
                 log.Debug(filePath + " -> 重新执行添加操作");
 
-                AddDocument(filePath, doc);
+                AddDocument(areaId, filePath, doc);
             }
         }
         #endregion
@@ -590,43 +623,51 @@ namespace TextLocator.Index
             List<Lucene.Net.Search.IndexSearcher> searchers = new List<Lucene.Net.Search.IndexSearcher>();
 
             // 构造全部搜索区索引路径
-            for (int i = 0; i < 10; i++)
+            foreach(Entity.AreaInfo areaInfo in AreaUtil.GetEnableAreaInfoList())
             {
-                try
+                for(int i = 0; i < AppConst.INDEX_PARTITION_COUNT; i++)
                 {
-                    string subDir = Path.Combine(AppConst.APP_INDEX_DIR, i + "");
-                    log.Debug("搜索缩影路径：" + subDir);
-                    Lucene.Net.Store.FSDirectory directory = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(subDir), new Lucene.Net.Store.NoLockFactory());
-                    directorys.Add(directory);
-                    searchers.Add(new Lucene.Net.Search.IndexSearcher(directory, true));
-                }
-                catch (Exception ex)
-                {
-                    log.Error("搜索器初始化失败：" + ex.Message, ex);
+                    try
+                    {
+                        string subDir = Path.Combine(AppConst.APP_INDEX_DIR, areaInfo.AreaId, i + "");
+                        log.Debug("搜索缩影路径：" + subDir);
+                        Lucene.Net.Store.FSDirectory directory = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(subDir), new Lucene.Net.Store.NoLockFactory());
+                        directorys.Add(directory);
+                        searchers.Add(new Lucene.Net.Search.IndexSearcher(directory, true));
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("搜索器初始化失败：" + ex.Message, ex);
+                    }
                 }
             }
-
             // 并行多搜索器（搜索结果去重合并）
             Lucene.Net.Search.ParallelMultiSearcher parallelMultiSearcher = new Lucene.Net.Search.ParallelMultiSearcher(searchers.ToArray());
             try
             {
                 // 搜索域加权
                 Dictionary<string, float> boosts = new Dictionary<string, float>();
-                boosts["Content"] = 1.2f;
-                boosts["FileName"] = 1.0f;
-
                 // 搜索域列表
                 List<string> fields = new List<string>();
-                fields.Add("FileName");
 
-                if (!param.IsOnlyFileName)
+                // 搜索域判断（文件名 || 文件内容 || 文件名和文件内容）
+                bool isSearchFileName = param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件名;
+                bool isSearchContent = param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件内容;
+                // 文件名
+                if (isSearchFileName)
                 {
+                    boosts["FileName"] = 1.0f;
+                    fields.Add("FileName");
+                }
+                // 文件内容
+                if (isSearchContent)
+                {
+                    boosts["Content"] = 1.2f;
                     fields.Add("Content");
                 }
 
                 // 查询转换器
-                Lucene.Net.QueryParsers.QueryParser parser =
-                    new Lucene.Net.QueryParsers.MultiFieldQueryParser(
+                Lucene.Net.QueryParsers.QueryParser queryParser = new Lucene.Net.QueryParsers.MultiFieldQueryParser(
                         // Lucence版本
                         Lucene.Net.Util.Version.LUCENE_30,
                         // 搜索域列表
@@ -641,29 +682,32 @@ namespace TextLocator.Index
 
                 // 遍历关键词列表
                 string text = "";
-                string tag = "分词";
+                string keywordType = "分词";
                 foreach (string keyword in param.Keywords)
                 {
                     text += keyword + ",";
                     // 正则
                     if (AppConst.REGEX_SUPPORT_WILDCARDS.IsMatch(keyword))
                     {
-                        tag = "正则";
-                        // 文件名
-                        RegexQuery regexFileName = new RegexQuery(new Lucene.Net.Index.Term("FileName", keyword));
-                        boolQuery.Add(regexFileName, Lucene.Net.Search.Occur.SHOULD);
+                        keywordType = "正则";
 
-                        if (!param.IsOnlyFileName)
+                        // 文件名
+                        if (param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件名)
                         {
-                            // 文件内容
+                            RegexQuery regexFileName = new RegexQuery(new Lucene.Net.Index.Term("FileName", keyword));
+                            boolQuery.Add(regexFileName, Lucene.Net.Search.Occur.SHOULD);
+                        }
+                        // 文件内容
+                        if (param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件内容)
+                        {
                             RegexQuery regexContentQuery = new RegexQuery(new Lucene.Net.Index.Term("Content", keyword));
                             boolQuery.Add(regexContentQuery, Lucene.Net.Search.Occur.SHOULD);
-                        }                        
+                        }
                     }
                     // 常规
                     else
                     {
-                        Lucene.Net.Search.Query query = parser.Parse(Lucene.Net.QueryParsers.QueryParser.Escape(keyword));
+                        Lucene.Net.Search.Query query = queryParser.Parse(Lucene.Net.QueryParsers.QueryParser.Escape(keyword));
                         boolQuery.Add(query, param.IsMatchWords ? Lucene.Net.Search.Occur.MUST : Lucene.Net.Search.Occur.SHOULD);
                     }
                 }
@@ -672,10 +716,10 @@ namespace TextLocator.Index
 
                 // 文件类型筛选（文件类型为全部时，则为空）
                 Lucene.Net.Search.TermsFilter filter = null;
-                if (!string.IsNullOrEmpty(param.FileType))
+                if (param.FileType != FileType.全部)
                 {
                     filter = new Lucene.Net.Search.TermsFilter();
-                    filter.AddTerm(new Lucene.Net.Index.Term("FileType", param.FileType));
+                    filter.AddTerm(new Lucene.Net.Index.Term("FileType", param.FileType.ToString()));
                 }
                 log.Debug("组合搜索条件：" + boolQuery.ToString());
 
@@ -775,12 +819,10 @@ namespace TextLocator.Index
                     fileInfos.Add(fileInfo);
                 }
 
-                string msg = string.Format("检索完成。{0}：( {1} )，结果：{2}个符合条件的结果 (第 {3} 页)，耗时：{4}。", tag, (text.Length > 50 ? text.Substring(0, 50) + "..." : text), totalHits - deleteCount, param.PageIndex, taskMark.ConsumeTime);
+                string msg = string.Format("检索完成。{0}：( {1} )，结果：{2}个符合条件的结果 (第 {3} 页)，耗时：{4}。", keywordType, (text.Length > 50 ? text.Substring(0, 50) + "..." : text), totalHits - deleteCount, param.PageIndex, taskMark.ConsumeTime);
                 log.Debug(msg);
                 if (_searchCallback != null)
-                {
                     _searchCallback(msg);
-                }
 
                 // 返回查询结果
                 return new Entity.SearchResult()
@@ -796,7 +838,7 @@ namespace TextLocator.Index
             }
             finally
             {
-                foreach (var searcher in searchers)
+                foreach(var searcher in searchers)
                 {
                     try
                     {
@@ -807,7 +849,7 @@ namespace TextLocator.Index
                     }
                     catch { }
                 }
-                foreach (var dir in directorys)
+                foreach(var dir in directorys)
                 {
                     try
                     {
@@ -824,43 +866,55 @@ namespace TextLocator.Index
         /// <summary>
         /// 获取关键词词频
         /// </summary>
-        /// <param name="keywords">关键词列表</param>
-        /// <param name="fileName">文件名</param>
-        /// <param name="preview">文件内容</param>
+        /// <param name="fileInfo">文件信息</param>
+        /// <param name="searchRegion">搜索域</param>
         /// <param name="autoNewLine">自动换行</param>
         /// <returns></returns>
-        private static string GetKeywordFrequency(List<string> keywords, string fileName, string preview, bool autoNewLine = true)
+        public static string GetKeywordFrequency(Entity.FileInfo fileInfo, SearchRegion searchRegion, bool autoNewLine = true)
         {
             try
             {
-                // 获取内容（预览内容替换----\d+----）
-                string content = AppConst.REGEX_CONTENT_PAGE.Replace(preview, "");
-
                 TaskTime taskTime = TaskTime.StartNew();
                 // 定义词频词典
                 Dictionary<string, int> frequencyDic = new Dictionary<string, int>();
 
                 // 遍历关键词
-                foreach (string keyword in keywords)
+                foreach (string keyword in fileInfo.Keywords)
                 {
-                    // 声明正则
-                    Regex regex = new Regex(keyword);
-                    // 匹配文件名
-                    Match matchName = regex.Match(fileName), matchContent = regex.Match(content);
                     // 匹配内容
                     int matchNameCount = 0, matchContentCount = 0;
-                    // 文件名匹配成功
-                    if (matchName.Success)
+                    // 声明正则
+                    Regex regex = new Regex(keyword);
+
+                    // ---- 匹配文件名
+                    if (searchRegion == SearchRegion.文件名和内容 || searchRegion == SearchRegion.仅文件名)
                     {
-                        // 获取匹配次数
-                        matchNameCount = regex.Matches(fileName).Count;
+                        // 匹配文件名
+                        Match matchName = regex.Match(fileInfo.FileName);
+                        // 文件名匹配成功
+                        if (matchName.Success)
+                        {
+                            // 获取匹配次数
+                            matchNameCount = regex.Matches(fileInfo.FileName).Count;
+                        }
                     }
-                    // 文件内容匹配成功
-                    if (matchContent.Success)
+
+                    // ---- 匹配文件内容
+                    if (searchRegion == SearchRegion.文件名和内容 || searchRegion == SearchRegion.仅文件内容)
                     {
-                        // 获取匹配次数
-                        matchContentCount = regex.Matches(content).Count;
+                        // 获取内容（预览内容替换----\d+----）
+                        string content = AppConst.REGEX_CONTENT_PAGE.Replace(fileInfo.Preview, "");
+
+                        // 匹配文件内容
+                        Match matchContent = regex.Match(content);
+                        // 文件内容匹配成功
+                        if (matchContent.Success)
+                        {
+                            // 获取匹配次数
+                            matchContentCount = regex.Matches(content).Count;
+                        }
                     }
+                    
                     // 匹配数量合并
                     int count = matchNameCount + matchContentCount;
                     // 匹配次数大于才是有效值
@@ -886,7 +940,7 @@ namespace TextLocator.Index
                 {
                     text = text.Substring(0, text.Length - 1);
                 }
-                log.Debug(fileName + " -> 词频统计耗时：" + taskTime.ConsumeTime + " 统计词频：" + text);
+                log.Debug(fileInfo.FileName + " -> 词频统计耗时：" + taskTime.ConsumeTime + " 统计词频：" + text);
                 return text;
             }
             catch (Exception ex)
@@ -979,6 +1033,10 @@ namespace TextLocator.Index
         /// </summary>
         class TaskInfo
         {
+            /// <summary>
+            /// 区域ID（区域唯一标识符）
+            /// </summary>
+            public string AreaId { get; set; }
             /// <summary>
             /// 文件路径
             /// </summary>

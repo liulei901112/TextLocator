@@ -1026,7 +1026,7 @@ namespace TextLocator
                 // 提示语
                 string tag = isRebuild ? "重建" : "更新";
 
-                // --------定义总数
+                // 1、-------- 定义总数
                 // 文件总数
                 int fileTotalCount = 0;
                 // 更新总数
@@ -1039,7 +1039,7 @@ namespace TextLocator
                 // 总任务消耗时间
                 var totalTaskMark = TaskTime.StartNew();
 
-                // ---------------- 遍历搜索区
+                // 2、-------- 遍历搜索区
                 List<Entity.AreaInfo> areaInfos = AreaUtil.GetEnableAreaInfoList();
                 foreach(Entity.AreaInfo areaInfo in areaInfos)
                 {
@@ -1055,7 +1055,7 @@ namespace TextLocator
                         AppUtil.DeleteSection(areaIdIndex);
                     }
 
-                    // -------- 开始获取文件列表
+                    // 2.1、-------- 开始获取文件列表
                     string msg = string.Format("搜索区【{0}】，开始扫描文件...", areaInfo.AreaName);
                     log.Info(msg);
                     ShowStatus(msg);
@@ -1073,14 +1073,14 @@ namespace TextLocator
                     {
                         log.Info("目录：" + s);
                         // 获取文件信息列表
-                        FileUtil.GetAllFiles(allFilePaths, s, null);
+                        FileUtil.GetAllFiles(allFilePaths, s);
                     }
 
                     msg = string.Format("搜索区【{0}】，文件扫描完成；文件数：{1}，耗时：{2}；开始分析需要更新的文件列表...", areaInfo.AreaName, allFilePaths.Count, scanTaskMark.ConsumeTime);
                     log.Info(msg);
                     ShowStatus(msg);
 
-                    // -------- 获取需要删除的文件列表
+                    // 2.2、-------- 获取需要删除的文件列表
                     if (AppUtil.ReadSectionList(areaIdIndex) != null)
                     {
                         foreach (string filePath in AppUtil.ReadSectionList(areaIdIndex))
@@ -1094,7 +1094,7 @@ namespace TextLocator
                         }
                     }
 
-                    // -------- 如果是更新操作，判断文件格式是否变化 -> 判断文件更新时间变化找到最终需要更新的文件列表
+                    // 2.3、-------- 如果是更新操作，判断文件格式是否变化 -> 判断文件更新时间变化找到最终需要更新的文件列表
                     var analysisTaskMark = TaskTime.StartNew();
                     // 更新是才需要校验，重建是直接跳过
                     if (!isRebuild)
@@ -1129,7 +1129,7 @@ namespace TextLocator
                     log.Info(msg);
                     ShowStatus(msg);
 
-                    // -------- 验证扫描文件列表是否为空（如果是更新操作，判断文件格式是否变化 -> 判断文件更新时间变化找到最终需要更新的文件列表）
+                    // 2.4、-------- 验证扫描文件列表是否为空（如果是更新操作，判断文件格式是否变化 -> 判断文件更新时间变化找到最终需要更新的文件列表）
                     if (updateFilePaths.Count <= 0 && deleteFilePaths.Count <= 0)
                     {
                         build = false;
@@ -1142,10 +1142,10 @@ namespace TextLocator
                     // 后台执行时修改为最小线程单位，反之恢复为系统配置线程数
                     AppCore.SetThreadPoolSize(!isBackground);
 
-                    // -------- 创建索引方法
+                    // 2.5、-------- 创建索引方法
                     int errorCount = IndexCore.CreateIndex(areaInfo.AreaId, updateFilePaths, deleteFilePaths, isRebuild, ShowStatus);
 
-                    // 索引完成日志
+                    // 2.6、-------- 当前区域完成日志
                     msg = string.Format("搜索区【{0}】，索引{1}完成；{2}数：{3}，删除数：{4}，错误数：{5}，共用时：{6}。", areaInfo.AreaName, tag, tag, updateFilePaths.Count, deleteFilePaths.Count, errorCount, singleTaskMark.ConsumeTime);
                     log.Info(msg);
                     ShowStatus(msg);
@@ -1156,23 +1156,23 @@ namespace TextLocator
                     }));
 
 
-                    // 记录文件总数、更新总数、删除总数、错误总数
+                    // 2.7、-------- 记录文件总数、更新总数、删除总数、错误总数
                     fileTotalCount = fileTotalCount + allFilePaths.Count;
                     updateTotalCount = updateTotalCount + updateFilePaths.Count;
                     deleteTotalCount = deleteTotalCount + deleteFilePaths.Count;
                     errorTotalCount = errorTotalCount + errorCount;
                 }
 
-                // 索引完成日志
+                // 3、-------- 完成日志
                 string message = string.Format("索引{0}完成。区域数：{1}，{2}数：{3}，删除数：{4}，错误数：{5}，共用时：{6}。", tag, areaInfos.Count, tag, updateTotalCount, deleteTotalCount, errorTotalCount, totalTaskMark.ConsumeTime);
                 log.Info(message);
                 ShowStatus(message);
 
-                // 标记索引文件数量 和 最后更新时间
+                // 4、-------- 标记索引文件数量 和 最后更新时间
                 AppUtil.WriteValue("AppConfig", "FileTotalCount", fileTotalCount + "");
                 AppUtil.WriteValue("AppConfig", "LastIndexTime", DateTime.Now.ToString());
 
-                // 构建结束
+                // 5、-------- 构建结束
                 build = false;
             }
             catch (Exception ex)

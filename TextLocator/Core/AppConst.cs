@@ -46,10 +46,6 @@ namespace TextLocator.Core
         /// 索引更新任务间隔时间，单位：分
         /// </summary>
         public static int INDEX_UPDATE_TASK_INTERVAL = int.Parse(AppUtil.ReadValue("AppConfig", "IndexUpdateTaskInterval", "10"));
-        /// <summary>
-        /// 启用XpsDocument预览
-        /// </summary>
-        public static bool ENABLE_XPSDOCUMENT_VIEW = bool.Parse(AppUtil.ReadValue("AppConfig", "EnableXpsDocumentView", "True"));
 
         /// <summary>
         /// AppName

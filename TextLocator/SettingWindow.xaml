@@ -80,18 +80,6 @@
                             </Grid>
                         </Grid>
                     </Grid>
-                    <!-- 分割线 -->
-                    <Line X1="0" Y1="0" X2="500" Y2="0" Margin="0,10,0,10" Stroke="Gray" StrokeThickness="1"></Line>
-                    <!-- 索引更新任务间隔时间 -->
-                    <Grid>
-                        <TextBlock Text="启用内置预览界面：" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                        <Grid Margin="20,30,20,0">
-                            <Grid HorizontalAlignment="Left">
-                                <CheckBox x:Name="EnableXpsDocument" Content="启用内置Office预览窗口" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                            </Grid>
-                        </Grid>
-                        
-                    </Grid>
                 </StackPanel>
             </ScrollViewer>
         </Grid>

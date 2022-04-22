@@ -84,7 +84,7 @@ namespace TextLocator
                 }));
             });
 
-           /* // 词频统计
+            // 词频统计
             Task.Factory.StartNew(() => {
                 string keywordFrequency = IndexCore.GetKeywordFrequency(fileInfo, searchRegion);
                 this.Dispatcher.BeginInvoke(new Action(() => {
@@ -94,7 +94,7 @@ namespace TextLocator
                         this.FileTypeIcon.ToolTip = keywordFrequency;
                     }
                 }));
-            });*/
+            });
         }
     }
 }

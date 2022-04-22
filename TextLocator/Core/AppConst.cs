@@ -111,7 +111,6 @@ namespace TextLocator.Core
         /// </summary>
         public static readonly Regex REGEX_CONTENT_PAGE = new Regex(@"----\d+----");
 
-
         /// <summary>
         /// 索引写入器
         /// </summary>
@@ -136,6 +135,5 @@ namespace TextLocator.Core
         /// 区域配置
         /// </summary>
         public const string AREA_CONFIG_KEY = "AreaConfig";
-
     }
 }

@@ -35,7 +35,7 @@ namespace TextLocator.Util
         /// <summary>
         /// App.ini路径：_AppDir\\_AppName.ini
         /// </summary>
-        private static readonly string _AppIniFile =  _AppDir + "\\" + _AppName + ".ini";
+        private static readonly string _AppIniFile = _AppDir + "\\" + _AppName + ".ini";
         
         /// <summary>
         /// Ini文件内容缓存

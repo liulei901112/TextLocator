@@ -12,6 +12,9 @@ yours
 yourself
 yourselves
 he
+open
+dialog
+window
 him
 his
 himself

@@ -270,6 +270,9 @@
     <Compile Include="AreaInfoItem.xaml.cs">
       <DependentUpon>AreaInfoItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AreaWindow.xaml.cs">
+      <DependentUpon>AreaWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Cache\LFUCache.cs" />
     <Compile Include="Cache\LFUCacheEntity.cs" />
     <Compile Include="Entity\AreaInfo.cs" />
@@ -308,9 +311,6 @@
     <Compile Include="HotKey\HotKeySettingManager.cs" />
     <Compile Include="HotKey\HotKey.cs" />
     <Compile Include="Index\IndexCore.cs" />
-    <Compile Include="AreaWindow.xaml.cs">
-      <DependentUpon>AreaWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Index\MutipleThreadResetEvent.cs" />
     <Compile Include="Jieba\JiebaAnalyzer.cs" />
     <Compile Include="Jieba\JiebaTokenizer.cs" />
@@ -339,10 +339,14 @@
     <Compile Include="Util\MD5Util.cs" />
     <Compile Include="Util\RichTextBoxUtil.cs" />
     <Page Include="AreaEditWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="AreaInfoItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AreaWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -374,10 +378,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="AreaWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Resource\GenericDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -402,22 +402,22 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Dict\char_state_tab.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Dict\pos_prob_emit.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Dict\pos_prob_start.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Dict\pos_prob_trans.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Dict\prob_emit.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Dict\prob_trans.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -446,16 +446,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Dict\cn_synonym.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Dict\dict.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Dict\idf.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Dict\stopwords.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -650,13 +650,17 @@ namespace TextLocator.Index
                 // 搜索域列表
                 List<string> fields = new List<string>();
 
-                // 搜索域设置
-                if (param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件名)
+                // 搜索域判断（文件名 || 文件内容 || 文件名和文件内容）
+                bool isSearchFileName = param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件名;
+                bool isSearchContent = param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件内容;
+                // 文件名
+                if (isSearchFileName)
                 {
                     boosts["FileName"] = 1.0f;
                     fields.Add("FileName");
                 }
-                if (param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件内容)
+                // 文件内容
+                if (isSearchContent)
                 {
                     boosts["Content"] = 1.2f;
                     fields.Add("Content");
@@ -678,25 +682,24 @@ namespace TextLocator.Index
 
                 // 遍历关键词列表
                 string text = "";
-                string tag = "分词";
+                string keywordType = "分词";
                 foreach (string keyword in param.Keywords)
                 {
                     text += keyword + ",";
                     // 正则
                     if (AppConst.REGEX_SUPPORT_WILDCARDS.IsMatch(keyword))
                     {
-                        tag = "正则";
+                        keywordType = "正则";
 
-                        // 搜索域设置
+                        // 文件名
                         if (param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件名)
                         {
-                            // 文件名
                             RegexQuery regexFileName = new RegexQuery(new Lucene.Net.Index.Term("FileName", keyword));
                             boolQuery.Add(regexFileName, Lucene.Net.Search.Occur.SHOULD);
                         }
+                        // 文件内容
                         if (param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件内容)
                         {
-                            // 文件内容
                             RegexQuery regexContentQuery = new RegexQuery(new Lucene.Net.Index.Term("Content", keyword));
                             boolQuery.Add(regexContentQuery, Lucene.Net.Search.Occur.SHOULD);
                         }
@@ -816,7 +819,7 @@ namespace TextLocator.Index
                     fileInfos.Add(fileInfo);
                 }
 
-                string msg = string.Format("检索完成。{0}：( {1} )，结果：{2}个符合条件的结果 (第 {3} 页)，耗时：{4}。", tag, (text.Length > 50 ? text.Substring(0, 50) + "..." : text), totalHits - deleteCount, param.PageIndex, taskMark.ConsumeTime);
+                string msg = string.Format("检索完成。{0}：( {1} )，结果：{2}个符合条件的结果 (第 {3} 页)，耗时：{4}。", keywordType, (text.Length > 50 ? text.Substring(0, 50) + "..." : text), totalHits - deleteCount, param.PageIndex, taskMark.ConsumeTime);
                 log.Debug(msg);
                 if (_searchCallback != null)
                     _searchCallback(msg);

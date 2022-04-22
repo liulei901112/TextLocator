@@ -29,6 +29,10 @@ namespace TextLocator.Entity
         /// </summary>
         public bool IsMatchWords { get; set; }
         /// <summary>
+        /// 区分大小写
+        /// </summary>
+        public bool IsMatchCase { get; set; }
+        /// <summary>
         /// 搜索域
         /// </summary>
         public SearchRegion SearchRegion { get; set; }

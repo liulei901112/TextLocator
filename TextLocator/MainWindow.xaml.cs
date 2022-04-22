@@ -46,12 +46,10 @@ namespace TextLocator
         /// 搜索参数
         /// </summary>
         private Entity.SearchParam _searchParam;
-
         /// <summary>
         /// 上次预览区搜索文本
         /// </summary>
         private string _lastPreviewSearchText;
-
         /// <summary>
         /// 索引构建中
         /// </summary>
@@ -116,8 +114,8 @@ namespace TextLocator
             // 初始化配置文件信息
             InitializeAppConfig();
 
-            // 初始化文件类型过滤器列表
-            InitializeFileTypeFilters();
+            // 初始化文件类型列表
+            InitializeSearchFileType();
 
             // 初始化排序类型列表
             InitializeSortType();
@@ -170,24 +168,10 @@ namespace TextLocator
         {
             // 获取程序版本
             Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-
-            // 设置标题
+			
+			// 设置标题
             this.Title = string.Format("{0} v{1} (开放版)", this.Title, version);
-        }
 
-        /// <summary>
-        /// 初始化搜索域
-        /// </summary>
-        private void InitializeSearchRegion()
-        {
-            TaskTime taskTime = TaskTime.StartNew();
-            Array regions = Enum.GetValues(typeof(SearchRegion));
-            SearchScope.Items.Clear();
-            foreach (var region in regions)
-            {
-                SearchScope.Items.Add(region);
-            }
-            log.Debug("InitializeSearchRegion 耗时：" + taskTime.ConsumeTime + "。");
         }
 
         /// <summary>
@@ -206,30 +190,48 @@ namespace TextLocator
         }
 
         /// <summary>
+        /// 初始化搜索域
+        /// </summary>
+        private void InitializeSearchRegion()
+        {
+            TaskTime taskTime = TaskTime.StartNew();
+            Array regions = Enum.GetValues(typeof(SearchRegion));
+            SearchScope.Items.Clear();
+            foreach (var region in regions)
+            {
+                SearchScope.Items.Add(region);
+            }
+            log.Debug("InitializeSearchRegion 耗时：" + taskTime.ConsumeTime + "。");
+        }
+
+        /// <summary>
         /// 初始化文件类型过滤器列表
         /// </summary>
-        private void InitializeFileTypeFilters()
+        private void InitializeSearchFileType()
         {
             TaskTime taskTime = TaskTime.StartNew();
             // 文件类型筛选下拉框数据初始化
-            FileTypeFilter.Children.Clear();
+            SearchFileType.Children.Clear();
             // 遍历文件类型枚举
             foreach (FileType fileType in Enum.GetValues(typeof(FileType)))
             {
                 // 构造UI元素
                 RadioButton radioButton = new RadioButton()
                 {
-                    GroupName = "FileTypeFilter",
+                    GroupName = "SearchFileType",
                     Name = "FileType" + fileType.ToString(),
                     Width = 80,
                     Margin = new Thickness(1),
                     Tag = fileType,
-                    Content = fileType.ToString(),
-                    IsChecked = fileType == FileType.全部,
-                    ToolTip = fileType.GetDescription()
+                    Content = fileType.ToString(),                    
+                    IsChecked = fileType == FileType.全部
                 };
+                if (fileType != FileType.全部)
+                {
+                    radioButton.ToolTip = fileType.GetDescription();
+                }
                 radioButton.Checked += FileType_Checked;
-                FileTypeFilter.Children.Add(radioButton);
+                SearchFileType.Children.Add(radioButton);
 
                 // 缓存全部，用于还原到默认值（因为默认选中全部）
                 if (fileType == FileType.全部)
@@ -238,8 +240,8 @@ namespace TextLocator
                 }
             }
             // 搜索筛选条件直接读取的当前值，初始化时默认赋值全部。其他选项修改时会更改此值
-            FileTypeFilter.Tag = FileType.全部;
-            log.Debug("InitializeFileTypeFilters 耗时：" + taskTime.ConsumeTime + "。");
+            SearchFileType.Tag = FileType.全部;
+            log.Debug("InitializeSearchFileTypes 耗时：" + taskTime.ConsumeTime + "。");
         }
 
         /// <summary>
@@ -284,6 +286,7 @@ namespace TextLocator
 
             log.Debug("InitializeAppConfig 耗时：" + taskTime.ConsumeTime + "。");
         }
+
         #endregion
 
         #region 热键注册
@@ -395,58 +398,6 @@ namespace TextLocator
 
         #region 搜索
         /// <summary>
-        /// 搜索文本框双击
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SearchText_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            var openFileDialog = new OpenFileDialog()
-            {
-                Filter = "关键词 (*.txt)|*.txt"
-            };
-            var result = openFileDialog.ShowDialog();
-            if (result == true)
-            {
-                Task.Factory.StartNew(() =>
-                {
-                    try
-                    {
-                        // 打开文本，解析内容调用搜索
-                        if (File.Exists(openFileDialog.FileName))
-                        {
-                            StringBuilder builder = new StringBuilder();
-                            using (FileStream fs = File.OpenRead(openFileDialog.FileName))
-                            {
-                                using (StreamReader reader = new StreamReader(fs, FileUtil.GetEncoding(openFileDialog.FileName)))
-                                {
-                                    string line;
-                                    while ((line = reader.ReadLine()) != null)
-                                    {
-                                        // 按行分词
-                                        builder.Append(line + " ");
-                                    }
-                                }
-                            }
-                            this.Dispatcher.BeginInvoke(new Action(() =>
-                            {
-                                this.SearchText.Text = builder.ToString().Trim();
-                                // 标记为文件
-                                this.SearchText.Tag = "File";
-
-                                // 搜索前
-                                BeforeSearch();
-                            }));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error("读取关键词文档错误：" + ex.Message, ex);
-                    }
-                });
-            }
-        }
-        /// <summary>
         /// 搜索
         /// </summary>
         /// <param name="sender"></param>
@@ -473,7 +424,7 @@ namespace TextLocator
             // 默认排序
             SortOptions.SelectedIndex = 0;
             // 文件名和内容
-            SearchScope.SelectedIndex = 0;
+            // SearchScope.SelectedIndex = 0;
 
             BeforeSearch();
         }
@@ -502,7 +453,7 @@ namespace TextLocator
                 // 默认排序
                 SortOptions.SelectedIndex = 0;
                 // 文件名和内容
-                SearchScope.SelectedIndex = 0;
+                // SearchScope.SelectedIndex = 0;
 
                 BeforeSearch();
 
@@ -520,11 +471,6 @@ namespace TextLocator
         {
             // 如果文本为空则隐藏清空按钮，如果不为空则显示清空按钮
             this.CleanButton.Visibility = this.SearchText.Text.Length > 0 ? Visibility.Visible : Visibility.Hidden;
-            // 文本框为空时还原为默认
-            if (this.SearchText.Text.Length <= 0)
-            {
-                this.SearchText.Tag = null;
-            }
         }
 
         /// <summary>
@@ -545,13 +491,13 @@ namespace TextLocator
             {
                 try
                 {
-                    // 清空搜索结果列表
+                    // 1、---- 清空搜索结果列表
                     Dispatcher.Invoke(new Action(() =>
                     {
                         this.SearchResultList.Items.Clear();
                     }));
 
-                    // 查询列表（参数，消息回调）
+                    // 2、---- 查询列表（参数，消息回调）
                     Entity.SearchResult searchResult = IndexCore.Search(searchParam, ShowStatus);
 
                     // 验证列表数据
@@ -564,7 +510,7 @@ namespace TextLocator
                         return;
                     }
 
-                    // 遍历结果
+                    // 3、---- 遍历结果
                     foreach (Entity.FileInfo fileInfo in searchResult.Results)
                     {
                         if (_timestamp != timestamp)
@@ -577,7 +523,7 @@ namespace TextLocator
                         }));
                     }
 
-                    // 分页总数
+                    // 4、---- 分页总数
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         // 如果总条数小于等于分页条数，则不显示分页
@@ -629,11 +575,7 @@ namespace TextLocator
             }
         }
 
-        /// <summary>
-        /// 分页切换
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        // 切换页码
         private void PageBar_PageIndexChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
         {
             log.Debug($"pageIndex : {e.OldValue} => {e.NewValue}");
@@ -641,11 +583,6 @@ namespace TextLocator
             BeforeSearch(e.NewValue);
         }
 
-        /// <summary>
-        /// 分页条数改变
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void PageBar_PageSizeChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
         {
             log.Debug($"pageSize : {e.OldValue} => {e.NewValue}");
@@ -694,8 +631,8 @@ namespace TextLocator
             IToggleProvider toggleProvider = toggleButtonAutomationPeer.GetPattern(PatternInterface.Toggle) as IToggleProvider;
             toggleProvider.Toggle();
 
-            // 全词匹配取消选中
-            MatchWords.IsChecked = false;
+            // 匹配全词
+            MatchWords.IsChecked = false;      
 
             // 排序类型切换为默认
             SortOptions.SelectedIndex = 0;
@@ -868,8 +805,9 @@ namespace TextLocator
         #endregion
 
         #region 界面事件
+
         /// <summary>
-        /// 搜索域切换
+        /// 搜索域切换事件
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -884,25 +822,23 @@ namespace TextLocator
         /// <param name="e"></param>
         private void FileType_Checked(object sender, RoutedEventArgs e)
         {
-            RadioButton radio = sender as RadioButton;
-            FileType fileType = (FileType)radio.Tag;
-            if (fileType != FileType.全部 && GetSearchTextKeywords().Count <= 0)
+            if (!"全部".Equals((sender as RadioButton).Content) && GetSearchTextKeywords().Count <= 0)
             {
                 ResetSearchResult();
                 return;
             }
 
-            FileTypeFilter.Tag = fileType;
+            SearchFileType.Tag = (sender as RadioButton).Tag;
 
             BeforeSearch();
         }
 
         /// <summary>
-        /// 复选框选中状态切换
+        /// 匹配全词
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void CheckBoxCheckStatusChange(object sender, RoutedEventArgs e)
+        private void CheckChange(object sender, RoutedEventArgs e)
         {
             BeforeSearch();
         }
@@ -966,18 +902,18 @@ namespace TextLocator
         }
 
         /// <summary>
-        /// 搜索区域
+        /// 搜索区双击事件
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void FolderPaths_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void AreaInfos_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             AreaWindow areaDialog = new AreaWindow();
             areaDialog.Owner = this;
             areaDialog.Topmost = true;
             areaDialog.ShowDialog();
-
-            // 不管是否修改都刷新
+            
+			// 不管是否修改都刷新
             InitializeAppConfig();
         }
 
@@ -1137,7 +1073,7 @@ namespace TextLocator
                     {
                         log.Info("目录：" + s);
                         // 获取文件信息列表
-                        FileUtil.GetAllFiles(allFilePaths, s);
+                        FileUtil.GetAllFiles(allFilePaths, s, null);
                     }
 
                     msg = string.Format("搜索区【{0}】，文件扫描完成；文件数：{1}，耗时：{2}；开始分析需要更新的文件列表...", areaInfo.AreaName, allFilePaths.Count, scanTaskMark.ConsumeTime);
@@ -1278,7 +1214,7 @@ namespace TextLocator
         {
             if (OpenFile.Tag != null)
             {
-                string filePath = OpenFile.Tag + "";                
+                string filePath = OpenFile.Tag + "";
                 try
                 {
                     System.Diagnostics.Process.Start(filePath);
@@ -1381,6 +1317,7 @@ namespace TextLocator
         private List<string> GetSearchTextKeywords()
         {
             string searchText = SearchText.Text.Trim();
+
             // 清理特殊字符
 
             // 申明关键词列表
@@ -1429,6 +1366,7 @@ namespace TextLocator
         /// <param name="page">指定页</param>
         private void BeforeSearch(int page = 1)
         {
+            // 1、---- 搜索信息预处理
             // 还原分页count
             if (page != PageNow)
             {
@@ -1447,12 +1385,9 @@ namespace TextLocator
             {
                 return;
             }
-            /*if (build)
-            {
-                MessageCore.ShowWarning("索引构建中，请稍等。");
-                return;
-            }*/
 
+
+            // 2、---- 预览信息还原
             // 预览区打开文件和文件夹标记清空
             OpenFile.Tag = null;
             OpenFolder.Tag = null;
@@ -1472,21 +1407,24 @@ namespace TextLocator
             // 预览切换标记清空
             SwitchPreview.Tag = null;
 
-            // 记录时间戳
+
+            // 3、---- 生成本次搜索时间戳
             _timestamp = Convert.ToInt64((DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds);
 
-            // 保存当前搜索条件
+
+            // 4、---- 构造搜索条件并保存（保存的搜索条件需要用于数据导出）
             _searchParam = new Entity.SearchParam()
             {
                 Keywords = keywords,
-                FileType = (FileType)FileTypeFilter.Tag,
+                FileType = (FileType)SearchFileType.Tag,
                 SortType = (SortType)SortOptions.SelectedValue,
                 IsMatchWords = (bool)MatchWords.IsChecked,
                 SearchRegion = (SearchRegion)SearchScope.SelectedValue,
                 PageSize = PageSize,
                 PageIndex = PageNow
             };
-            // 搜索
+
+            // 5、---- 搜索
             Search(
                 _timestamp,
                 _searchParam

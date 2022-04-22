@@ -23,6 +23,10 @@ namespace TextLocator.Util
         /// 区域文件夹
         /// </summary>
         private static string AreaFolders = "AreaFolders";
+        /// <summary>
+        /// 区域文件类型
+        /// </summary>
+        private static string AreaFileTypes = "AreaFileTypes";
 
         /// <summary>
         /// 私有构造方法
@@ -48,17 +52,34 @@ namespace TextLocator.Util
                     string areaName = AppUtil.ReadValue(areaId, AreaName, "区域名称");
                     // 区域文件夹
                     string folders = AppUtil.ReadValue(areaId, AreaFolders, "");
+                    // 区域文件类型
+                    string fileTypeNames = AppUtil.ReadValue(areaId, AreaFileTypes, "");
+
+                    // 区域文件夹解析
                     List<string> areaFolders = new List<string>();
                     if (!string.IsNullOrEmpty(folders))
                     {
                         areaFolders = folders.Split(',').ToList();
                     }
+                    // 区域文件类型解析
+                    List<Enums.FileType> areaFileTypes = new List<Enums.FileType>();
+                    if (!string.IsNullOrEmpty(fileTypeNames))
+                    {
+                        List<string> tmps = fileTypeNames.Split(',').ToList();
+                        foreach (string tmp in tmps)
+                        {
+                            areaFileTypes.Add((Enums.FileType)System.Enum.Parse(typeof(Enums.FileType), tmp));
+                        }
+                    }
+                    
+                    // 构造数据对象
                     AreaInfo areaInfo = new AreaInfo()
                     {
                         IsEnable = isEnable,
                         AreaId = areaId,
                         AreaName = areaName,
-                        AreaFolders = areaFolders
+                        AreaFolders = areaFolders,
+                        AreaFileTypes = areaFileTypes
                     };
                     // 全部搜索区
                     areaInfoList.Add(areaInfo);
@@ -72,7 +93,8 @@ namespace TextLocator.Util
                     IsEnable = true,
                     AreaId = "AreaDefault",
                     AreaName = "默认区域",
-                    AreaFolders = new string[] { Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Environment.GetFolderPath(Environment.SpecialFolder.Desktop) }.ToList()
+                    AreaFolders = new string[] { Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Environment.GetFolderPath(Environment.SpecialFolder.Desktop) }.ToList(),
+                    AreaFileTypes = FileTypeUtil.GetFileTypesNotAll()
                 };
                 areaInfoList.Add(areaInfo);
             }
@@ -121,6 +143,8 @@ namespace TextLocator.Util
             AppUtil.WriteValue(areaInfo.AreaId, AreaName, areaInfo.AreaName);
             // 区域文件夹
             AppUtil.WriteValue(areaInfo.AreaId, AreaFolders, areaInfo.AreaFolders != null ? string.Join(",", areaInfo.AreaFolders.ToArray()) : null);
+            // 区域文件类型
+            AppUtil.WriteValue(areaInfo.AreaId, AreaFileTypes, areaInfo.AreaFileTypes != null ? string.Join(",", areaInfo.AreaFileTypes.ToArray()) : null);
 
             // 区域列表
             AppUtil.WriteValue(AreaConfig, areaInfo.AreaId, areaInfo.IsEnable + "");
@@ -136,6 +160,8 @@ namespace TextLocator.Util
             AppUtil.WriteValue(areaInfo.AreaId, AreaName, null);
             // 区域文件夹
             AppUtil.WriteValue(areaInfo.AreaId, AreaFolders, null);
+            // 区域文件类型
+            AppUtil.WriteValue(areaInfo.AreaId, AreaFileTypes, null);
 
             // 区域列表
             AppUtil.WriteValue(AreaConfig, areaInfo.AreaId, null);

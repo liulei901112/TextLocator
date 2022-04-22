@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using TextLocator.Enums;
 
 namespace TextLocator.Entity
 {
@@ -24,5 +25,9 @@ namespace TextLocator.Entity
         /// 区域文件夹路径
         /// </summary>
         public List<string> AreaFolders { get; set; }
+        /// <summary>
+        /// 区域文件类型
+        /// </summary>
+        public List<FileType> AreaFileTypes { get; set; }
     }
 }

@@ -125,7 +125,8 @@ namespace TextLocator.Util
         /// </summary>
         /// <param name="filePaths">文档列表</param>
         /// <param name="rootPath">根目录路径</param>
-        public static void GetAllFiles(List<string> filePaths, string rootPath)
+        /// <param name="fileExtRegex">文件后缀正则</param>
+        public static void GetAllFiles(List<string> filePaths, string rootPath, Regex fileExtRegex)
         {
             // 根目录
             DirectoryInfo rootDir = new DirectoryInfo(rootPath);
@@ -148,7 +149,7 @@ namespace TextLocator.Util
                         continue;
                     }
                     // 递归调用
-                    GetAllFiles(filePaths, dirPath);
+                    GetAllFiles(filePaths, dirPath, fileExtRegex);
                 }
             }
             catch (UnauthorizedAccessException ex) {
@@ -164,7 +165,7 @@ namespace TextLocator.Util
             {
                 // 查找word文件
                 string[] paths = Directory.GetFiles(rootPath)
-                    .Where(file => AppConst.REGEX_FILE_EXT.IsMatch(file))
+                    .Where(file => fileExtRegex.IsMatch(file))
                     .ToArray();
                 // 遍历每个文档
                 foreach (string path in paths)

@@ -1,8 +1,10 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using TextLocator.Entity;
+using TextLocator.Enums;
 using TextLocator.Message;
 using TextLocator.Util;
 
@@ -13,10 +15,16 @@ namespace TextLocator
     /// </summary>
     public partial class AreaEditWindow : Window
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         /// <summary>
-        /// 索引区文件夹
+        /// 搜索区文件夹
         /// </summary>
         private List<string> _areaFolders = new List<string>();
+        /// <summary>
+        /// 搜索区文件类型
+        /// </summary>
+        private List<FileType> _areaFileTypes = new List<FileType>();
         /// <summary>
         /// 区域信息
         /// </summary>
@@ -35,7 +43,8 @@ namespace TextLocator
             {
                 _areaInfo = new AreaInfo()
                 {
-                    AreaId = "Area" + DateTime.Now.ToString("yyyyMMddHHmmssffff")
+                    AreaId = "Area" + DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                    AreaFileTypes = FileTypeUtil.GetFileTypesNotAll()
                 };
             }
         }
@@ -47,7 +56,21 @@ namespace TextLocator
         /// <param name="e"></param>
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            // 初始化加载文件类型
+            LoadFileType();
+
+            // 加载区域信息
+            LoadAreaInfo();
+        }
+
+        /// <summary>
+        /// 加载区域信息
+        /// </summary>
+        private void LoadAreaInfo()
+        {
+            // 区域名称
             this.AreaName.Text = _areaInfo.AreaName;
+            // 区域文件夹
             this.AreaFolders.Items.Clear();
             if (_areaInfo.AreaFolders != null)
             {
@@ -62,6 +85,57 @@ namespace TextLocator
                     this.AreaFolders.Items.Add(folder);
                 }
             }
+            // 区域文件夹类型
+            foreach (UIElement element in this.AreaFileTypes.Children)
+            {
+                CheckBox checkbox = element as CheckBox;
+                if (_areaInfo.AreaFileTypes.Contains((FileType)checkbox.Tag))
+                {
+                    checkbox.IsChecked = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 初始化加载文件类型
+        /// </summary>
+        private void LoadFileType()
+        {
+            this.AreaFileTypes.Children.Clear();
+            // 遍历文件类型枚举
+            foreach (FileType fileType in FileTypeUtil.GetFileTypesNotAll())
+            {
+                // 构造UI元素
+                CheckBox checkbox = new CheckBox()
+                {
+                    Name = "FileType_" + (int)fileType,
+                    Margin = new Thickness(10),
+                    Tag = fileType,
+                    Content = fileType.ToString() + "（" + fileType.GetDescription() + "）"
+                };
+                checkbox.Checked += FileTypeStatusChange;
+                checkbox.Unchecked += FileTypeStatusChange;
+                this.AreaFileTypes.Children.Add(checkbox);
+            }
+        }
+
+        /// <summary>
+        /// 文件类型选中状态切换
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FileTypeStatusChange(object sender, RoutedEventArgs e)
+        {
+            List<FileType> fileTypes = new List<FileType>();
+            foreach(UIElement element in this.AreaFileTypes.Children)
+            {
+                CheckBox checkBox = element as CheckBox;
+                if (checkBox.IsChecked == true)
+                {
+                    fileTypes.Add((Enums.FileType)System.Enum.Parse(typeof(Enums.FileType), checkBox.Tag.ToString()));
+                }
+            }
+            _areaFileTypes = fileTypes;
         }
 
         /// <summary>
@@ -144,14 +218,19 @@ namespace TextLocator
                 MessageCore.ShowWarning("区域名称为空");
                 return;
             }
+            if (AreaUtil.GetAreaNameListRuleOut(_areaInfo).Contains(areaName))
+            {
+                MessageCore.ShowWarning("区域名称不能重复");
+                return;
+            }
             if (this.AreaFolders.Items.Count <= 0)
             {
                 MessageCore.ShowWarning("至少需要一个文件夹");
                 return;
             }
-            if (AreaUtil.GetAreaNameListRuleOut(_areaInfo).Contains(areaName))
+            if (_areaFileTypes.Count <= 0)
             {
-                MessageCore.ShowWarning("区域名称不能重复");
+                MessageCore.ShowWarning("至少需要一个支持的文件类型");
                 return;
             }
 
@@ -159,6 +238,8 @@ namespace TextLocator
             _areaInfo.AreaName = areaName;
             // 搜索区文件夹
             _areaInfo.AreaFolders = _areaFolders;
+            // 搜索区文件类型
+            _areaInfo.AreaFileTypes = _areaFileTypes;
 
             // 保存区域信息
             // AreaUtil.SaveAreaInfo(_areaInfo);

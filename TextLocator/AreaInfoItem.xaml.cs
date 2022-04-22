@@ -56,6 +56,8 @@ namespace TextLocator
                     this.AreaFolders.Children.Add(text);
                 }
             }
+            // 区域文件类型
+            this.AreaFileTypes.Text =  string.Join("，", areaInfo.AreaFileTypes.ToArray());
         }
     }
 }

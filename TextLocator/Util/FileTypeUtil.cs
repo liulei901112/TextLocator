@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using TextLocator.Enums;
 
 namespace TextLocator.Util
@@ -55,21 +57,39 @@ namespace TextLocator.Util
         /// <summary>
         /// 文件类型后缀列表（ext1,ext2...）
         /// </summary>
+        /// <param name="fileTypes">文件类型列表</param>
         /// <param name="separator">分隔符，默认【，】</param>
         /// <returns></returns>
-        public static string GetFileTypeExts(string separator = ",")
+        public static string ConvertToFileTypeExts(List<FileType> fileTypes, string separator = ",")
         {
-            string fileTypeExts = "";
+            string exts = "";
             // 遍历文件类型，根据后缀查找文件类型
-            foreach (FileType ft in Enum.GetValues(typeof(FileType)))
+            foreach (FileType ft in fileTypes)
             {
-                // 获取描述
                 string description = ft.GetDescription();
                 if (!string.IsNullOrEmpty(description)) {
-                    fileTypeExts += description + separator;
+                    exts += description + separator;
                 }
             }
-            return fileTypeExts.Substring(0, fileTypeExts.Length - 1).Replace(",", separator);
+            return exts.Substring(0, exts.Length - 1).Replace(",", separator);
+        }
+
+        /// <summary>
+        /// 获取不包含全部的文件类型列表
+        /// </summary>
+        /// <returns></returns>
+        public static List<FileType> GetFileTypesNotAll()
+        {
+            List<FileType> fileTypes = new List<FileType>();
+            foreach(FileType ft in Enum.GetValues(typeof(FileType)))
+            {
+                if (ft == FileType.全部)
+                {
+                    continue;
+                }
+                fileTypes.Add(ft);
+            }
+            return fileTypes;
         }
     }
 }

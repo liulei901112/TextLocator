@@ -16,7 +16,8 @@
 
 #### 软件截图
 ![主界面](images/MainWindow.png)
-![区域管理](images/SearchAreaManagement.png)
+![区域管理](images/SearchAreaManagement1.png)
+![区域编辑](images/SearchAreaManagement2.png)
 ![创建索引](images/BuildIndex.png)
 ![自动分词](images/Keywords1.png)
 ![手动分词](images/Keywords2.png)

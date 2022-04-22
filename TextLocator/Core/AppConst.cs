@@ -91,10 +91,6 @@ namespace TextLocator.Core
         /// </summary>
         public static readonly Regex REGEX_TAG = new Regex("\\<.[^<>]*\\>");
         /// <summary>
-        /// 匹配文件后缀
-        /// </summary>
-        public static readonly Regex REGEX_FILE_EXT = new Regex(@"^.+\.(" + FileTypeUtil.GetFileTypeExts("|") + ")$");
-        /// <summary>
         /// 匹配排除关键词
         /// </summary>
         public static readonly Regex REGEX_EXCLUDE_KEYWORD = new Regex(@"(\$RECYCLE|360REC|SYSTEM|TEMP|SYSTEM VOLUME INFOMATION|\{(.*)\})");

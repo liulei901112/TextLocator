@@ -7,21 +7,22 @@
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="800">
     <Grid>
-        <Grid Margin="0,10,0,10">
-            <CheckBox x:Name="AreaIsEnable" Margin="10,0,0,0" Width="20" Height="20" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <Grid Margin="50,0,0,0" Width="150" VerticalAlignment="Center" HorizontalAlignment="Left">
+        <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
+            <CheckBox x:Name="AreaIsEnable" Margin="10,0,0,0" Width="30" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Grid Width="120" VerticalAlignment="Center" HorizontalAlignment="Left">
                 <TextBlock x:Name="AreaName" Text="默认区域"/>
             </Grid>
-            <StackPanel x:Name="AreaFolders" Margin="230,0,0,0" Width="380" VerticalAlignment="Center" HorizontalAlignment="Left">
+            <StackPanel x:Name="AreaFolders" Width="360" VerticalAlignment="Center" HorizontalAlignment="Left">
                 <TextBlock Text="C:\Users\liulei\Desktop\"/>
                 <TextBlock Text="C:\Users\liulei\Documents\"/>
             </StackPanel>
-            <Grid Margin="630,0,10,0" Width="150" VerticalAlignment="Center" HorizontalAlignment="Left">
+            <TextBlock x:Name="AreaFileTypes" Width="140" Text="C:\Users\liulei\Desktop\" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap"/>
+            <Grid Width="150" VerticalAlignment="Center" HorizontalAlignment="Left">
                 <Button x:Name="EditButton" Content="编辑" Margin="0,0,70,0" Width="60" />
                 <Button x:Name="DeleteButton" Content="删除" Margin="70,0,0,0" Width="60" Background="Red"/>
             </Grid>
-        </Grid>
+        </StackPanel>
         <!-- 分割线 -->
-        <Line X1="0" Y1="0" X2="800" Y2="0" Margin="0,0,0,0" VerticalAlignment="Bottom" Stroke="Gray" StrokeThickness="0.5"></Line>
+        <Line X1="10" Y1="0" X2="800" Y2="0" Margin="0,0,0,0" VerticalAlignment="Bottom" Stroke="Gray" StrokeThickness="0.5"></Line>
     </Grid>
 </UserControl>

@@ -12,43 +12,47 @@
             <TextBlock Text="“区域”代表搜索范围，即已选定的目录（需要启用才能用于搜索）。" FontWeight="Bold" Foreground="OrangeRed"/>
             <!-- 表头 -->
             <Grid>
-                <Grid Margin="0,10,0,10">
-                    <Grid Margin="10,0,0,0" Width="50" VerticalAlignment="Center" HorizontalAlignment="Left">
-                        <TextBlock Text="启用" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
+                    <Grid Width="30" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <TextBlock Text="启用" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Grid>
-                    <Grid Margin="50,0,0,0" Width="150" VerticalAlignment="Center" HorizontalAlignment="Left">
-                        <TextBlock Text="区域名称" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                    <Grid Width="120" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <TextBlock Text="区域名称" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Grid>
-                    <Grid Margin="230,0,0,0" Width="380" VerticalAlignment="Center" HorizontalAlignment="Left">
-                        <TextBlock Text="文件夹" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                    <Grid Width="360" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <TextBlock Text="文件夹" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Grid>
-                    <Grid Margin="640,0,10,0" Width="150" VerticalAlignment="Center" HorizontalAlignment="Left">
-                        <TextBlock Text="操作" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                    <Grid Width="140" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <TextBlock Text="文件类型" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Grid>
-                </Grid>
+                    <Grid Width="150" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <TextBlock Text="操作" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
                 <!-- 分割线 -->
-                <Line X1="0" Y1="0" X2="800" Y2="0" Margin="0,0,0,0" VerticalAlignment="Bottom" Stroke="Gray" StrokeThickness="0.5"></Line>
+                <Line X1="0" Y1="0" X2="810" Y2="0" Margin="0,0,0,0" VerticalAlignment="Bottom" Stroke="Gray" StrokeThickness="0.5"></Line>
             </Grid>
             <!-- 列表区 -->
             <ScrollViewer Height="310" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
                 <StackPanel x:Name="AreaInfoList">
                     <Grid>
-                        <Grid Margin="0,10,0,10">
-                            <CheckBox Margin="10,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-                            <Grid Margin="50,0,0,0" Width="150" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
+                            <CheckBox Margin="10,0,0,0" Width="30" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <Grid Width="120" VerticalAlignment="Center" HorizontalAlignment="Left">
                                 <TextBlock Text="默认区域"/>
                             </Grid>
-                            <StackPanel Margin="230,0,0,0" Width="380" VerticalAlignment="Center" HorizontalAlignment="Left">
+                            <StackPanel Width="360" VerticalAlignment="Center" HorizontalAlignment="Left">
                                 <TextBlock Text="C:\Users\liulei\Desktop\"/>
                                 <TextBlock Text="C:\Users\liulei\Documents\"/>
                             </StackPanel>
-                            <Grid Margin="630,0,10,0" Width="150" VerticalAlignment="Center" HorizontalAlignment="Left">
+                            <TextBlock Width="140" Text="C:\Users\liulei\Desktop\" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap"/>
+                            <Grid Width="150" VerticalAlignment="Center" HorizontalAlignment="Left">
                                 <Button Content="编辑" Margin="0,0,70,0" Width="60" />
                                 <Button Content="删除" Margin="70,0,0,0" Width="60" Background="Red"/>
                             </Grid>
-                        </Grid>
+                        </StackPanel>
                         <!-- 分割线 -->
-                        <Line X1="0" Y1="0" X2="800" Y2="0" Margin="0,0,0,0" VerticalAlignment="Bottom" Stroke="Gray" StrokeThickness="0.5"></Line>
+                        <Line X1="10" Y1="0" X2="800" Y2="0" Margin="0,0,0,0" VerticalAlignment="Bottom" Stroke="Gray" StrokeThickness="0.5"></Line>
                     </Grid>
                 </StackPanel>
             </ScrollViewer>

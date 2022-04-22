@@ -213,39 +213,32 @@ namespace TextLocator
             TaskTime taskTime = TaskTime.StartNew();
             // 文件类型筛选下拉框数据初始化
             FileTypeFilter.Children.Clear();
-
-            _radioButtonAll = new RadioButton()
-            {
-                GroupName = "FileTypeFilter",
-                Width = 80,
-                Margin = new Thickness(1),
-                Tag = "全部",
-                Content = "全部",
-                Name = "FileTypeAll",
-                IsChecked = true,
-                ToolTip = "All"
-            };
-            _radioButtonAll.Checked += FileType_Checked;
-            FileTypeFilter.Children.Add(_radioButtonAll);
-
-
-            // 获取文件类型枚举，遍历并加入下拉列表
+            // 遍历文件类型枚举
             foreach (FileType fileType in Enum.GetValues(typeof(FileType)))
             {
+                // 构造UI元素
                 RadioButton radioButton = new RadioButton()
                 {
                     GroupName = "FileTypeFilter",
+                    Name = "FileType" + fileType.ToString(),
                     Width = 80,
                     Margin = new Thickness(1),
-                    Tag = fileType.ToString(),
+                    Tag = fileType,
                     Content = fileType.ToString(),
-                    Name = "FileType" + fileType.ToString(),
-                    IsChecked = false,
+                    IsChecked = fileType == FileType.全部,
                     ToolTip = fileType.GetDescription()
                 };
                 radioButton.Checked += FileType_Checked;
                 FileTypeFilter.Children.Add(radioButton);
+
+                // 缓存全部，用于还原到默认值（因为默认选中全部）
+                if (fileType == FileType.全部)
+                {
+                    _radioButtonAll = radioButton;
+                }
             }
+            // 搜索筛选条件直接读取的当前值，初始化时默认赋值全部。其他选项修改时会更改此值
+            FileTypeFilter.Tag = FileType.全部;
             log.Debug("InitializeFileTypeFilters 耗时：" + taskTime.ConsumeTime + "。");
         }
 
@@ -891,13 +884,15 @@ namespace TextLocator
         /// <param name="e"></param>
         private void FileType_Checked(object sender, RoutedEventArgs e)
         {
-            if (!"全部".Equals((sender as RadioButton).Content) && GetSearchTextKeywords().Count <= 0)
+            RadioButton radio = sender as RadioButton;
+            FileType fileType = (FileType)radio.Tag;
+            if (fileType != FileType.全部 && GetSearchTextKeywords().Count <= 0)
             {
                 ResetSearchResult();
                 return;
             }
 
-            FileTypeFilter.Tag = (sender as RadioButton).Content;
+            FileTypeFilter.Tag = fileType;
 
             BeforeSearch();
         }
@@ -1446,15 +1441,8 @@ namespace TextLocator
                 }));
             }
 
-            object filter = FileTypeFilter.Tag;
-            if (filter == null || filter.Equals("全部"))
-            {
-                filter = null;
-            }
-
             // 获取搜索关键词列表
             List<string> keywords = GetSearchTextKeywords();
-
             if (keywords.Count <= 0)
             {
                 return;
@@ -1491,7 +1479,7 @@ namespace TextLocator
             _searchParam = new Entity.SearchParam()
             {
                 Keywords = keywords,
-                FileType = filter == null ? null : filter + "",
+                FileType = (FileType)FileTypeFilter.Tag,
                 SortType = (SortType)SortOptions.SelectedValue,
                 IsMatchWords = (bool)MatchWords.IsChecked,
                 SearchRegion = (SearchRegion)SearchScope.SelectedValue,

@@ -8,6 +8,11 @@ namespace TextLocator.Enums
     public enum FileType
     {
         /// <summary>
+        /// 全部
+        /// </summary>
+        [Description("all")]
+        全部,
+        /// <summary>
         /// Word文档
         /// </summary>
         [Description("doc,docx")]

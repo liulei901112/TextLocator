@@ -19,7 +19,7 @@ namespace TextLocator.Entity
         /// <summary>
         /// 文件类型
         /// </summary>
-        public string FileType { get; set; }
+        public FileType FileType { get; set; }
         /// <summary>
         /// 排序规则
         /// </summary>

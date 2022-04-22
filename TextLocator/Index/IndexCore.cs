@@ -713,10 +713,10 @@ namespace TextLocator.Index
 
                 // 文件类型筛选（文件类型为全部时，则为空）
                 Lucene.Net.Search.TermsFilter filter = null;
-                if (!string.IsNullOrEmpty(param.FileType))
+                if (param.FileType != FileType.全部)
                 {
                     filter = new Lucene.Net.Search.TermsFilter();
-                    filter.AddTerm(new Lucene.Net.Index.Term("FileType", param.FileType));
+                    filter.AddTerm(new Lucene.Net.Index.Term("FileType", param.FileType.ToString()));
                 }
                 log.Debug("组合搜索条件：" + boolQuery.ToString());
 

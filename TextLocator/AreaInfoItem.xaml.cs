@@ -46,6 +46,7 @@ namespace TextLocator
             this.AreaIsEnable.IsChecked = areaInfo.IsEnable;
             // 区域名称
             this.AreaName.Text = areaInfo.AreaName;
+            this.AreaIsEnable.ToolTip = this.AreaName.Text;
             // 区域文件夹
             this.AreaFolders.Children.Clear();
             if (areaInfo.AreaFolders != null)

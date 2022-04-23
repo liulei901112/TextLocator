@@ -163,7 +163,6 @@ namespace TextLocator
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
             AreaInfo areaInfo = (AreaInfo)(sender as Button).Tag;
-            CacheUtil.Put("AreaInfos", _normalAreaInfos);
             ShowAreaEditDialog(areaInfo);
         }
 
@@ -174,7 +173,6 @@ namespace TextLocator
         /// <param name="e"></param>
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            CacheUtil.Put("AreaInfos", _normalAreaInfos);
             ShowAreaEditDialog();
         }
 
@@ -249,6 +247,7 @@ namespace TextLocator
         /// <param name="areaInfo"></param>
         private void ShowAreaEditDialog(AreaInfo areaInfo = null)
         {
+            CacheUtil.Put("AreaInfos", _normalAreaInfos);
             AreaEditWindow editDialog = new AreaEditWindow(areaInfo);
             editDialog.Topmost = true;
             editDialog.Owner = this;

@@ -188,7 +188,7 @@ namespace TextLocator
                 }
 
                 // 判断文件夹是否存在于其他区域中
-                if (AreaUtil.GetAreaFolderList().Contains(folderPath))
+                if (IsExistsAreaFolder(folderPath))
                 {
                     MessageCore.ShowWarning("该文件夹已存在于其他区域");
                     return;
@@ -219,7 +219,7 @@ namespace TextLocator
                 MessageCore.ShowWarning("区域名称为空");
                 return;
             }
-            if (AreaUtil.GetAreaNameListRuleOut(_areaInfo).Contains(areaName))
+            if (IsExistsAreaName(areaName))
             {
                 MessageCore.ShowWarning("区域名称不能重复");
                 return;
@@ -278,6 +278,54 @@ namespace TextLocator
         {
             this.DialogResult = false;
             this.Close();
+        }
+
+        /// <summary>
+        /// 是否存在区域名称（如果是编辑的话，不包含自己）
+        /// </summary>
+        /// <param name="areaName"></param>
+        /// <returns></returns>
+        private bool IsExistsAreaName(string areaName)
+        {
+            List<AreaInfo> areaInfos = CacheUtil.Get<List<AreaInfo>>("AreaInfos");
+            if (areaInfos != null)
+            {
+                foreach (AreaInfo areaInfo in areaInfos)
+                {
+                    // 跳过区域ID相同的
+                    if (!_areaInfo.AreaId.Equals(areaInfo.AreaId))
+                    {
+                        // 存在相同的区域
+                        if (areaInfo.AreaName.Equals(areaName)) { return true; }
+                    }
+                }
+            }
+            return false;
+        }
+        /// <summary>
+        /// 是否存在区域文件夹
+        /// </summary>
+        /// <param name="folderPath">文件夹路径</param>
+        /// <returns></returns>
+        public bool IsExistsAreaFolder(string folderPath)
+        {
+            List<AreaInfo> areaInfos = CacheUtil.Get<List<AreaInfo>>("AreaInfos");
+            if (areaInfos != null)
+            {
+                foreach (AreaInfo areaInfo in areaInfos)
+                {
+                    // 跳过区域ID相同的
+                    if (!_areaInfo.AreaId.Equals(areaInfo.AreaId))
+                    {
+                        // 文件夹已经存在
+                        if (areaInfo.AreaFolders.Contains(folderPath))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 }

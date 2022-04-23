@@ -8,11 +8,12 @@
              d:DesignHeight="50" d:DesignWidth="800">
     <Grid>
         <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
-            <Grid Width="30">
-                <CheckBox x:Name="AreaIsEnable" Width="20" Height="20" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            </Grid>
-            <Grid Width="120" VerticalAlignment="Center" HorizontalAlignment="Left">
-                <TextBlock x:Name="AreaName" Text="默认区域" TextWrapping="Wrap"  Margin="10,0,10,0"/>
+            <Grid Width="150" VerticalAlignment="Center" HorizontalAlignment="Left">
+                <CheckBox x:Name="AreaIsEnable" Margin="10,0,0,0" Width="130" Height="20" VerticalAlignment="Center" HorizontalAlignment="Left" VerticalContentAlignment="Center">
+                    <CheckBox.Content>
+                        <TextBlock x:Name="AreaName" Foreground="Black" Text="默认区域" TextWrapping="Wrap" />
+                    </CheckBox.Content>
+                </CheckBox>
             </Grid>
             <StackPanel x:Name="AreaFolders" Width="350" VerticalAlignment="Center" HorizontalAlignment="Left">
                 <TextBlock Text="C:\Users\liulei\Desktop\"/>

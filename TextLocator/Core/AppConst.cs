@@ -122,7 +122,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 文件预览长度限制
         /// </summary>
-        public const int FILE_PREVIEW_LEN_LIMIT = 2000000;
+        public const int FILE_PREVIEW_LEN_LIMIT = 1000000;
         /// <summary>
         /// 区域配置
         /// </summary>

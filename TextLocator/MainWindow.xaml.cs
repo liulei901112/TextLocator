@@ -55,10 +55,6 @@ namespace TextLocator
         /// 索引构建中
         /// </summary>
         private static volatile bool build = false;
-        /// <summary>
-        /// 数据导出中
-        /// </summary>
-        private static volatile bool export = false;
 
         #region 热键
         /// <summary>
@@ -518,7 +514,7 @@ namespace TextLocator
                         {
                             return;
                         }
-                        this.Dispatcher.Invoke(new Action(() =>
+                        this.Dispatcher.BeginInvoke(new Action(() =>
                         {
                             this.SearchResultList.Items.Add(new FileInfoItem(fileInfo, searchParam.SearchRegion));
                         }));
@@ -783,8 +779,8 @@ namespace TextLocator
                     try
                     {
                         // 文件内容（预览）
-                        string content = fileInfo.Preview; // FileInfoServiceFactory.GetFileContent(fileInfo.FilePath, true);
-
+                        // FileInfoServiceFactory.GetFileContent(fileInfo.FilePath, true);
+                        string content = fileInfo.Preview; 
                         Dispatcher.BeginInvoke(new Action(() =>
                         {
                             // 填充数据
@@ -1273,7 +1269,7 @@ namespace TextLocator
             {
                 List<string> keywords = _lastPreviewSearchText.Split(' ').ToList();
                 Task.Factory.StartNew(() => {
-                    Dispatcher.Invoke(new Action(() =>
+                    Dispatcher.BeginInvoke(new Action(() =>
                     {
                         // 关键词高亮
                         RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.White, keywords, true);

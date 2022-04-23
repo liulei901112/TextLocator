@@ -56,7 +56,7 @@ namespace TextLocator.Index
         /// <summary>
         /// 删除索引
         /// </summary>
-        private static volatile Queue<int> _indexDeleted = new Queue<int>();
+        private static volatile Queue<string> _indexDeleted = new Queue<string>();
 
         #region 索引写入器
         /// <summary>
@@ -384,7 +384,7 @@ namespace TextLocator.Index
                         {
                             foreach (Lucene.Net.Index.IndexWriter indexWriter in indexWriters)
                             {
-                                indexWriter.GetReader().DeleteDocument(_indexDeleted.Dequeue());
+                                indexWriter.DeleteDocuments(new Lucene.Net.Index.Term("Id", _indexDeleted.Dequeue()));
                             }                            
                         }
                         catch (Exception ex)
@@ -786,7 +786,7 @@ namespace TextLocator.Index
                         lock (_indexDeleted)
                         {
                             // 记录为需要删除的索引，索引更新任务执行结束，执行索引删除操作
-                            _indexDeleted.Enqueue(docId);
+                            _indexDeleted.Enqueue(doc.GetField("Id").StringValue);
                             deleteCount++;
                         }
                         continue;

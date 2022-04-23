@@ -69,9 +69,10 @@ namespace TextLocator
 
             string filePath = fileInfo.FilePath.Replace(fileInfo.FileName, "");
             // 文件路径
-            RichTextBoxUtil.FillingData(this.FileFolder, filePath.Length > 70 ? filePath.Substring(0, 70) + "..." : filePath, (Brush)new BrushConverter().ConvertFromString("#006621"));
-            
+            this.FileFolder.Text = filePath.Length > 70 ? filePath.Substring(0, 70) + "..." : filePath;
+
             // 获取摘要
+            RichTextBoxUtil.FillingData(this.ContentBreviary, "", (Brush)new BrushConverter().ConvertFromString("#545454"));
             Task.Factory.StartNew(() => {
                 string breviary = IndexCore.GetContentBreviary(fileInfo);
                 this.Dispatcher.BeginInvoke(new Action(() =>

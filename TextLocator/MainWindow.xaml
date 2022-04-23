@@ -173,11 +173,15 @@
                                             <RichTextBox Margin="-5,50,0,0" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="True">
                                                 <FlowDocument>
                                                     <Paragraph>
-                                                        <Run Foreground="#545454">--------[ 概览 ]----------------------------------------------------------------------------------
-  电脑型号            X64 兼容 台式电脑
-  操作系统            Windows 10 专业版 64位 ( Version 2004 / DirectX 12 )
-  处理器              AMD Ryzen 9 3900X 12-Core
-  主板                华硕 PRIME X570-P ( AMD PCI 标准主机 CPU 桥 )...</Run>
+                                                        <Run Foreground="#545454">
+                                                            ...电脑型号            X64 兼容 台式电脑
+                                                              操作系统            Windows 10 专业版 64位 ( Version 2004 / DirectX 12 )
+
+                                                              处理器              AMD Ryzen 9 3900X 12-Core
+                                                              主板                华硕 PRIME X570-P ( AMD PCI 标准主机 CPU 桥 )
+                                                              显卡                Nvidia GeForce RTX 2080 Ti ( 11 GB / 七彩虹 )
+                                                              内存                64 GB ( 海盗船 DDR4 3200MHz )...
+                                                        </Run>
                                                     </Paragraph>
                                                 </FlowDocument>
                                             </RichTextBox>

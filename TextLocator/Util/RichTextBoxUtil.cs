@@ -11,6 +11,14 @@ namespace TextLocator.Util
 {
     public class RichTextBoxUtil
     {
+        /// <summary>
+        /// 清空数据
+        /// </summary>
+        /// <param name="richTextBox">RichTextBox文本对象</param>
+        public static void EmptyData(RichTextBox richTextBox)
+        {
+            richTextBox.Document.Blocks.Clear();
+        }
 
         /// <summary>
         /// 填充数据

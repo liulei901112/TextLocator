@@ -627,9 +627,10 @@ namespace TextLocator.Index
             {
                 for(int i = 0; i < AppConst.INDEX_PARTITION_COUNT; i++)
                 {
+                    string subDir = Path.Combine(AppConst.APP_INDEX_DIR, areaInfo.AreaId, i + "");
                     try
                     {
-                        string subDir = Path.Combine(AppConst.APP_INDEX_DIR, areaInfo.AreaId, i + "");
+                        
                         log.Debug("搜索缩影路径：" + subDir);
                         Lucene.Net.Store.FSDirectory directory = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(subDir), new Lucene.Net.Store.NoLockFactory());
                         directorys.Add(directory);
@@ -637,7 +638,7 @@ namespace TextLocator.Index
                     }
                     catch (Exception ex)
                     {
-                        log.Error("搜索器初始化失败：" + ex.Message, ex);
+                        log.Error(subDir + " -> 搜索器初始化失败：" + ex.Message, ex);
                     }
                 }
             }

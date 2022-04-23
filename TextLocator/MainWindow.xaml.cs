@@ -726,14 +726,11 @@ namespace TextLocator
                 return;
             }
 
-            // 获取扩展名
-            string fileExt = Path.GetExtension(fileInfo.FilePath).Replace(".", "");
-
             // 滚动条回滚到最顶端
             this.PreviewScrollViewer.ScrollToTop();
 
             // 图片文件
-            if (FileType.常用图片.GetDescription().Contains(fileExt))
+            if (FileType.常用图片 == FileTypeUtil.GetFileType(fileInfo.FilePath))
             {
                 PreviewFileContent.Visibility = Visibility.Hidden;
                 PreviewImage.Visibility = Visibility.Visible;
@@ -773,6 +770,8 @@ namespace TextLocator
             {
                 PreviewImage.Visibility = Visibility.Hidden;
                 PreviewFileContent.Visibility = Visibility.Visible;
+                // 填充数据
+                RichTextBoxUtil.EmptyData(PreviewFileContent);
                 // 文件内容预览
                 Thread t = new Thread(new ThreadStart(() =>
                 {
@@ -780,7 +779,8 @@ namespace TextLocator
                     {
                         // 文件内容（预览）
                         // FileInfoServiceFactory.GetFileContent(fileInfo.FilePath, true);
-                        string content = fileInfo.Preview; 
+                        string content = fileInfo.Preview;
+                        log.Debug("content.Length => " + content.Length);
                         Dispatcher.BeginInvoke(new Action(() =>
                         {
                             // 填充数据

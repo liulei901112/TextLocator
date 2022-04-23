@@ -72,7 +72,7 @@ namespace TextLocator
             this.FileFolder.Text = filePath.Length > 70 ? filePath.Substring(0, 70) + "..." : filePath;
 
             // 获取摘要
-            RichTextBoxUtil.FillingData(this.ContentBreviary, "", (Brush)new BrushConverter().ConvertFromString("#545454"));
+            RichTextBoxUtil.EmptyData(this.ContentBreviary);
             Task.Factory.StartNew(() => {
                 string breviary = IndexCore.GetContentBreviary(fileInfo);
                 this.Dispatcher.BeginInvoke(new Action(() =>

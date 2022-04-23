@@ -25,7 +25,7 @@ namespace TextLocator.NotifyIcon
                         // 显示
                         Application.Current.MainWindow.Show();
                         // 标准化
-                        Application.Current.MainWindow.WindowState = WindowState.Normal;
+                        Application.Current.MainWindow.Activate();
                     }
                 };
             }

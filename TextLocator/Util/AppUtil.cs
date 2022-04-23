@@ -55,9 +55,12 @@ namespace TextLocator.Util
                 LoadAllKeyValue(AppConst.AREA_CONFIG_KEY);
 
                 List<string> areaList = ReadSectionList(AppConst.AREA_CONFIG_KEY);
-                foreach (string areaId in areaList)
+                if (areaList != null)
                 {
-                    LoadAllKeyValue(areaId);
+                    foreach (string areaId in areaList)
+                    {
+                        LoadAllKeyValue(areaId);
+                    }
                 }
             });
             t.Priority = ThreadPriority.AboveNormal;

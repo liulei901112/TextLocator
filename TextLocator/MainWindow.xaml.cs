@@ -56,6 +56,11 @@ namespace TextLocator
         /// </summary>
         private static volatile bool build = false;
 
+        /// <summary>
+        /// 窗口状态
+        /// </summary>
+        private WindowState _windowState = WindowState.Normal;
+
         #region 热键
         /// <summary>
         /// 当前窗口句柄
@@ -141,6 +146,7 @@ namespace TextLocator
         /// <param name="e"></param>
         private void Window_Closing(object sender, CancelEventArgs e)
         {
+            _windowState = this.WindowState;
             this.Hide();
             e.Cancel = true;
         }
@@ -153,7 +159,7 @@ namespace TextLocator
         private void Window_Activated(object sender, EventArgs e)
         {
             this.Show();
-            this.WindowState = WindowState.Normal;
+            this.WindowState = _windowState;
         }
         #endregion
 

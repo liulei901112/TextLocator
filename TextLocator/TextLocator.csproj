@@ -282,6 +282,7 @@
     <Compile Include="Cache\LFUCache.cs" />
     <Compile Include="Cache\LFUCacheEntity.cs" />
     <Compile Include="Entity\AreaInfo.cs" />
+    <Compile Include="Entity\CreareIndexParam.cs" />
     <Compile Include="Entity\SearchParam.cs" />
     <Compile Include="Entity\SearchResult.cs" />
     <Compile Include="Enums\SearchRegion.cs" />

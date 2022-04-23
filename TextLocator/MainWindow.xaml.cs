@@ -1038,8 +1038,11 @@ namespace TextLocator
 
                 // 2、-------- 遍历搜索区
                 List<Entity.AreaInfo> areaInfos = AreaUtil.GetEnableAreaInfoList();
-                foreach(Entity.AreaInfo areaInfo in areaInfos)
+                int areaInfosCount = areaInfos.Count;
+                for (int i = 0; i < areaInfosCount; i++)
                 {
+                    Entity.AreaInfo areaInfo = areaInfos[i];
+
                     var singleTaskMark = TaskTime.StartNew();
 
                     // 不同区域，索引分开记录
@@ -1057,7 +1060,6 @@ namespace TextLocator
                     log.Info(msg);
                     ShowStatus(msg);
 
-                    var scanTaskMark = TaskTime.StartNew();
                     // 定义全部文件列表
                     List<string> allFilePaths = new List<string>();
                     // 定义更新文件列表
@@ -1065,9 +1067,10 @@ namespace TextLocator
                     // 定义删除文件列表
                     List<string> deleteFilePaths = new List<string>();
 
-                    // 2.2、-------- 获取支持的文件类型后缀
+                    // 2.2、-------- 获取支持的文件类型后缀（根据不同区域配置的支持文件类型查找对应的文件列表）
                     Regex fileExtRegex = new Regex(@"^.+\.(" + FileTypeUtil.ConvertToFileTypeExts(areaInfo.AreaFileTypes, "|") + ")$");
 
+                    var scanTaskMark = TaskTime.StartNew();
                     // 扫描需要建立索引的文件列表
                     foreach (string s in areaInfo.AreaFolders)
                     {
@@ -1080,6 +1083,7 @@ namespace TextLocator
                     log.Info(msg);
                     ShowStatus(msg);
 
+                    var analysisTaskMark = TaskTime.StartNew();
                     // 2.3、-------- 获取需要删除的文件列表
                     if (AppUtil.ReadSectionList(areaIdIndex) != null)
                     {
@@ -1095,7 +1099,6 @@ namespace TextLocator
                     }
 
                     // 2.4、-------- 如果是更新操作，判断文件格式是否变化 -> 判断文件更新时间变化找到最终需要更新的文件列表
-                    var analysisTaskMark = TaskTime.StartNew();
                     // 更新是才需要校验，重建是直接跳过
                     if (!isRebuild)
                     {
@@ -1143,7 +1146,17 @@ namespace TextLocator
                     AppCore.SetThreadPoolSize(!isBackground);
 
                     // 2.6、-------- 创建索引方法
-                    int errorCount = IndexCore.CreateIndex(areaInfo.AreaId, updateFilePaths, deleteFilePaths, isRebuild, ShowStatus);
+                    Entity.CreareIndexParam creareParam = new Entity.CreareIndexParam()
+                    {
+                        AreaId = areaInfo.AreaId,
+                        AreaIndex = i,
+                        AreasCount = areaInfosCount,
+                        UpdateFilePaths = updateFilePaths,
+                        DeleteFilePaths = deleteFilePaths,
+                        IsRebuild = isRebuild,
+                        Callback = ShowStatus
+                    };
+                    int errorCount = IndexCore.CreateIndex(creareParam);
 
                     // 2.7、-------- 当前区域完成日志
                     msg = string.Format("搜索区【{0}】，索引{1}完成；{2}数：{3}，删除数：{4}，错误数：{5}，共用时：{6}。", areaInfo.AreaName, tag, tag, updateFilePaths.Count, deleteFilePaths.Count, errorCount, singleTaskMark.ConsumeTime);
@@ -1190,7 +1203,7 @@ namespace TextLocator
         /// <param name="percent">进度，0-100</param>
         private void ShowStatus(string text, double percent = AppConst.MAX_PERCENT)
         {
-            Dispatcher.BeginInvoke(new Action(() =>
+            try
             {
                 WorkStatus.Text = text;
                 if (percent > AppConst.MIN_PERCENT)
@@ -1200,7 +1213,20 @@ namespace TextLocator
                     TaskbarItemInfo.ProgressState = percent < AppConst.MAX_PERCENT ? System.Windows.Shell.TaskbarItemProgressState.Normal : System.Windows.Shell.TaskbarItemProgressState.None;
                     TaskbarItemInfo.ProgressValue = WorkProgress.Value / WorkProgress.Maximum;
                 }
-            }));
+            } catch
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    WorkStatus.Text = text;
+                    if (percent > AppConst.MIN_PERCENT)
+                    {
+                        WorkProgress.Value = percent;
+
+                        TaskbarItemInfo.ProgressState = percent < AppConst.MAX_PERCENT ? System.Windows.Shell.TaskbarItemProgressState.Normal : System.Windows.Shell.TaskbarItemProgressState.None;
+                        TaskbarItemInfo.ProgressValue = WorkProgress.Value / WorkProgress.Maximum;
+                    }
+                }));
+            }
         }
         #endregion
 

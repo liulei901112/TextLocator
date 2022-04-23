@@ -109,18 +109,6 @@ namespace TextLocator.Util
         }
 
         /// <summary>
-        /// 超出范围
-        /// </summary>
-        /// <param name="fileSize"></param>
-        /// <param name="range"></param>
-        /// <returns></returns>
-        public static bool OutOfRange(long fileSize, int range = 10)
-        {
-            if (fileSize > range) { }
-            return false;
-        }
-
-        /// <summary>
         /// 获取指定根目录下的子目录及其文档
         /// </summary>
         /// <param name="filePaths">文档列表</param>

@@ -719,13 +719,6 @@ namespace TextLocator
             OpenFile.Tag = fileInfo.FilePath;
             OpenFolder.Tag = fileInfo.FilePath.Replace(fileInfo.FileName, "");
 
-            // 判断文件大小，超过2m的文件不预览
-            if (FileUtil.OutOfRange(fileInfo.FileSize))
-            {
-                MessageCore.ShowInfo("只能预览小于2MB的文档");
-                return;
-            }
-
             // 滚动条回滚到最顶端
             this.PreviewScrollViewer.ScrollToTop();
 
@@ -777,10 +770,23 @@ namespace TextLocator
                 {
                     try
                     {
-                        // 文件内容（预览）
-                        // FileInfoServiceFactory.GetFileContent(fileInfo.FilePath, true);
+                        // 文件内容（预览）FileInfoServiceFactory.GetFileContent(fileInfo.FilePath, true);
                         string content = fileInfo.Preview;
-                        log.Debug("content.Length => " + content.Length);
+                        // 内容长度
+                        int conLen = content.Length;
+                        // 内容长度超出
+                        if (conLen > AppConst.FILE_PREVIEW_LEN_LIMIT)
+                        {
+                            // 打印文件内容原始长度
+                            log.Info("预览文件内容长度：" + conLen + ", 限制长度为：" + AppConst.FILE_PREVIEW_LEN_LIMIT);
+                            // 显示提示
+                            Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                MessageCore.ShowWarning("内容长度超出限制，仅显示部分内容。可以打开源文件继续操作！");
+                            }));
+                            // 预览内容截取为前
+                            content = content.Substring(0, AppConst.FILE_PREVIEW_LEN_LIMIT);
+                        }
                         Dispatcher.BeginInvoke(new Action(() =>
                         {
                             // 填充数据

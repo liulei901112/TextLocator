@@ -120,9 +120,9 @@ namespace TextLocator.Core
         /// </summary>
         public const int FILE_CONTENT_SUB_LENGTH = 120;
         /// <summary>
-        /// 加密解密秘钥（不能随意修改，随意修改将导致注册码失效）
+        /// 文件预览长度限制
         /// </summary>
-        public const string AES_KEY = "TextLocator_Activation_2022";
+        public const int FILE_PREVIEW_LEN_LIMIT = 2000000;
         /// <summary>
         /// 区域配置
         /// </summary>

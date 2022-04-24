@@ -454,7 +454,7 @@ namespace TextLocator.Index
                 int areaIndex = taskInfo.AreaIndex;
                 int areasCount = taskInfo.AreasCount;
 
-                StringBuilder msg = new StringBuilder(string.Format("搜索区[{0}/{1}] -> ", areaIndex + 1, areasCount));                
+                StringBuilder msg = new StringBuilder(string.Format("搜索区[{0}/{1}] -> ", areaIndex + 1, areasCount));
 
                 // 文件路径
                 string filePath = taskInfo.FilePath;

@@ -24,6 +24,7 @@ using TextLocator.Enums;
 using TextLocator.HotKey;
 using TextLocator.Index;
 using TextLocator.Message;
+using TextLocator.Service;
 using TextLocator.Util;
 
 namespace TextLocator

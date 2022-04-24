@@ -997,6 +997,10 @@ namespace TextLocator
                         log.Info("开始执行索引更新检查。");
                         BuildIndex(false, true);
 
+                        // 配置参数错误导致的bug矫正
+                        if (AppConst.INDEX_UPDATE_TASK_INTERVAL <= 5)
+                            AppConst.INDEX_UPDATE_TASK_INTERVAL = 5;
+
                         Thread.Sleep(TimeSpan.FromMinutes(AppConst.INDEX_UPDATE_TASK_INTERVAL));
                     }
                 }

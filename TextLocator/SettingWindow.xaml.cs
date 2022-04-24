@@ -185,13 +185,14 @@ namespace TextLocator
                 int indexUpdateTaskInterval = 0;
                 try
                 {
-                    fileReadTimeout = int.Parse(indexUpdateTaskIntervalText);
+                    indexUpdateTaskInterval = int.Parse(indexUpdateTaskIntervalText);
                 }
                 catch
                 {
                     MessageCore.ShowWarning("索引更新任务间隔时间错误");
+                    return;
                 }
-                if (fileReadTimeout < 5 || fileReadTimeout > 30)
+                if (indexUpdateTaskInterval < 5 || indexUpdateTaskInterval > 30)
                 {
                     MessageCore.ShowWarning("建议设置在5 - 30分钟范围内");
                     return;

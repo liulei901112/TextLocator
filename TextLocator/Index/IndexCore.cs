@@ -641,75 +641,96 @@ namespace TextLocator.Index
             Lucene.Net.Search.ParallelMultiSearcher parallelMultiSearcher = new Lucene.Net.Search.ParallelMultiSearcher(searchers.ToArray());
             try
             {
-                // 搜索域加权
-                Dictionary<string, float> boosts = new Dictionary<string, float>();
-                // 搜索域列表
-                List<string> fields = new List<string>();
-
-                // 搜索域判断（文件名 || 文件内容 || 文件名和文件内容）
-                bool isSearchFileName = param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件名;
-                bool isSearchContent = param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件内容;
-                // 文件名
-                if (isSearchFileName)
-                {
-                    boosts["FileName"] = 1.0f;
-                    fields.Add("FileName");
-                }
-                // 文件内容
-                if (isSearchContent)
-                {
-                    boosts["Content"] = 1.2f;
-                    fields.Add("Content");
-                }
-
-                // 查询转换器
-                Lucene.Net.QueryParsers.QueryParser queryParser = new Lucene.Net.QueryParsers.MultiFieldQueryParser(
-                        // Lucence版本
-                        Lucene.Net.Util.Version.LUCENE_30,
-                        // 搜索域列表
-                        fields.ToArray(),
-                        // 分析仪
-                        AppConst.INDEX_ANALYZER, 
-                        // 权重
-                        boosts);
-
                 // 复合查询
                 Lucene.Net.Search.BooleanQuery boolQuery = new Lucene.Net.Search.BooleanQuery();
 
                 // 遍历关键词列表
                 string text = "";
                 string keywordType = "分词";
-                foreach (string keyword in param.Keywords)
+                for (int i = 0; i < param.Keywords.Count; i++)
                 {
+                    // 1、---- 关键词
+                    string keyword = param.Keywords[i];
                     text += keyword + ",";
-                    // 正则
+
+                    // 2、---- 搜索域
+                    bool hasFileName = param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件名;
+                    bool hasContent = param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件内容;
+
+                    // 3.1、---- 关键词正则 或 标记为正则
                     if (AppConst.REGEX_SUPPORT_WILDCARDS.IsMatch(keyword))
                     {
                         keywordType = "正则";
-
-                        // 文件名
-                        if (param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件名)
+                        // 文件名搜索
+                        if (hasFileName)
                         {
-                            RegexQuery regexFileName = new RegexQuery(new Lucene.Net.Index.Term("FileName", keyword));
-                            boolQuery.Add(regexFileName, Lucene.Net.Search.Occur.SHOULD);
+                            RegexQuery query = new RegexQuery(new Lucene.Net.Index.Term("FileName", keyword));
+                            boolQuery.Add(query, Lucene.Net.Search.Occur.SHOULD);
                         }
-                        // 文件内容
-                        if (param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件内容)
+                        // 文件内容搜索
+                        if (hasContent)
                         {
-                            RegexQuery regexContentQuery = new RegexQuery(new Lucene.Net.Index.Term("Content", keyword));
-                            boolQuery.Add(regexContentQuery, Lucene.Net.Search.Occur.SHOULD);
+                            RegexQuery query = new RegexQuery(new Lucene.Net.Index.Term("Content", keyword));
+                            boolQuery.Add(query, Lucene.Net.Search.Occur.SHOULD);
                         }
                     }
-                    // 常规
+                    // 3.2、---- 常规
                     else
                     {
-                        Lucene.Net.Search.Query query = queryParser.Parse(Lucene.Net.QueryParsers.QueryParser.Escape(keyword));
-                        boolQuery.Add(query, param.IsMatchWords ? Lucene.Net.Search.Occur.MUST : Lucene.Net.Search.Occur.SHOULD);
+                        // 关键词再次分词（用于短语查询），UI选中精确搜索时，文本框输入内容不分词，业务处理中查询需要按照短语分词查询
+                        string[] phrases = AppConst.INDEX_SEGMENTER.CutForSearch(keyword).ToArray();
+
+                        // 【内部函数】域组合查询内部函数
+                        void FieldCombineQuery(string fieldName)
+                        {
+                            if (param.IsPreciseRetrieval)
+                            {
+                                Lucene.Net.Search.PhraseQuery query = new Lucene.Net.Search.PhraseQuery();
+                                foreach (string s in phrases)
+                                {
+                                    query.Add(new Lucene.Net.Index.Term(fieldName, s));
+                                }
+                                boolQuery.Add(query, param.IsMatchWords ? Lucene.Net.Search.Occur.MUST : Lucene.Net.Search.Occur.SHOULD);
+                            }
+                            else
+                            {
+                                if (phrases.Length == 1)
+                                {
+                                    Lucene.Net.Search.TermQuery query = new Lucene.Net.Search.TermQuery(new Lucene.Net.Index.Term(fieldName, keyword));
+                                    boolQuery.Add(query, param.IsMatchWords ? Lucene.Net.Search.Occur.MUST : Lucene.Net.Search.Occur.SHOULD);
+                                }
+                                else
+                                {
+                                    Lucene.Net.Search.PhraseQuery query = new Lucene.Net.Search.PhraseQuery();
+                                    foreach (string s in phrases)
+                                    {
+                                        Lucene.Net.Index.Term term = new Lucene.Net.Index.Term(fieldName, s);
+                                        query.Add(term);
+                                    }
+                                    boolQuery.Add(query, param.IsMatchWords ? Lucene.Net.Search.Occur.MUST : Lucene.Net.Search.Occur.SHOULD);
+                                }
+                            }
+                        }
+
+                        // 3.2.1、---- 文件名搜索
+                        if (hasFileName)
+                        {
+                            FieldCombineQuery("FileName");
+                        }
+                        // 3.2.2、---- 文件内容搜索
+                        if (hasContent)
+                        {
+                            FieldCombineQuery("Content");
+                        }
+                    }
+                    if (param.IsPreciseRetrieval)
+                    {
+                        keywordType = "精确";
                     }
                 }
                 text = text.Substring(0, text.Length - 1);
 
-                // 文件类型筛选（文件类型为全部时，则为空）
+                // 4、---- 文件类型筛选（文件类型为全部时，则为空）
                 Lucene.Net.Search.TermsFilter filter = null;
                 if (param.FileType != FileType.全部)
                 {
@@ -718,7 +739,7 @@ namespace TextLocator.Index
                 }
                 log.Info(string.Format("文件类型：{0}，搜索关键词：（{1}），排序类型：{2}，组合搜索条件：{3}", param.FileType, text, param.SortType, boolQuery.ToString()));
 
-                // 排序（true表示降序，false表示升序）
+                // 5、---- 排序（true表示降序，false表示升序）
                 Lucene.Net.Search.Sort sort = new Lucene.Net.Search.Sort();
                 switch (param.SortType)
                 {
@@ -737,7 +758,7 @@ namespace TextLocator.Index
                         break;
                 }
 
-                // 查询数据分页
+                // 6、---- 查询数据分页
                 Lucene.Net.Search.TopFieldDocs topDocs = parallelMultiSearcher.Search(boolQuery, filter, param.PageIndex * param.PageSize, sort);
                 // 结果数组
                 Lucene.Net.Search.ScoreDoc[] scores = topDocs.ScoreDocs;

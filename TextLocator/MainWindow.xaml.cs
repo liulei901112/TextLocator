@@ -417,6 +417,8 @@ namespace TextLocator
             }
 
             // ---- 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
+            // 取消精确检索
+            PreciseRetrieval.IsChecked = false;
             // 取消匹配全词
             MatchWords.IsChecked = false;
 
@@ -446,6 +448,8 @@ namespace TextLocator
                 SearchText.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
 
                 // ---- 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
+                // 取消精确检索
+                PreciseRetrieval.IsChecked = false;
                 // 取消匹配全词
                 MatchWords.IsChecked = false;
 
@@ -635,6 +639,8 @@ namespace TextLocator
             IToggleProvider toggleProvider = toggleButtonAutomationPeer.GetPattern(PatternInterface.Toggle) as IToggleProvider;
             toggleProvider.Toggle();
 
+            // 精确检索
+            PreciseRetrieval.IsChecked = false;
             // 匹配全词
             MatchWords.IsChecked = false;      
 
@@ -1375,8 +1381,12 @@ namespace TextLocator
             // 为空直接返回null
             if (string.IsNullOrEmpty(searchText)) return keywords;
 
-            // 替换内置关键词
-            searchText = AppConst.REGEX_BUILT_IN_SYMBOL.Replace(searchText, " ");
+            // 精确检索未选中
+            if (PreciseRetrieval.IsChecked == false)
+            {
+                // 替换内置关键词
+                searchText = AppConst.REGEX_BUILT_IN_SYMBOL.Replace(searchText, " ");
+            }
 
             // 空格分词
             if (searchText.IndexOf(" ") != -1)
@@ -1393,8 +1403,13 @@ namespace TextLocator
             }
             else
             {
+                // 精确检索
+                if (PreciseRetrieval.IsChecked == true)
+                {
+                    keywords.Add(searchText);
+                }
                 // 通配符 || 内置字符（AND|OR|NOT）
-                if (AppConst.REGEX_SUPPORT_WILDCARDS.IsMatch(searchText) || AppConst.REGEX_BUILT_IN_SYMBOL.IsMatch(searchText))
+                else if (AppConst.REGEX_SUPPORT_WILDCARDS.IsMatch(searchText))
                 {
                     keywords.Add(searchText);
                 }
@@ -1402,7 +1417,7 @@ namespace TextLocator
                 else
                 {
                     // 分词列表
-                    List<string> segmentList = AppConst.INDEX_SEGMENTER.Cut(searchText).ToList();
+                    List<string> segmentList = AppConst.INDEX_SEGMENTER.CutForSearch(searchText).ToList();
                     // 合并关键列表
                     keywords = keywords.Union(segmentList).ToList();
                 }
@@ -1468,6 +1483,7 @@ namespace TextLocator
                 Keywords = keywords,
                 FileType = (FileType)SearchFileType.Tag,
                 SortType = (SortType)SortOptions.SelectedValue,
+                IsPreciseRetrieval = (bool) PreciseRetrieval.IsChecked,
                 IsMatchWords = (bool)MatchWords.IsChecked,
                 SearchRegion = (SearchRegion)SearchScope.SelectedValue,
                 PageSize = PageSize,

@@ -124,6 +124,10 @@
                                             <ComboBoxItem Content="仅文件内容"/>
                                         </ComboBox>
                                     </Grid>
+                                    <!-- 精确检索 -->
+                                    <Grid Margin="10">
+                                        <CheckBox x:Name="PreciseRetrieval" Content="精确检索" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center" Checked="CheckChange" Unchecked="CheckChange"/>
+                                    </Grid>
                                     <!-- 匹配全词 -->
                                     <Grid Margin="10">                                        
                                         <CheckBox x:Name="MatchWords" Content="匹配全词" FontSize="16" HorizontalAlignment="Left" VerticalContentAlignment="Center" Checked="CheckChange" Unchecked="CheckChange"/>

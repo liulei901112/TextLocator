@@ -25,13 +25,13 @@ namespace TextLocator.Entity
         /// </summary>
         public SortType SortType { get; set; }
         /// <summary>
+        /// 精确检索
+        /// </summary>
+        public bool IsPreciseRetrieval { get; set; }
+        /// <summary>
         /// 匹配全词
         /// </summary>
         public bool IsMatchWords { get; set; }
-        /// <summary>
-        /// 区分大小写
-        /// </summary>
-        public bool IsMatchCase { get; set; }
         /// <summary>
         /// 搜索域
         /// </summary>

@@ -708,7 +708,6 @@ namespace TextLocator.Index
                     }
                 }
                 text = text.Substring(0, text.Length - 1);
-                log.Info("搜索关键词：（" + text + "）, 文件类型：" + param.FileType);
 
                 // 文件类型筛选（文件类型为全部时，则为空）
                 Lucene.Net.Search.TermsFilter filter = null;
@@ -717,7 +716,7 @@ namespace TextLocator.Index
                     filter = new Lucene.Net.Search.TermsFilter();
                     filter.AddTerm(new Lucene.Net.Index.Term("FileType", param.FileType.ToString()));
                 }
-                log.Info("组合搜索条件：" + boolQuery.ToString());
+                log.Info(string.Format("文件类型：{0}，搜索关键词：（{1}），排序类型：{2}，组合搜索条件：{3}", param.FileType, text, param.SortType, boolQuery.ToString()));
 
                 // 排序（true表示降序，false表示升序）
                 Lucene.Net.Search.Sort sort = new Lucene.Net.Search.Sort();

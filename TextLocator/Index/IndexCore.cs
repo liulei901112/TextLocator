@@ -801,7 +801,7 @@ namespace TextLocator.Index
                         Keywords = param.Keywords
                     };
 
-                    // 统计词
+                    // 词频统计（所有关键词匹配次数）
                     fileInfo.MatchCount = GetMatchCount(fileInfo, param.SearchRegion);
 
                     fileInfos.Add(fileInfo);

@@ -799,8 +799,15 @@ namespace TextLocator
                             // 填充数据
                             RichTextBoxUtil.FillingData(PreviewFileContent, content, new SolidColorBrush(Colors.Black));
 
-                            // 关键词高亮
-                            RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.Red, fileInfo.Keywords);
+                            if (fileInfo.MatchCount > AppConst.FILE_MATCH_COUNT_LIMIT)
+                            {
+                                MessageCore.ShowWarning("关键词匹配数量太多，不进行高亮操作。");
+                            }
+                            else
+                            {
+                                // 关键词高亮
+                                RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.Red, fileInfo.Keywords);
+                            }
                         }));
                     }
                     catch (Exception ex)

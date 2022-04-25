@@ -788,13 +788,10 @@ namespace TextLocator.Index
                         continue;
                     }
 
-                    // log.Debug("索引：" + fileNameField.StringValue + " => " + filePathField.StringValue + " ， " + fileSizeField.StringValue + " , " + updateTimeField.StringValue);
-
-                    // 处理预览内容
-
                     // 构造显示文件信息
                     fileInfo = new Entity.FileInfo()
                     {
+                        FileType = (FileType)Enum.Parse(typeof(FileType), fileTypeField.StringValue),
                         FilePath = filePathField.StringValue,
                         FileName = fileNameField.StringValue,
                         Preview = previewField.StringValue,
@@ -804,14 +801,9 @@ namespace TextLocator.Index
                         Keywords = param.Keywords
                     };
 
-                    try
-                    {
-                        fileInfo.FileType = (FileType)System.Enum.Parse(typeof(FileType), fileTypeField.StringValue);
-                    }
-                    catch
-                    {
-                        fileInfo.FileType = FileType.TXT文档;
-                    }
+                    // 统计词
+                    fileInfo.MatchCount = GetMatchCount(fileInfo, param.SearchRegion);
+
                     fileInfos.Add(fileInfo);
                 }
 
@@ -860,25 +852,21 @@ namespace TextLocator.Index
         }
 
         /// <summary>
-        /// 获取关键词词频
+        /// 获取关键词词频统计
         /// </summary>
         /// <param name="fileInfo">文件信息</param>
         /// <param name="searchRegion">搜索域</param>
-        /// <param name="autoNewLine">自动换行</param>
         /// <returns></returns>
-        public static string GetKeywordFrequency(Entity.FileInfo fileInfo, SearchRegion searchRegion, bool autoNewLine = true)
+        public static int GetMatchCount(Entity.FileInfo fileInfo, SearchRegion searchRegion)
         {
             try
             {
-                TaskTime taskTime = TaskTime.StartNew();
-                // 定义词频词典
-                Dictionary<string, int> frequencyDic = new Dictionary<string, int>();
-
+                int totalCount = 0;
                 // 遍历关键词
                 foreach (string keyword in fileInfo.Keywords)
                 {
                     // 匹配内容
-                    int matchNameCount = 0, matchContentCount = 0;
+                    int nameMatchCount = 0, contentMatchCount = 0;
                     // 声明正则
                     Regex regex = new Regex(keyword);
 
@@ -891,7 +879,7 @@ namespace TextLocator.Index
                         if (matchName.Success)
                         {
                             // 获取匹配次数
-                            matchNameCount = regex.Matches(fileInfo.FileName).Count;
+                            nameMatchCount = regex.Matches(fileInfo.FileName).Count;
                         }
                     }
 
@@ -907,26 +895,91 @@ namespace TextLocator.Index
                         if (matchContent.Success)
                         {
                             // 获取匹配次数
-                            matchContentCount = regex.Matches(content).Count;
+                            contentMatchCount = regex.Matches(content).Count;
                         }
                     }
-                    
+
                     // 匹配数量合并
-                    int count = matchNameCount + matchContentCount;
+                    totalCount = totalCount + nameMatchCount + contentMatchCount;
+                }
+                return totalCount;
+            }
+            catch (Exception ex)
+            {
+                log.Error("获取关键词词频统计失败：" + ex.Message, ex);
+                return 0;
+            }
+        }
+
+        /*/// <summary>
+        /// 获取关键词词频统计
+        /// </summary>
+        /// <param name="fileInfo">文件信息</param>
+        /// <param name="searchRegion">搜索域</param>
+        /// <param name="autoNewLine">自动换行</param>
+        /// <returns></returns>
+        public static string GetMatchCountDetails(Entity.FileInfo fileInfo, SearchRegion searchRegion, bool autoNewLine = true)
+        {
+            try
+            {
+                TaskTime taskTime = TaskTime.StartNew();
+
+                // 定义词频词典
+                Dictionary<string, int> matchCountDic = new Dictionary<string, int>();
+                // 遍历关键词
+                foreach (string keyword in fileInfo.Keywords)
+                {
+                    // 匹配内容
+                    int nameMatchCount = 0, contentMatchCount = 0;
+                    // 声明正则
+                    Regex regex = new Regex(keyword);
+
+                    // ---- 匹配文件名
+                    if (searchRegion == SearchRegion.文件名和内容 || searchRegion == SearchRegion.仅文件名)
+                    {
+                        // 匹配文件名
+                        Match matchName = regex.Match(fileInfo.FileName);
+                        // 文件名匹配成功
+                        if (matchName.Success)
+                        {
+                            // 获取匹配次数
+                            nameMatchCount = regex.Matches(fileInfo.FileName).Count;
+                        }
+                    }
+
+                    // ---- 匹配文件内容
+                    if (searchRegion == SearchRegion.文件名和内容 || searchRegion == SearchRegion.仅文件内容)
+                    {
+                        // 获取内容（预览内容替换----\d+----）
+                        string content = AppConst.REGEX_CONTENT_PAGE.Replace(fileInfo.Preview, "");
+
+                        // 匹配文件内容
+                        Match matchContent = regex.Match(content);
+                        // 文件内容匹配成功
+                        if (matchContent.Success)
+                        {
+                            // 获取匹配次数
+                            contentMatchCount = regex.Matches(content).Count;
+                        }
+                    }
+
+                    // 匹配数量合并
+                    int count = nameMatchCount + contentMatchCount;
                     // 匹配次数大于才是有效值
                     if (count > 0)
                     {
-                        frequencyDic[keyword] = count;
+                        matchCountDic[keyword] = count;
                     }
                 }
+
                 StringBuilder builder = new StringBuilder();
                 // 获取匹配词列表
-                List<string> frequencyKeyList = frequencyDic.Keys.ToList();
-                for (int k = 0; k < frequencyKeyList.Count; k++)
+                List<string> matchCountList = matchCountDic.Keys.ToList();
+                for (int k = 0; k < matchCountList.Count; k++)
                 {
-                    builder.Append(string.Format("{0}：{1}，", frequencyKeyList[k], frequencyDic[frequencyKeyList[k]]));
+                    builder.Append(string.Format("{0}：{1}，", matchCountList[k], matchCountDic[matchCountList[k]]));
                     // 自动换行 && （下标不是0 && 每4次 && 下标不是最大）
-                    if (autoNewLine && k > 0 && k % 8 == 0 && k < frequencyKeyList.Count - 1)
+                    if (autoNewLine && k > 0 && k % 8 == 0 && k < matchCountList.Count - 1)
                     {
                         builder.Append("\r\n");
                     }
@@ -941,10 +994,10 @@ namespace TextLocator.Index
             }
             catch (Exception ex)
             {
-                log.Error("获取关键词频率失败：" + ex.Message, ex);
+                log.Error("获取关键词词频统计失败：" + ex.Message, ex);
                 return null;
             }
-        }
+        }*/
 
         /// <summary>
         /// 获取内容缩略

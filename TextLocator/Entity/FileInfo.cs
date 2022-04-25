@@ -41,5 +41,9 @@ namespace TextLocator.Entity
         /// </summary>
         private List<string> keywords = new List<string>();
         public List<string> Keywords { get => keywords; set => keywords = value; }
+        /// <summary>
+        /// 词频统计
+        /// </summary>
+        public int MatchCount { get; set; }
     }
 }

@@ -120,6 +120,10 @@ namespace TextLocator.Core
         /// </summary>
         public const int FILE_CONTENT_SUB_LENGTH = 120;
         /// <summary>
+        /// 文件词频数量限制
+        /// </summary>
+        public const int FILE_MATCH_COUNT_LIMIT = 800;
+        /// <summary>
         /// 文件预览长度限制
         /// </summary>
         public const int FILE_PREVIEW_LEN_LIMIT = 1000000;

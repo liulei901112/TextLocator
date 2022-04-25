@@ -723,6 +723,10 @@ namespace TextLocator.Index
                             FieldCombineQuery("Content");
                         }
                     }
+                    if (param.IsMatchWords)
+                    {
+                        keywordType = "全词";
+                    }
                     if (param.IsPreciseRetrieval)
                     {
                         keywordType = "精确";

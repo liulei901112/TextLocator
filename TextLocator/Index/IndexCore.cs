@@ -723,14 +723,14 @@ namespace TextLocator.Index
                             FieldCombineQuery("Content");
                         }
                     }
-                    if (param.IsMatchWords)
-                    {
-                        keywordType = "全词";
-                    }
-                    if (param.IsPreciseRetrieval)
-                    {
-                        keywordType = "精确";
-                    }
+                }
+                if (param.IsMatchWords)
+                {
+                    keywordType = "全词";
+                }
+                if (param.IsPreciseRetrieval)
+                {
+                    keywordType = "精确";
                 }
                 text = text.Substring(0, text.Length - 1);
 

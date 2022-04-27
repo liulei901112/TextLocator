@@ -839,7 +839,7 @@ namespace TextLocator.Index
                 // 返回查询结果
                 return new Entity.SearchResult()
                 {
-                    Total = totalHits,
+                    Total = totalHits - deleteCount,
                     Results = fileInfos
                 };
             }

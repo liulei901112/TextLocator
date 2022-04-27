@@ -479,6 +479,8 @@ namespace TextLocator
         {
             // 如果文本为空则隐藏清空按钮，如果不为空则显示清空按钮
             this.CleanButton.Visibility = this.SearchText.Text.Length > 0 ? Visibility.Visible : Visibility.Hidden;
+            // 文本框颜色
+            SearchTextBorder.BorderBrush = new SolidColorBrush(this.SearchText.Text.Length > 0 ? Colors.Green : (Color)ColorConverter.ConvertFromString("#2196f3"));
         }
 
         /// <summary>

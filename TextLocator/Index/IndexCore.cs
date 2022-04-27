@@ -1038,7 +1038,7 @@ namespace TextLocator.Index
 
             int min = 0;
             int max = breviary.Length;
-            int subLen = 130;
+            int subLen = AppConst.FILE_CONTENT_SUB_LENGTH;
             try
             {
                 // 内部子方法

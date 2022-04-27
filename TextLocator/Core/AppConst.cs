@@ -118,7 +118,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 文件内容缩略信息截取值
         /// </summary>
-        public const int FILE_CONTENT_SUB_LENGTH = 120;
+        public const int FILE_CONTENT_SUB_LENGTH = 135;
         /// <summary>
         /// 文件词频数量限制
         /// </summary>

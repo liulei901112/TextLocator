@@ -25,37 +25,41 @@
                             <!-- 搜索 -->
                             <StackPanel Margin="0,15,10,0" Orientation="Horizontal" >
                                 <!-- 搜索框 -->
-                                <TextBox x:Name="SearchText" Width="900" Height="36" FontSize="20" HorizontalAlignment="Left" VerticalContentAlignment="Center" BorderThickness="1" BorderBrush="Green" 
+                                <Border x:Name="SearchTextBorder" BorderThickness="1" BorderBrush="#2196f3" CornerRadius="4">
+                                    <TextBox x:Name="SearchText" Width="898" Height="34" FontSize="20" 
+                                             HorizontalAlignment="Left" VerticalContentAlignment="Center" 
+                                             BorderThickness="0" BorderBrush="Transparent" 
                                          PreviewKeyUp="SearchText_PreviewKeyUp" 
                                          TextChanged="SearchText_TextChanged">
-                                    <TextBox.Resources>
-                                        <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
-                                            <VisualBrush.Visual>
-                                                <TextBlock Text="请输入搜索关键词" FontSize="20"/>
-                                            </VisualBrush.Visual>
-                                        </VisualBrush>
-                                        <Style TargetType="{x:Type Border}">
-                                            <Setter Property="CornerRadius" Value="4"/>
-                                            <Setter Property="BorderBrush" Value="#c1d0dc"/>
-                                        </Style>
-                                    </TextBox.Resources>
-                                    <TextBox.Style>
-                                        <Style TargetType="TextBox">
-                                            <Style.Triggers>
-                                                <Trigger Property="Text" Value="{x:Null}">
-                                                    <Setter Property="Background" Value="{StaticResource HintText}"/>
-                                                </Trigger>
-                                                <Trigger Property="Text" Value="">
-                                                    <Setter Property="Background" Value="{StaticResource HintText}"/>
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBox.Style>
-                                </TextBox>
+                                        <TextBox.Resources>
+                                            <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
+                                                <VisualBrush.Visual>
+                                                    <TextBlock Text="请输入搜索关键词" FontSize="20"/>
+                                                </VisualBrush.Visual>
+                                            </VisualBrush>
+                                            <Style TargetType="{x:Type Border}">
+                                                <Setter Property="CornerRadius" Value="4"/>
+                                                <Setter Property="BorderBrush" Value="#c1d0dc"/>
+                                            </Style>
+                                        </TextBox.Resources>
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <Trigger Property="Text" Value="{x:Null}">
+                                                        <Setter Property="Background" Value="{StaticResource HintText}"/>
+                                                    </Trigger>
+                                                    <Trigger Property="Text" Value="">
+                                                        <Setter Property="Background" Value="{StaticResource HintText}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                </Border>
                                 <!-- 清空按钮 -->
-                                <Button x:Name="CleanButton" Content="X" Margin="-36,0,0,0" Width="35" Height="35" Background="Red" Click="CleanButton_Click" Visibility="Hidden"/>
+                                <Button x:Name="CleanButton" Content="X" Margin="-36,0,0,0" Width="36" Height="36" Background="Red" Click="CleanButton_Click"/>
                                 <!-- 搜索按钮 -->
-                                <Button x:Name="SearchButton" Content="搜索" Margin="10,0,0,0" Width="100" Height="35" Click="SearchButton_Click"/>
+                                <Button x:Name="SearchButton" Content="搜索" Margin="10,0,0,0" Width="100" Height="36" Click="SearchButton_Click"/>
                             </StackPanel>
 
                             <!-- 条件和排序 -->

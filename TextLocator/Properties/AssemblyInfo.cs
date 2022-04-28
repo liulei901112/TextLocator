@@ -49,8 +49,10 @@ using System.Windows;
 //可以指定所有这些值，也可以使用“生成号”和“修订号”的默认值
 //通过使用 "*"，如下所示:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.1.12")] // 大版本，强制更新最小版本
-[assembly: AssemblyFileVersion("2.1.12.1")] // 小版本，选择更新版本
+// 大版本，强制更新最小版本
+[assembly: AssemblyVersion("2.1.13")]
+// 小版本，选择更新版本
+[assembly: AssemblyFileVersion("2.1.13.1")]
 // Version minVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 // Version version = new Version(FileVersionInfo.GetVersionInfo(System.Windows.Forms.Application.ExecutablePath).ProductVersion);
 

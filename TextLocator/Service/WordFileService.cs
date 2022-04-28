@@ -29,29 +29,29 @@ namespace TextLocator.Service
             {
                 try
                 {
-                    // 1、=========== NetOffice.WordApi ===========
-                    content = NetOfficeParse(filePath);
+                    // 1、=========== DocumentFormat.OpenXml ===========
+                    content = OpenXmlParse(filePath); 
                 }
                 catch (Exception ex)
                 {
-                    log.Error(filePath + " -> NetOffice 无法解析：" + ex.Message, ex);
+                    log.Error(filePath + " -> DocumentFormat.OpenXml 无法解析：" + ex.Message, ex);
                     try
                     {
-                        // 2、=========== DocumentFormat.OpenXml ===========
-                        content = OpenXmlParse(filePath);
+                        // 2、=========== NPOI ===========
+                        content = NPOIParse(filePath);
                     }
                     catch (Exception ex1)
                     {
-                        log.Error(filePath + " -> DocumentFormat.OpenXml 无法解析：" + ex1.Message, ex1);
+                        log.Error(filePath + " -> NPOI 无法解析：" + ex1.Message, ex1);
 
                         try
                         {
-                            // 3、=========== NPOI ===========
-                            content = NPOIParse(filePath);
+                            // 3、=========== NetOffice.WordApi ===========
+                            content = NetOfficeParse(filePath); 
                         }
                         catch (Exception ex2)
                         {
-                            log.Error(filePath + " -> NPOI 无法解析：" + ex2.Message, ex2);
+                            log.Error(filePath + " -> NetOffice.WordApi 无法解析：" + ex2.Message, ex2);
 
                             try
                             {

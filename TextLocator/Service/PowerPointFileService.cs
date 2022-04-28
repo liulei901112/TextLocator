@@ -6,7 +6,6 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using TextLocator.Core;
-using TextLocator.Factory;
 using PPT = NetOffice.PowerPointApi;
 
 namespace TextLocator.Service
@@ -28,36 +27,36 @@ namespace TextLocator.Service
             {
                 try
                 {
-                    // 1、=========== NetOffice.PowerPointApi ===========
-                    content = NetOfficeParse(filePath);
+                    // 1、=========== DocumentFormat.OpenXml ===========
+                    content = OpenXmlParse(filePath);
                 }
                 catch (Exception ex)
                 {
-                    log.Error(filePath + " -> NetOffice 无法解析：" + ex.Message, ex);
+                    log.Error(filePath + " -> DocumentFormat.OpenXml 无法解析：" + ex.Message, ex);
                     try
                     {
-                        // 2、=========== DocumentFormat.OpenXml ===========
-                        content = OpenXmlParse(filePath);
+                        // 2、=========== NPOI ===========                        
+                        content = NPOIParse(filePath);
                     }
                     catch (Exception ex1)
                     {
-                        log.Error(filePath + " -> DocumentFormat.OpenXml 无法解析：" + ex1.Message, ex1);
+                        log.Error(filePath + " -> NPOI 无法解析：" + ex1.Message, ex1);
                         try
                         {
-                            // 3、=========== NPOI ===========
-                            content = NPOIParse(filePath);
+                            // 3、=========== NetOffice.PowerPointApi ===========
+                            content = NetOfficeParse(filePath);
                         }
                         catch (Exception ex2)
                         {
-                            log.Error(filePath + " -> NPIO 无法解析：" + ex2.Message, ex2);
+                            log.Error(filePath + " -> NetOffice.PowerPointApi 无法解析：" + ex2.Message, ex2);
                             try
                             {
-                                // 4、=========== Spire ===========
+                                // 4、=========== Spire.Presentation ===========
                                 content = SpirePresentParse(filePath);
                             }
                             catch (Exception ex3)
                             {
-                                log.Error(filePath + " -> Spire 无法解析：" + ex3.Message, ex3);
+                                log.Error(filePath + " -> Spire.Presentation 无法解析：" + ex3.Message, ex3);
                             }
                         }
                     }

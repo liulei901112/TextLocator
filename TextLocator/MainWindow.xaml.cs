@@ -732,7 +732,7 @@ namespace TextLocator
 
             // 绑定打开文件和打开路径的Tag
             OpenFile.Tag = fileInfo.FilePath;
-            OpenFolder.Tag = fileInfo.FilePath.Replace(fileInfo.FileName, "");
+            OpenFolder.Tag = fileInfo.FilePath.Substring(0, fileInfo.FilePath.LastIndexOf("\\"));
 
             // 滚动条回滚到最顶端
             this.PreviewScrollViewer.ScrollToTop();

@@ -15,14 +15,6 @@ namespace TextLocator.Core
     public class AppConst
     {
         /// <summary>
-        /// 线程池最小数量
-        /// </summary>
-        public static int THREAD_POOL_MIN_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MinSize", "32"));
-        /// <summary>
-        /// 线程池最大数量
-        /// </summary>
-        public static int THREAD_POOL_MAX_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MaxSize", "64"));
-        /// <summary>
         /// 结果列表分页条数
         /// </summary>
         public static int MRESULT_LIST_PAGE_SIZE = int.Parse(AppUtil.ReadValue("AppConfig", "ResultListPageSize", "100"));
@@ -47,6 +39,22 @@ namespace TextLocator.Core
         /// </summary>
         public static int INDEX_UPDATE_TASK_INTERVAL = int.Parse(AppUtil.ReadValue("AppConfig", "IndexUpdateTaskInterval", "10"));
 
+        /// <summary>
+        /// 最小工作线程（CPU线程数 * 2）
+        /// </summary>
+        public static readonly int THREAD_POOL_WORKER_MIN_SIZE = Environment.ProcessorCount * 2;
+        /// <summary>
+        /// 最大工作线程（CPU线程数 * 4）
+        /// </summary>
+        public static readonly int THREAD_POOL_WORKER_MAX_SIZE = Environment.ProcessorCount * 4;
+        /// <summary>
+        /// 最小IO线程（CPU线程数）
+        /// </summary>
+        public static readonly int THREAD_POOL_IO_MIN_SIZE = Environment.ProcessorCount;
+        /// <summary>
+        /// 最大IO线程（CPU线程数 * 2）
+        /// </summary>
+        public static readonly int THREAD_POOL_IO_MAX_SIZE = Environment.ProcessorCount * 2;
         /// <summary>
         /// AppName
         /// </summary>

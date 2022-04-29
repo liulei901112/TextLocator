@@ -61,7 +61,7 @@ namespace TextLocator.Factory
 			// 缓存Key
 			string cacheKey = MD5Util.GetMD5Hash(filePath);
 
-			if (CacheUtil.Exsits(cacheKey))
+			if (CacheUtil.Exists(cacheKey))
 			{
 				// 从缓存中读取
 				content = CacheUtil.Get<string>(cacheKey);

@@ -12,11 +12,11 @@ namespace TextLocator.Util
         /// <summary>
         /// LFU缓存
         /// </summary>
-        private static LFUCache _cache;
+        private static LRUCache _cache;
 
         static CacheUtil()
         {
-            _cache = new LFUCache(AppConst.CACHE_POOL_CAPACITY);
+            _cache = new LRUCache(AppConst.CACHE_POOL_CAPACITY);
         }
 
         /// <summary>
@@ -25,6 +25,15 @@ namespace TextLocator.Util
         public static void Put(string key, object value)
         {
             _cache.Put(key, value);
+        }
+
+        /// <summary>
+        /// 删除缓存
+        /// </summary>
+        /// <param name="key"></param>
+        public static void Remove(string key)
+        {
+            _cache.Remove(key);
         }
 
         /// <summary>
@@ -40,7 +49,7 @@ namespace TextLocator.Util
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static bool Exsits(string key)
+        public static bool Exists(string key)
         {
             return _cache.Exists(key);
         }

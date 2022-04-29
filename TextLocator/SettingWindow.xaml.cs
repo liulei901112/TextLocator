@@ -57,10 +57,6 @@ namespace TextLocator
         /// </summary>
         private void LoadConfig()
         {
-            // 线程池
-            this.MinThreads.Text = AppConst.THREAD_POOL_MIN_SIZE + "";
-            this.MaxThreads.Text = AppConst.THREAD_POOL_MAX_SIZE + "";
-
             // 每页显示条数
             this.ResultListPageSize.Text = AppConst.MRESULT_LIST_PAGE_SIZE + "";
 
@@ -84,43 +80,6 @@ namespace TextLocator
         /// <param name="e"></param>
         private async void SaveClose_Click(object sender, RoutedEventArgs e)
         {
-            // 线程池
-            string minThreadsText = this.MinThreads.Text;
-            string maxThreadsText = this.MaxThreads.Text;
-            int minThreads = 0;
-            try
-            {
-                minThreads = int.Parse(minThreadsText);
-            }
-            catch
-            {
-                MessageCore.ShowWarning("最小线程数错误");
-                return;
-            }
-            int maxThreads = 0;
-            try
-            {
-                maxThreads = int.Parse(maxThreadsText);
-            }
-            catch
-            {
-                MessageCore.ShowWarning("最大线程数错误");
-                return;
-            }
-            if (minThreads > maxThreads)
-            {
-                MessageCore.ShowWarning("最小线程数大于最大线程数");
-                return;
-            }
-            if (maxThreads > 128)
-            {
-                var result = await MessageCore.Confirm("线程数不是越大越好，你确定吗？", "确认提示");
-                if (result == MessageBoxResult.Cancel)
-                {
-                    return;
-                }
-            }
-
             // 缓存池容量
             string cachePoolCapacityText = this.CachePoolCapacity.Text;
             int cachePoolCapacity = 0;
@@ -200,11 +159,6 @@ namespace TextLocator
 
                 AppConst.INDEX_UPDATE_TASK_INTERVAL = indexUpdateTaskInterval;
             }
-
-            // 刷新、保存
-            AppConst.THREAD_POOL_MIN_SIZE = minThreads;
-            AppConst.THREAD_POOL_MAX_SIZE = maxThreads;
-            AppCore.SetThreadPoolSize();
 
             AppConst.CACHE_POOL_CAPACITY = cachePoolCapacity;
             AppUtil.WriteValue("AppConfig", "CachePoolCapacity", AppConst.CACHE_POOL_CAPACITY + "");

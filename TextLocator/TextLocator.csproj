@@ -280,7 +280,7 @@
       <DependentUpon>AreaWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Cache\LFUCache.cs" />
-    <Compile Include="Cache\LFUCacheEntity.cs" />
+    <Compile Include="Cache\LRUCache.cs" />
     <Compile Include="Entity\AreaInfo.cs" />
     <Compile Include="Entity\CreareIndexParam.cs" />
     <Compile Include="Entity\SearchParam.cs" />

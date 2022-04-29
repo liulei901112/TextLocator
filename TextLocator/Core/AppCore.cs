@@ -46,20 +46,26 @@ namespace TextLocator.Core
         {
             if (optimalPerformance)
             {
-                bool setMinThread = ThreadPool.SetMinThreads(AppConst.THREAD_POOL_MIN_SIZE, AppConst.THREAD_POOL_MIN_SIZE);
-                log.Debug("修改线程池最小线程数量：" + AppConst.THREAD_POOL_MIN_SIZE + " => " + setMinThread);
-                bool setMaxThread = ThreadPool.SetMaxThreads(AppConst.THREAD_POOL_MAX_SIZE, AppConst.THREAD_POOL_MAX_SIZE);
-                log.Debug("修改线程池最大线程数量：" + AppConst.THREAD_POOL_MAX_SIZE + " => " + setMaxThread);
+                bool setMinThread = ThreadPool.SetMinThreads(AppConst.THREAD_POOL_WORKER_MIN_SIZE, AppConst.THREAD_POOL_IO_MIN_SIZE);
+                log.Debug(string.Format("设置线程池最小工作线程数：{0}，最小IO线程数：{1}，结果：{2}", AppConst.THREAD_POOL_WORKER_MIN_SIZE, AppConst.THREAD_POOL_IO_MIN_SIZE, setMinThread));
+                bool setMaxThread = ThreadPool.SetMaxThreads(AppConst.THREAD_POOL_WORKER_MAX_SIZE, AppConst.THREAD_POOL_IO_MAX_SIZE);
+                log.Debug(string.Format("设置线程池最大工作线程数：{0}，最大IO线程数：{1}，结果：{2}", AppConst.THREAD_POOL_WORKER_MAX_SIZE, AppConst.THREAD_POOL_IO_MAX_SIZE, setMaxThread));
                 // 保存线程池
-                AppUtil.WriteValue("ThreadPool", "MinSize", AppConst.THREAD_POOL_MIN_SIZE + "");
-                AppUtil.WriteValue("ThreadPool", "MaxSize", AppConst.THREAD_POOL_MAX_SIZE + "");
+                AppUtil.WriteValue("ThreadPool", "WorkerMinSize", AppConst.THREAD_POOL_WORKER_MIN_SIZE + "");
+                AppUtil.WriteValue("ThreadPool", "WorkerMaxSize", AppConst.THREAD_POOL_WORKER_MAX_SIZE + "");
+                AppUtil.WriteValue("ThreadPool", "IOMinSize", AppConst.THREAD_POOL_IO_MIN_SIZE + "");
+                AppUtil.WriteValue("ThreadPool", "IOMaxSize", AppConst.THREAD_POOL_IO_MAX_SIZE + "");
             }
             else
             {
-                bool setMinThread = ThreadPool.SetMinThreads(6, 6);
-                log.Debug("临时修改线程池最小线程数量：" + 6 + " => " + setMinThread);
-                bool setMaxThread = ThreadPool.SetMaxThreads(12, 12);
-                log.Debug("临时修改线程池最大线程数量：" + 12 + " => " + setMaxThread);
+                int wordMinSize = AppConst.THREAD_POOL_WORKER_MIN_SIZE / 2;
+                int wordMaxSize = AppConst.THREAD_POOL_WORKER_MAX_SIZE / 2;
+                int ioMinSize = AppConst.THREAD_POOL_IO_MIN_SIZE / 2;
+                int ioMaxSize = AppConst.THREAD_POOL_IO_MAX_SIZE / 2;
+                bool setMinThread = ThreadPool.SetMinThreads(wordMinSize, ioMinSize);
+                log.Debug(string.Format("临时设置线程池最小工作线程数：{0}，最小IO线程数：{1}，结果：{2}", wordMinSize, ioMinSize, setMinThread));
+                bool setMaxThread = ThreadPool.SetMaxThreads(wordMaxSize, ioMaxSize);
+                log.Debug(string.Format("临时设置线程池最大工作线程数：{0}，最大IO线程数：{1}，结果：{2}", wordMaxSize, ioMaxSize, setMaxThread));
             }
         }
 

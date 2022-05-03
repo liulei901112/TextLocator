@@ -481,5 +481,9 @@
   <ItemGroup>
     <Resource Include="Resource\App.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\btn_last.png" />
+    <Resource Include="Resource\btn_next.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

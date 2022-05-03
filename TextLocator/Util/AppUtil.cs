@@ -52,9 +52,9 @@ namespace TextLocator.Util
             Thread t = new Thread(() =>
             {
                 // 加载区域配置
-                LoadAllKeyValue(AppConst.AREA_CONFIG_KEY);
+                LoadAllKeyValue(AppConst.CacheKey.AREA_CONFIG_KEY);
 
-                List<string> areaList = ReadSectionList(AppConst.AREA_CONFIG_KEY);
+                List<string> areaList = ReadSectionList(AppConst.CacheKey.AREA_CONFIG_KEY);
                 if (areaList != null)
                 {
                     foreach (string areaId in areaList)

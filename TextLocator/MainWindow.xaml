@@ -57,7 +57,7 @@
                                     </TextBox>
                                 </Border>
                                 <!-- 清空按钮 -->
-                                <Button x:Name="CleanButton" Content="X" Margin="-36,0,0,0" Width="36" Height="36" Background="Red" Click="CleanButton_Click"/>
+                                <Button x:Name="CleanButton" Content="X" Margin="-36,0,0,0" Width="36" Height="36" Background="Red" Click="CleanButton_Click" Visibility="Hidden"/>
                                 <!-- 搜索按钮 -->
                                 <Button x:Name="SearchButton" Content="搜索" Margin="10,0,0,0" Width="100" Height="36" Click="SearchButton_Click"/>
                             </StackPanel>
@@ -810,11 +810,18 @@
                                 </Grid>
                             </ScrollViewer>
 
-                            <!-- 功能键 -->
-                            <Grid x:Name="SwitchPreview" VerticalAlignment="Bottom" Visibility="Collapsed">
-                                <Image x:Name="BtnLeft" ToolTip="上一个" Source="/Resource/btn_left.png" Width="30" HorizontalAlignment="Left" Margin="10,0,0,0"  MouseUp="BtnLast_MouseUp"/>
-                                <Image x:Name="BtnRight" ToolTip="下一个" Source="/Resource/btn_right.png" Width="30" HorizontalAlignment="Left" Margin="50,0,0,0" MouseUp="BtnNext_MouseUp"/>
-                            </Grid>
+                            <!-- 预览列表切换 -->
+                            <StackPanel x:Name="SwitchPreview" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,0,0,0" Visibility="Collapsed">
+                                <Image x:Name="BtnLast" ToolTip="上一个" Source="/Resource/btn_left.png" Width="30" HorizontalAlignment="Left" Margin="0,0,5,0"  MouseUp="BtnLast_MouseUp"/>
+                                <TextBlock x:Name="PreviewPage" Text="1/1" Foreground="#2196f3" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Image x:Name="BtnNext" ToolTip="下一个" Source="/Resource/btn_right.png" Width="30" HorizontalAlignment="Left" Margin="5,0,0,0" MouseUp="BtnNext_MouseUp"/>
+                            </StackPanel>
+                            <!-- 预览分页切换 -->
+                            <StackPanel x:Name="SwitchPreviewContentPage" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,20,0" Visibility="Collapsed">
+                                <Image x:Name="BtnLastPage" ToolTip="上一页" Source="/Resource/btn_last.png" Width="30" HorizontalAlignment="Right" Margin="0,0,0,5"  MouseUp="BtnLastPage_MouseUp"/>
+                                <TextBlock x:Name="PreviewContentPage" Text="1/1" Foreground="#2196f3" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Image x:Name="BtnNextPage" ToolTip="下一页" Source="/Resource/btn_next.png" Width="30" HorizontalAlignment="Right" Margin="0,5,0,0" MouseUp="BtnNextPage_MouseUp"/>
+                            </StackPanel>
                         </Grid>
                     </Grid>
                     <!-- 分割线 -->

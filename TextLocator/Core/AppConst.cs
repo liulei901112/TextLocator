@@ -134,10 +134,46 @@ namespace TextLocator.Core
         /// <summary>
         /// 文件预览长度限制
         /// </summary>
-        public const int FILE_PREVIEW_LEN_LIMIT = 1000000;
+        public const int FILE_PREVIEW_LEN_LIMIT = 50000;
+
         /// <summary>
-        /// 区域配置
+        /// 缓存KEY
         /// </summary>
-        public const string AREA_CONFIG_KEY = "AreaConfig";
+        public class CacheKey
+        {
+            /// <summary>
+            /// 区域配置
+            /// </summary>
+            public const string AREA_CONFIG_KEY = "AreaConfig";
+            /// <summary>
+            /// 区域名称
+            /// </summary>
+            public const string AREA_NAME_KEY = "AreaName";
+            /// <summary>
+            /// 区域文件夹
+            /// </summary>
+            public const string AREA_FOLDERS_KEY = "AreaFolders";
+            /// <summary>
+            /// 区域信息
+            /// </summary>
+            public const string AREA_INFOS_KEY = "AreaInfos";
+            /// <summary>
+            /// 区域文件类型
+            /// </summary>
+            public const string AREA_FILE_TYPES_KEY = "AreaFileTypes";
+
+            /// <summary>
+            /// 预览内容分隔列表
+            /// </summary>
+            public const string PREVIEW_CONTENT_SPLIT_LIST_KEY = "PreviewContentSplitList";
+            /// <summary>
+            /// 预览内容关键词列表
+            /// </summary>
+            public const string PREVIEW_FILE_INFO_KEYWORDS_KEY = "PreviewFileInfoKeywords";
+            /// <summary>
+            /// 预览内容是否区分大小写
+            /// </summary>
+            public const string PREVIEW_FILE_INFO_MATCH_CASE_KEY = "PreviewFileInfoIsMatchCase";
+        }
     }
 }

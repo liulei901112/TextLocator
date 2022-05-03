@@ -822,11 +822,13 @@ namespace TextLocator.Index
                         FileSize = long.Parse(fileSizeField.StringValue),
                         CreateTime = createTimeField.StringValue,
                         UpdateTime = updateTimeField.StringValue,
-                        Keywords = param.Keywords
+
+                        Keywords = param.Keywords,
+                        SearchRegion = param.SearchRegion
                     };
 
                     // 词频统计（所有关键词匹配次数）
-                    fileInfo.MatchCount = GetMatchCount(fileInfo, param.SearchRegion);
+                    fileInfo.MatchCount = GetMatchCount(fileInfo);
 
                     fileInfos.Add(fileInfo);
                 }
@@ -879,9 +881,8 @@ namespace TextLocator.Index
         /// 获取关键词词频统计
         /// </summary>
         /// <param name="fileInfo">文件信息</param>
-        /// <param name="searchRegion">搜索域</param>
         /// <returns></returns>
-        public static int GetMatchCount(Entity.FileInfo fileInfo, SearchRegion searchRegion)
+        public static int GetMatchCount(Entity.FileInfo fileInfo)
         {
             try
             {
@@ -895,7 +896,7 @@ namespace TextLocator.Index
                     Regex regex = new Regex(keyword);
 
                     // ---- 匹配文件名
-                    if (searchRegion == SearchRegion.文件名和内容 || searchRegion == SearchRegion.仅文件名)
+                    if (fileInfo.SearchRegion == SearchRegion.文件名和内容 || fileInfo.SearchRegion == SearchRegion.仅文件名)
                     {
                         // 匹配文件名
                         Match matchName = regex.Match(fileInfo.FileName);
@@ -908,7 +909,7 @@ namespace TextLocator.Index
                     }
 
                     // ---- 匹配文件内容
-                    if (searchRegion == SearchRegion.文件名和内容 || searchRegion == SearchRegion.仅文件内容)
+                    if (fileInfo.SearchRegion == SearchRegion.文件名和内容 || fileInfo.SearchRegion == SearchRegion.仅文件内容)
                     {
                         // 获取内容（预览内容替换----\d+----）
                         string content = AppConst.REGEX_CONTENT_PAGE.Replace(fileInfo.Preview, "");
@@ -934,94 +935,6 @@ namespace TextLocator.Index
                 return 0;
             }
         }
-
-        /*/// <summary>
-        /// 获取关键词词频统计
-        /// </summary>
-        /// <param name="fileInfo">文件信息</param>
-        /// <param name="searchRegion">搜索域</param>
-        /// <param name="autoNewLine">自动换行</param>
-        /// <returns></returns>
-        public static string GetMatchCountDetails(Entity.FileInfo fileInfo, SearchRegion searchRegion, bool autoNewLine = true)
-        {
-            try
-            {
-                TaskTime taskTime = TaskTime.StartNew();
-
-                // 定义词频词典
-                Dictionary<string, int> matchCountDic = new Dictionary<string, int>();
-                // 遍历关键词
-                foreach (string keyword in fileInfo.Keywords)
-                {
-                    // 匹配内容
-                    int nameMatchCount = 0, contentMatchCount = 0;
-                    // 声明正则
-                    Regex regex = new Regex(keyword);
-
-                    // ---- 匹配文件名
-                    if (searchRegion == SearchRegion.文件名和内容 || searchRegion == SearchRegion.仅文件名)
-                    {
-                        // 匹配文件名
-                        Match matchName = regex.Match(fileInfo.FileName);
-                        // 文件名匹配成功
-                        if (matchName.Success)
-                        {
-                            // 获取匹配次数
-                            nameMatchCount = regex.Matches(fileInfo.FileName).Count;
-                        }
-                    }
-
-                    // ---- 匹配文件内容
-                    if (searchRegion == SearchRegion.文件名和内容 || searchRegion == SearchRegion.仅文件内容)
-                    {
-                        // 获取内容（预览内容替换----\d+----）
-                        string content = AppConst.REGEX_CONTENT_PAGE.Replace(fileInfo.Preview, "");
-
-                        // 匹配文件内容
-                        Match matchContent = regex.Match(content);
-                        // 文件内容匹配成功
-                        if (matchContent.Success)
-                        {
-                            // 获取匹配次数
-                            contentMatchCount = regex.Matches(content).Count;
-                        }
-                    }
-
-                    // 匹配数量合并
-                    int count = nameMatchCount + contentMatchCount;
-                    // 匹配次数大于才是有效值
-                    if (count > 0)
-                    {
-                        matchCountDic[keyword] = count;
-                    }
-                }
-
-                StringBuilder builder = new StringBuilder();
-                // 获取匹配词列表
-                List<string> matchCountList = matchCountDic.Keys.ToList();
-                for (int k = 0; k < matchCountList.Count; k++)
-                {
-                    builder.Append(string.Format("{0}：{1}，", matchCountList[k], matchCountDic[matchCountList[k]]));
-                    // 自动换行 && （下标不是0 && 每4次 && 下标不是最大）
-                    if (autoNewLine && k > 0 && k % 8 == 0 && k < matchCountList.Count - 1)
-                    {
-                        builder.Append("\r\n");
-                    }
-                }
-                string text = builder.ToString();
-                if (text.EndsWith("，"))
-                {
-                    text = text.Substring(0, text.Length - 1);
-                }
-                log.Debug(fileInfo.FileName + " -> 词频统计耗时：" + taskTime.ConsumeTime + " 统计词频：" + text);
-                return text;
-            }
-            catch (Exception ex)
-            {
-                log.Error("获取关键词词频统计失败：" + ex.Message, ex);
-                return null;
-            }
-        }*/
 
         /// <summary>
         /// 获取内容缩略

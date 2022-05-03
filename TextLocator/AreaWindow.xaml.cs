@@ -247,7 +247,7 @@ namespace TextLocator
         /// <param name="areaInfo"></param>
         private void ShowAreaEditDialog(AreaInfo areaInfo = null)
         {
-            CacheUtil.Put("AreaInfos", _normalAreaInfos);
+            CacheUtil.Put(AppConst.CacheKey.AREA_INFOS_KEY, _normalAreaInfos);
             AreaEditWindow editDialog = new AreaEditWindow(areaInfo);
             editDialog.Topmost = true;
             editDialog.Owner = this;
@@ -255,7 +255,7 @@ namespace TextLocator
 
             if (editDialog.DialogResult == true)
             {
-                _normalAreaInfos = CacheUtil.Get<List<AreaInfo>>("AreaInfos");
+                _normalAreaInfos = CacheUtil.Get<List<AreaInfo>>(AppConst.CacheKey.AREA_INFOS_KEY);
                 // 重新加载区域信息列表（刷新）
                 LoadAreaInfoList(_normalAreaInfos);
             }

@@ -36,6 +36,8 @@ namespace TextLocator.Entity
         /// 更新时间
         /// </summary>
         public string UpdateTime { get; set; }
+
+        // -------- 查询参数携带回传 --------
         /// <summary>
         /// 关键词
         /// </summary>
@@ -45,5 +47,10 @@ namespace TextLocator.Entity
         /// 词频统计
         /// </summary>
         public int MatchCount { get; set; }
+        /// <summary>
+        /// 搜索域
+        /// </summary>
+        private SearchRegion searchRegion = SearchRegion.文件名和内容;
+        public SearchRegion SearchRegion { get => searchRegion; set => searchRegion = value; }
     }
 }

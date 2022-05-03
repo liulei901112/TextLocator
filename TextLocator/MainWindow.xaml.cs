@@ -1,12 +1,10 @@
 ﻿using log4net;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +22,6 @@ using TextLocator.Enums;
 using TextLocator.HotKey;
 using TextLocator.Index;
 using TextLocator.Message;
-using TextLocator.Service;
 using TextLocator.Util;
 
 namespace TextLocator
@@ -527,13 +524,19 @@ namespace TextLocator
                         {
                             return;
                         }
-                        this.Dispatcher.BeginInvoke(new Action(() =>
+                        this.Dispatcher.Invoke(new Action(() =>
                         {
                             this.SearchResultList.Items.Add(new FileInfoItem(fileInfo, searchParam.SearchRegion));
                         }));
                     }
 
-                    // 4、---- 分页总数
+                    // 4、---- 显示预览列表分页信息
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        this.PreviewPage.Text = string.Format("0/{0}", SearchResultList.Items.Count);
+                    }));
+
+                    // 5、---- 分页总数
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         // 如果总条数小于等于分页条数，则不显示分页
@@ -692,6 +695,9 @@ namespace TextLocator
             // -------- 快捷标签
             // 隐藏上一个和下一个切换面板
             this.SwitchPreview.Visibility = Visibility.Collapsed;
+            // 预览文件内容分页标记
+            SwitchPreviewContentPage.Tag = 0;
+            SwitchPreviewContentPage.Visibility = Visibility.Collapsed;
 
             // -------- 搜索参数
             _searchParam = null;
@@ -717,6 +723,8 @@ namespace TextLocator
 
             // 预览切换索引标记
             this.SwitchPreview.Tag = SearchResultList.SelectedIndex;
+            // 显示预览分页信息
+            this.PreviewPage.Text = String.Format("{0}/{1}", this.SearchResultList.SelectedIndex + 1, SearchResultList.Items.Count);
 
             // 手动GC
             GC.Collect();
@@ -778,54 +786,107 @@ namespace TextLocator
             {
                 PreviewImage.Visibility = Visibility.Hidden;
                 PreviewFileContent.Visibility = Visibility.Visible;
+                // 标记当前页
+                SwitchPreviewContentPage.Tag = 0;
                 // 填充数据
                 RichTextBoxUtil.EmptyData(PreviewFileContent);
                 // 文件内容预览
-                Thread t = new Thread(new ThreadStart(() =>
+                Thread t = new Thread(() =>
                 {
                     try
                     {
                         // 文件内容（预览）FileInfoServiceFactory.GetFileContent(fileInfo.FilePath, true);
                         string content = fileInfo.Preview;
-                        // 内容长度
-                        int conLen = content.Length;
-                        // 内容长度超出
-                        if (conLen > AppConst.FILE_PREVIEW_LEN_LIMIT)
-                        {
-                            // 打印文件内容原始长度
-                            log.Info("预览文件内容长度：" + conLen + ", 限制长度为：" + AppConst.FILE_PREVIEW_LEN_LIMIT);
-                            // 显示提示
-                            Dispatcher.BeginInvoke(new Action(() =>
-                            {
-                                MessageCore.ShowWarning("内容长度超出限制，仅显示部分内容。可以打开源文件继续操作！");
-                            }));
-                            // 预览内容截取为前
-                            content = content.Substring(0, AppConst.FILE_PREVIEW_LEN_LIMIT);
-                        }
-                        Dispatcher.BeginInvoke(new Action(() =>
-                        {
-                            // 填充数据
-                            RichTextBoxUtil.FillingData(PreviewFileContent, content, new SolidColorBrush(Colors.Black));
+                        // 内容预览分页
+                        List<string> previewList = SplitContent(content);
+                        // 缓存预览列表，关键词列表，是否区分大小写
+                        CacheUtil.Put(AppConst.CacheKey.PREVIEW_CONTENT_SPLIT_LIST_KEY, previewList);
+                        CacheUtil.Put(AppConst.CacheKey.PREVIEW_FILE_INFO_KEYWORDS_KEY, fileInfo.Keywords);
 
-                            if (fileInfo.MatchCount > AppConst.FILE_MATCH_COUNT_LIMIT)
-                            {
-                                MessageCore.ShowWarning("关键词匹配数量太多，不进行高亮操作。");
-                            }
-                            else
-                            {
-                                // 关键词高亮
-                                RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.Red, fileInfo.Keywords);
-                            }
-                        }));
+                        Dispatcher.InvokeAsync(() =>
+                        {
+
+                            PreviewRefresh(previewList, 0);
+
+                            // 显示或隐藏操作按钮
+                            SwitchPreviewContentPage.Visibility = previewList.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+                        });
                     }
                     catch (Exception ex)
                     {
                         log.Error(ex.Message, ex);
                     }
-                }));
-                t.Priority = ThreadPriority.AboveNormal;
+                });
+                t.Priority = ThreadPriority.Highest;
                 t.Start();
             }
+        }
+
+        /// <summary>
+        /// 分隔内容
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        private List<string> SplitContent(string content)
+        {
+            int limit = AppConst.FILE_PREVIEW_LEN_LIMIT;
+            int lenth = content.Length;
+            List<string> splitList = new List<string>();
+            if (lenth < limit)
+            {
+                splitList.Add(content);
+            }
+            else
+            {
+                int splitLenth = lenth / limit;
+                for (int i = 0; i < splitLenth; i++)
+                {
+                    splitList.Add(content.Substring(limit * i, limit));
+                }
+                if (lenth % limit != 0)
+                {
+                    splitList.Add(content.Substring(limit * splitLenth));
+                }
+            }
+            return splitList;
+        }
+
+        /// <summary>
+        /// 刷新预览
+        /// </summary>
+        /// <param name="previewList">预览内容列表</param>
+        /// <param name="page">当前页</param>
+        private void PreviewRefresh(List<string> previewList, int page)
+        {
+            string preview = previewList[page];
+            // 填充数据
+            RichTextBoxUtil.FillingData(PreviewFileContent, preview, new SolidColorBrush(Colors.Black));
+
+            // 显示分页信息
+            PreviewContentPage.Text = string.Format("{0}/{1}", page + 1, previewList.Count);
+
+            // 滚动条回滚到最顶端
+            PreviewScrollViewer.ScrollToTop();
+
+            // 获取文件名
+            string fileName = PreviewFileName.Text;
+            Task.Factory.StartNew(() => {
+                int matchCount = IndexCore.GetMatchCount(new Entity.FileInfo()
+                {
+                    SearchRegion = SearchRegion.文件名和内容,
+                    FileName = fileName,
+                    Preview = preview,
+                });
+                Dispatcher.InvokeAsync(async () =>
+                {
+                    // 关键词高亮
+                    RichTextBoxUtil.Highlighted(
+                        PreviewFileContent, 
+                        Colors.Red, 
+                        CacheUtil.Get<List<string>>(AppConst.CacheKey.PREVIEW_FILE_INFO_KEYWORDS_KEY)
+                    );
+                });
+            });
         }
         #endregion
 
@@ -986,6 +1047,53 @@ namespace TextLocator
             else if (setting == HotKeySetting.上一个 && index > 0)
             {
                 this.SearchResultList.SelectedIndex = index - 1;
+            }
+
+            // 显示分页信息
+            this.PreviewPage.Text = String.Format("{0}/{1}", this.SearchResultList.SelectedIndex + 1, SearchResultList.Items.Count);
+        }
+
+        /// <summary>
+        /// 预览内容上一页
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnLastPage_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            // 获取列表
+            List<string> previewList = CacheUtil.Get<List<string>>(AppConst.CacheKey.PREVIEW_CONTENT_SPLIT_LIST_KEY);
+            if (previewList != null)
+            {
+                // 获取当前页
+                int page = (int)SwitchPreviewContentPage.Tag;
+                if (page > 0)
+                {
+                    page = page - 1;
+                    SwitchPreviewContentPage.Tag = page;
+                }
+                PreviewRefresh(previewList, page);
+            }
+        }
+
+        /// <summary>
+        /// 预览内容下一页
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnNextPage_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            // 获取列表
+            List<string> previewList = CacheUtil.Get<List<string>>(AppConst.CacheKey.PREVIEW_CONTENT_SPLIT_LIST_KEY);
+            if (previewList != null)
+            {
+                // 获取当前页
+                int page = (int)SwitchPreviewContentPage.Tag;
+                if (page < previewList.Count - 1)
+                {
+                    page = page + 1;
+                    SwitchPreviewContentPage.Tag = page;
+                }
+                PreviewRefresh(previewList, page);
             }
         }
         #endregion
@@ -1235,7 +1343,7 @@ namespace TextLocator
         /// <param name="percent">进度，0-100</param>
         private void ShowStatus(string text, double percent = AppConst.MAX_PERCENT)
         {
-            try
+            void refresh()
             {
                 WorkStatus.Text = text;
                 if (percent > AppConst.MIN_PERCENT)
@@ -1245,18 +1353,16 @@ namespace TextLocator
                     TaskbarItemInfo.ProgressState = percent < AppConst.MAX_PERCENT ? System.Windows.Shell.TaskbarItemProgressState.Normal : System.Windows.Shell.TaskbarItemProgressState.None;
                     TaskbarItemInfo.ProgressValue = WorkProgress.Value / WorkProgress.Maximum;
                 }
-            } catch
+            }
+            try
+            {
+                refresh();
+            }
+            catch
             {
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    WorkStatus.Text = text;
-                    if (percent > AppConst.MIN_PERCENT)
-                    {
-                        WorkProgress.Value = percent;
-
-                        TaskbarItemInfo.ProgressState = percent < AppConst.MAX_PERCENT ? System.Windows.Shell.TaskbarItemProgressState.Normal : System.Windows.Shell.TaskbarItemProgressState.None;
-                        TaskbarItemInfo.ProgressValue = WorkProgress.Value / WorkProgress.Maximum;
-                    }
+                    refresh();
                 }));
             }
         }
@@ -1464,6 +1570,10 @@ namespace TextLocator
 
             // 预览文件内容清空
             PreviewFileContent.Document.Blocks.Clear();
+
+            // 预览文件内容分页标记
+            SwitchPreviewContentPage.Tag = 0;
+            SwitchPreviewContentPage.Visibility = Visibility.Collapsed;
 
             // 预览图标清空
             PreviewImage.Source = null;

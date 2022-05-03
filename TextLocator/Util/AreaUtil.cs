@@ -14,19 +14,19 @@ namespace TextLocator.Util
         /// <summary>
         /// 区域配置
         /// </summary>
-        private static string AreaConfig = AppConst.AREA_CONFIG_KEY;
+        private static string AreaConfig = AppConst.CacheKey.AREA_CONFIG_KEY;
         /// <summary>
         /// 区域名称
         /// </summary>
-        private static string AreaName = "AreaName";
+        private static string AreaName = AppConst.CacheKey.AREA_NAME_KEY;
         /// <summary>
         /// 区域文件夹
         /// </summary>
-        private static string AreaFolders = "AreaFolders";
+        private static string AreaFolders = AppConst.CacheKey.AREA_FOLDERS_KEY;
         /// <summary>
         /// 区域文件类型
         /// </summary>
-        private static string AreaFileTypes = "AreaFileTypes";
+        private static string AreaFileTypes = AppConst.CacheKey.AREA_FILE_TYPES_KEY;
 
         /// <summary>
         /// 私有构造方法

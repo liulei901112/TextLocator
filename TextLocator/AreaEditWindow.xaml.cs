@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using TextLocator.Core;
 using TextLocator.Entity;
 using TextLocator.Enums;
 using TextLocator.Message;
@@ -244,7 +245,7 @@ namespace TextLocator
 
             // 保存区域信息
             // AreaUtil.SaveAreaInfo(_areaInfo);
-            List<AreaInfo> areaInfos = CacheUtil.Get<List<AreaInfo>>("AreaInfos");
+            List<AreaInfo> areaInfos = CacheUtil.Get<List<AreaInfo>>(AppConst.CacheKey.AREA_INFOS_KEY);
             if (areaInfos.Contains(_areaInfo))
             {
                 for (int i = 0; i < areaInfos.Count; i++)
@@ -262,7 +263,7 @@ namespace TextLocator
                 areaInfos.Add(_areaInfo);
             }
             
-            CacheUtil.Put("AreaInfos", areaInfos);
+            CacheUtil.Put(AppConst.CacheKey.AREA_INFOS_KEY, areaInfos);
 
             // 返回
             this.DialogResult = true;
@@ -287,7 +288,7 @@ namespace TextLocator
         /// <returns></returns>
         private bool IsExistsAreaName(string areaName)
         {
-            List<AreaInfo> areaInfos = CacheUtil.Get<List<AreaInfo>>("AreaInfos");
+            List<AreaInfo> areaInfos = CacheUtil.Get<List<AreaInfo>>(AppConst.CacheKey.AREA_INFOS_KEY);
             if (areaInfos != null)
             {
                 foreach (AreaInfo areaInfo in areaInfos)
@@ -309,7 +310,7 @@ namespace TextLocator
         /// <returns></returns>
         public bool IsExistsAreaFolder(string folderPath)
         {
-            List<AreaInfo> areaInfos = CacheUtil.Get<List<AreaInfo>>("AreaInfos");
+            List<AreaInfo> areaInfos = CacheUtil.Get<List<AreaInfo>>(AppConst.CacheKey.AREA_INFOS_KEY);
             if (areaInfos != null)
             {
                 foreach (AreaInfo areaInfo in areaInfos)

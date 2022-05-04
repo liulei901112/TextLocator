@@ -1470,8 +1470,11 @@ namespace TextLocator
         /// </summary>
         private void PreviewSearchTextHighlighted()
         {
-            // 清理上一次的搜索关键词
-            if (!string.IsNullOrEmpty(_lastPreviewSearchText))
+            // 搜索关键词
+            string text = PreviewSearchText.Text.Trim();
+
+            // 清理上一次的搜索关键词（上一次搜索关键词不为空 && 和本次搜索关键词不相同才清理）
+            if (!string.IsNullOrEmpty(_lastPreviewSearchText) && !_lastPreviewSearchText.Equals(text))
             {
                 List<string> keywords = _lastPreviewSearchText.Split(' ').ToList();
                 Task.Factory.StartNew(() => {
@@ -1482,9 +1485,7 @@ namespace TextLocator
                     }));
                 });
             }
-
-            // 搜索关键词
-            string text = PreviewSearchText.Text.Trim();
+            
             if (!string.IsNullOrEmpty(text))
             {
                 _lastPreviewSearchText = text;

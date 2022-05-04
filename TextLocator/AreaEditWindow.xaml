@@ -1,0 +1,55 @@
+﻿<Window x:Class="TextLocator.AreaEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TextLocator"
+        mc:Ignorable="d"
+        Title="区域编辑" Height="465" Width="830" WindowStartupLocation="CenterOwner" WindowStyle="ToolWindow" ResizeMode="CanMinimize" Icon="/Resource/App.ico" Loaded="Window_Loaded" >
+    <Grid Margin="10">
+        <StackPanel>
+            <!-- 文字提示 -->
+            <TextBlock Text="请为区域设置名字，并选择文件夹保存。" FontWeight="Bold" Foreground="OrangeRed"/>
+            <!-- 区域名称 -->
+            <Grid Margin="0,10,0,0" VerticalAlignment="Center">
+                <TextBlock Text="区域名称：" Margin="0,0,710,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <TextBox x:Name="AreaName" Margin="100,0,0,0" Width="440" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            </Grid>
+            <!-- 区域名称 -->
+            <Grid Margin="0,10,0,0" VerticalAlignment="Center">
+                <TextBlock Text="区域文件夹：" Margin="0,10,710,0" VerticalAlignment="Top" HorizontalAlignment="Right"/>
+                <ListBox x:Name="AreaFolders" Margin="100,0,0,0" Height="165">
+                    <ListBoxItem>
+                        <Grid Width="440" Height="30">
+                            <TextBlock Text="C:\Users\{User}\Document" Margin="0,0,0,0" FontSize="14" HorizontalAlignment="Left"/>
+                            <Button Content="删除" Margin="0,0,10,0" Height="20" Background="Red" HorizontalAlignment="Right"/>
+                            <!-- 分割线 -->
+                            <Line X1="0" Y1="0" X2="430" Y2="0" VerticalAlignment="Bottom" Stroke="Gray" StrokeThickness="1"></Line>
+                        </Grid>
+                    </ListBoxItem>
+                </ListBox>
+            </Grid>
+            <!-- 搜索文件类型 -->
+            <StackPanel Margin="0,10,0,0" VerticalAlignment="Center">
+                <TextBlock Text="文件类型：" Margin="0,10,710,0" VerticalAlignment="Top" HorizontalAlignment="Right"/>
+                <WrapPanel x:Name="AreaFileTypes" Orientation="Horizontal" >
+                    <CheckBox Content="Word文档（doc,docx）" Height="20" Margin="10"/>
+                    <CheckBox Content="Excel表格（xls,xlsx）" Height="20" Margin="10"/>
+                    <CheckBox Content="PPT文稿（ppt,pptx）" Height="20" Margin="10"/>
+                    <CheckBox Content="PDF文档（pdf）" Height="20" Margin="10"/>
+                    <CheckBox Content="DOM文档（html,xml）" Height="20" Margin="10"/>
+                    <CheckBox Content="TXT文档（txt）" Height="20" Margin="10"/>
+                    <CheckBox Content="常用图片（jpg,png,gif,jpeg,bmp）" Height="20" Margin="10"/>
+                    <CheckBox Content="常用压缩包（rar,zip,7z,tar,jar）" Height="20" Margin="10"/>
+                    <CheckBox Content="程序员代码（cs,java,js,css,md,py,c,h,cpp,lua,sql,jsp,json,php,rs,rb,yml,yaml,bat,ps1）" Height="20" Margin="10"/>
+                </WrapPanel>
+            </StackPanel>
+        </StackPanel>
+
+        <Grid Margin="0,10,0,0" VerticalAlignment="Bottom">
+            <Button x:Name="AddButton" Content="添加" Margin="0,0,150,0" Width="60" Click="AddButton_Click"/>
+            <Button x:Name="SaveButton" Content="保存" Margin="0,0,0,0" Width="60" Background="Green" Click="SaveButton_Click"/>
+            <Button x:Name="ExitButton" Content="退出" Margin="150,0,0,0" Width="60" Background="Red" Click="ExitButton_Click"/>
+        </Grid>
+    </Grid>
+</Window>

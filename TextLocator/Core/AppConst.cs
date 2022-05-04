@@ -1,5 +1,7 @@
 ﻿using JiebaNet.Segmenter;
+using Lucene.Net.Analysis;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 using TextLocator.Jieba;
@@ -12,14 +14,6 @@ namespace TextLocator.Core
     /// </summary>
     public class AppConst
     {
-        /// <summary>
-        /// 线程池最小数量
-        /// </summary>
-        public static int THREAD_POOL_MIN_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MinSize", "32"));
-        /// <summary>
-        /// 线程池最大数量
-        /// </summary>
-        public static int THREAD_POOL_MAX_SIZE = int.Parse(AppUtil.ReadValue("ThreadPool", "MaxSize", "64"));
         /// <summary>
         /// 结果列表分页条数
         /// </summary>
@@ -36,50 +30,74 @@ namespace TextLocator.Core
         /// 缓存池容量
         /// </summary>
         public static int CACHE_POOL_CAPACITY = int.Parse(AppUtil.ReadValue("AppConfig", "CachePoolCapacity", "100000"));
-
+        /// <summary>
+        /// 启用索引更新任务，默认启用
+        /// </summary>
+        public static bool ENABLE_INDEX_UPDATE_TASK = bool.Parse(AppUtil.ReadValue("AppConfig", "EnableIndexUpdateTask", "True"));
+        /// <summary>
+        /// 索引更新任务间隔时间，单位：分
+        /// </summary>
+        public static int INDEX_UPDATE_TASK_INTERVAL = int.Parse(AppUtil.ReadValue("AppConfig", "IndexUpdateTaskInterval", "10"));
 
         /// <summary>
-        /// 索引路径：_AppDir\\_AppName\\Index\\
+        /// 最小工作线程（CPU线程数 * 2）
         /// </summary>
-        public static readonly string APP_INDEX_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Index");
+        public static readonly int THREAD_POOL_WORKER_MIN_SIZE = Environment.ProcessorCount * 2;
         /// <summary>
-        /// 临时目录：_AppDir\\_AppName\\Temp\\
+        /// 最大工作线程（CPU线程数 * 4）
         /// </summary>
-        public static readonly string APP_TEMP_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Temp");
+        public static readonly int THREAD_POOL_WORKER_MAX_SIZE = Environment.ProcessorCount * 4;
+        /// <summary>
+        /// 最小IO线程（CPU线程数）
+        /// </summary>
+        public static readonly int THREAD_POOL_IO_MIN_SIZE = Environment.ProcessorCount;
+        /// <summary>
+        /// 最大IO线程（CPU线程数 * 2）
+        /// </summary>
+        public static readonly int THREAD_POOL_IO_MAX_SIZE = Environment.ProcessorCount * 2;
+        /// <summary>
+        /// AppName
+        /// </summary>
+        public static readonly string APP_NAME = Process.GetCurrentProcess().ProcessName.Replace(".exe", "");
+        /// <summary>
+        /// AppDir
+        /// </summary>
+        public static readonly string APP_DIR = AppDomain.CurrentDomain.BaseDirectory;
+        /// <summary>
+        /// AppDataDir：C:\Users\${User}\AppData\Roaming\
+        /// </summary>
+        public static readonly string APP_DATA_DIR = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        /// <summary>
+        /// 索引路径：AppDir\Index\
+        /// </summary>
+        public static readonly string APP_INDEX_DIR = Path.Combine(APP_DIR, "Index");
         /// <summary>
         /// 分词器
         /// new Lucene.Net.Analysis.Cn.ChineseAnalyzer();
         /// new Lucene.Net.Analysis.Standard.StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);// 用standardAnalyzer分词器
         /// </summary>
-        public static readonly Lucene.Net.Analysis.Analyzer INDEX_ANALYZER = new JiebaAnalyzer(); //new Lucene.Net.Analysis.PanGuAnalyzer();
+        public static readonly Analyzer INDEX_ANALYZER = new JiebaAnalyzer(); //new Lucene.Net.Analysis.PanGuAnalyzer();
         /// <summary>
         /// 分割器
         /// </summary>
         public static readonly JiebaSegmenter INDEX_SEGMENTER = new JiebaSegmenter();
-        /// <summary>
-        /// 索引写入初始化（FSDirectory表示索引存放在硬盘上，RAMDirectory表示放在内存上）
-        /// 磁盘路径：Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(_AppIndexDir))
-        /// 内存：new Lucene.Net.Store.RAMDirectory()
-        /// </summary>
-        public static readonly Lucene.Net.Store.FSDirectory INDEX_DIRECTORY = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(APP_INDEX_DIR));
-        
 
         /// <summary>
-        /// 匹配特殊字符
+        /// 匹配Lucene.NET内置关键词
         /// </summary>
-        public static readonly Regex REGEX_SPECIAL_CHARACTER = new Regex("`|~|!|@|#|\\$|%|\\^|&|\\*|\\(|\\)|_|\\-|\\+|\\=|\\[|\\]|\\{|\\}|\\\\|\\||;|:|'|\"|,|\\<|\\.|\\>|\\/|\\?|");
+        public static readonly Regex REGEX_BUILT_IN_SYMBOL = new Regex("AND|OR|NOT|\\&\\&|\\|\\|");
+        /// <summary>
+        /// 匹配支持的通配符
+        /// </summary>
+        public static readonly Regex REGEX_SUPPORT_WILDCARDS = new Regex("\\+|\\-|\\||\\!|\\(|\\)|\\{|\\}|\\[|\\]|\\^|\"|\\~|\\*|\\?|\\:|\\/"); 
         /// <summary>
         /// 匹配空白和换行
         /// </summary>
-        public static readonly Regex REGEX_LINE_BREAKS_AND_WHITESPACE = new Regex("  |\r|\n|┄|\\s");
+        public static readonly Regex REGEX_LINE_BREAKS_AND_WHITESPACE = new Regex(@"  |\r\r|\n\n|┄|\. \. \. |\.\.\.|\s");
         /// <summary>
         /// 匹配HTML和XML标签
         /// </summary>
         public static readonly Regex REGEX_TAG = new Regex("\\<.[^<>]*\\>");
-        /// <summary>
-        /// 匹配文件后缀
-        /// </summary>
-        public static readonly Regex REGEX_FILE_EXT = new Regex(@"^.+\.(" + FileTypeUtil.GetFileTypeExts("|") + ")$");
         /// <summary>
         /// 匹配排除关键词
         /// </summary>
@@ -88,8 +106,15 @@ namespace TextLocator.Core
         /// 匹配开始字符
         /// </summary>
         public static readonly Regex REGEX_START_WITH = new Regex(@"^(\`|\$|\~|\.)");
+        /// <summary>
+        /// 匹配内容分页符
+        /// </summary>
+        public static readonly Regex REGEX_CONTENT_PAGE = new Regex(@"----\d+----");
 
-
+        /// <summary>
+        /// 索引写入器
+        /// </summary>
+        public const int INDEX_PARTITION_COUNT = 5;
         /// <summary>
         /// 比例最小值
         /// </summary>
@@ -101,7 +126,54 @@ namespace TextLocator.Core
         /// <summary>
         /// 文件内容缩略信息截取值
         /// </summary>
-        public const int FILE_CONTENT_SUB_LENGTH = 120;
-        
+        public const int FILE_CONTENT_SUB_LENGTH = 135;
+        /// <summary>
+        /// 文件词频数量限制
+        /// </summary>
+        public const int FILE_MATCH_COUNT_LIMIT = 800;
+        /// <summary>
+        /// 文件预览长度限制
+        /// </summary>
+        public const int FILE_PREVIEW_LEN_LIMIT = 50000;
+
+        /// <summary>
+        /// 缓存KEY
+        /// </summary>
+        public class CacheKey
+        {
+            /// <summary>
+            /// 区域配置
+            /// </summary>
+            public const string AREA_CONFIG_KEY = "AreaConfig";
+            /// <summary>
+            /// 区域名称
+            /// </summary>
+            public const string AREA_NAME_KEY = "AreaName";
+            /// <summary>
+            /// 区域文件夹
+            /// </summary>
+            public const string AREA_FOLDERS_KEY = "AreaFolders";
+            /// <summary>
+            /// 区域信息
+            /// </summary>
+            public const string AREA_INFOS_KEY = "AreaInfos";
+            /// <summary>
+            /// 区域文件类型
+            /// </summary>
+            public const string AREA_FILE_TYPES_KEY = "AreaFileTypes";
+
+            /// <summary>
+            /// 预览内容分隔列表
+            /// </summary>
+            public const string PREVIEW_CONTENT_SPLIT_LIST_KEY = "PreviewContentSplitList";
+            /// <summary>
+            /// 预览内容关键词列表
+            /// </summary>
+            public const string PREVIEW_FILE_INFO_KEYWORDS_KEY = "PreviewFileInfoKeywords";
+            /// <summary>
+            /// 预览内容是否区分大小写
+            /// </summary>
+            public const string PREVIEW_FILE_INFO_MATCH_CASE_KEY = "PreviewFileInfoIsMatchCase";
+        }
     }
 }

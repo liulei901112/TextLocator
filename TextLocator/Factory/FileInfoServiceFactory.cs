@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
+using System.Windows.Xps.Packaging;
 using TextLocator.Core;
 using TextLocator.Enums;
 using TextLocator.Exceptions;
@@ -12,10 +12,10 @@ using TextLocator.Util;
 
 namespace TextLocator.Factory
 {
-	/// <summary>
-	/// 文件信息服务工厂
-	/// </summary>
-	public class FileInfoServiceFactory
+    /// <summary>
+    /// 文件信息服务工厂
+    /// </summary>
+    public class FileInfoServiceFactory
 	{
 		private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -28,7 +28,7 @@ namespace TextLocator.Factory
 		/// <summary>
 		/// 获取文件内容
 		/// </summary>
-		/// <param name="filePath"></param>
+		/// <param name="filePath">文件地址</param>
 		/// <returns></returns>
 		public static string GetFileContent(string filePath)
 		{
@@ -56,8 +56,29 @@ namespace TextLocator.Factory
 			// 获取文件服务对象
 			IFileInfoService fileInfoService = GetFileInfoService(FileTypeUtil.GetFileType(filePath));
 
-			// 读取文件内容
-			return WaitTimeout(fileInfoService.GetFileContent, filePath, TimeSpan.FromSeconds(AppConst.FILE_READ_TIMEOUT));
+			// 内容
+			string content = "";
+			// 缓存Key
+			string cacheKey = MD5Util.GetMD5Hash(filePath);
+
+			if (CacheUtil.Exists(cacheKey))
+			{
+				// 从缓存中读取
+				content = CacheUtil.Get<string>(cacheKey);
+#if DEBUG
+				log.Debug(filePath + "，缓存生效。");
+#endif
+			}
+			else
+			{
+				// 读取文件内容
+				content = WaitTimeout(fileInfoService.GetFileContent, filePath);
+
+				// 写入缓存
+				CacheUtil.Put(cacheKey, content);
+			}
+
+			return content;
 		}
 
 		/// <summary>
@@ -94,24 +115,24 @@ namespace TextLocator.Factory
 		/// <summary>
 		/// 有参数,有反回值方法
 		/// </summary>
-		/// <param name="param"></param>
+		/// <param name="filePath">文件路径</param>
 		/// <returns></returns>
-		public delegate string TimeoutDelegate(string param);
+		public delegate string TimeoutDelegate(string filePath);
 
 		/// <summary>
 		/// 有参数,有反回值超时方法
 		/// </summary>
-		/// <param name="Method">执行方法</param>
-		/// <param name="OutTime">超时时间</param>
-		/// <param name="Params">执行参数</param>
+		/// <param name="method">执行方法</param>
+		/// <param name="filePath">文件路径</param>
+		/// <param name="timeout">超时时间</param>
 		/// <returns>反回一个string类型方法</returns>
-		public static string WaitTimeout(TimeoutDelegate method, string param, TimeSpan timeout)
+		public static string WaitTimeout(TimeoutDelegate method, string filePath)
 		{
 			string obj = null;
 			AutoResetEvent are = new AutoResetEvent(false);
-			Thread t = new Thread(delegate () { obj = method(param); are.Set(); });
+			Thread t = new Thread(delegate () { obj = method(filePath); are.Set(); });
 			t.Start();
-			Wait(t, timeout, are);
+			Wait(t, are);
 			return obj;
 		}
 
@@ -121,10 +142,10 @@ namespace TextLocator.Factory
 		/// <param name="t"></param>
 		/// <param name="OutTime"></param>
 		/// <param name="ares"></param>
-		private static void Wait(Thread t, TimeSpan timeout, WaitHandle are)
+		private static void Wait(Thread t, WaitHandle are)
 		{
 			WaitHandle[] ares = new WaitHandle[] { are };
-			int index = WaitHandle.WaitAny(ares, timeout);
+			int index = WaitHandle.WaitAny(ares, TimeSpan.FromSeconds(AppConst.FILE_READ_TIMEOUT));
 			if ((index != 0) && t.IsAlive) // 如果不是执行完成的信号,并且,线程还在执行,那么,结束这个线程
 			{
 				t.Abort();

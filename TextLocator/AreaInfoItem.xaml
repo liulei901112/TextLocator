@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="TextLocator.AreaInfoItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TextLocator"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="800">
+    <Grid>
+        <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
+            <Grid Width="150" VerticalAlignment="Center" HorizontalAlignment="Left">
+                <CheckBox x:Name="AreaIsEnable" Margin="10,0,0,0" Width="130" Height="20" VerticalAlignment="Center" HorizontalAlignment="Left" VerticalContentAlignment="Center">
+                    <CheckBox.Content>
+                        <TextBlock x:Name="AreaName" Foreground="Black" Text="默认区域" TextWrapping="Wrap" />
+                    </CheckBox.Content>
+                </CheckBox>
+            </Grid>
+            <StackPanel x:Name="AreaFolders" Width="350" VerticalAlignment="Center" HorizontalAlignment="Left">
+                <TextBlock Text="C:\Users\liulei\Desktop\"/>
+                <TextBlock Text="C:\Users\liulei\Documents\"/>
+            </StackPanel>
+            <Grid Width="120" VerticalAlignment="Center" HorizontalAlignment="Left">
+                <TextBlock x:Name="AreaFileTypes" Text="C:\Users\liulei\Desktop\" TextWrapping="Wrap"/>
+            </Grid>
+            
+            <Grid Width="140" VerticalAlignment="Center" HorizontalAlignment="Left">
+                <Button x:Name="EditButton" Content="编辑" Margin="0,0,70,0" Width="60" />
+                <Button x:Name="DeleteButton" Content="删除" Margin="70,0,0,0" Width="60" Background="Red"/>
+            </Grid>
+        </StackPanel>
+        <!-- 分割线 -->
+        <Line X1="10" Y1="0" X2="800" Y2="0" Margin="0,0,0,0" VerticalAlignment="Bottom" Stroke="Gray" StrokeThickness="0.5"></Line>
+    </Grid>
+</UserControl>

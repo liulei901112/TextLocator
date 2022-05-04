@@ -26,28 +26,63 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resource\App.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>TextLocator.App</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BouncyCastle.Crypto, Version=1.9.0.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
-      <HintPath>..\packages\Portable.BouncyCastle.1.9.0\lib\net40\BouncyCastle.Crypto.dll</HintPath>
+    <Reference Include="Common.Logging, Version=2.3.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.2.3.1\lib\net40\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="commons-logging, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\pdfboxNet.1.8.9.0\lib\commons-logging.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.16.0.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.16.0\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelApi, Version=1.8.1.0, Culture=neutral, PublicKeyToken=9084b9221296229e, processorArchitecture=MSIL">
+      <HintPath>..\packages\NetOfficeFw.Excel.1.8.1\lib\net40\ExcelApi.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="fontbox-1.8.9, Version=1.8.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\pdfboxNet.1.8.9.0\lib\fontbox-1.8.9.dll</HintPath>
     </Reference>
     <Reference Include="Hardcodet.NotifyIcon.Wpf, Version=1.1.0.0, Culture=neutral, PublicKeyToken=682384a853a08aad, processorArchitecture=MSIL">
       <HintPath>..\packages\Hardcodet.NotifyIcon.Wpf.1.1.0\lib\net45\Hardcodet.NotifyIcon.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=1.3.3.11, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpZipLib.1.3.3\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.OpenJDK.Core, Version=7.2.4630.5, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
+      <HintPath>..\packages\pdfboxNet.1.8.9.0\lib\IKVM.OpenJDK.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.OpenJDK.SwingAWT, Version=7.2.4630.5, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
+      <HintPath>..\packages\pdfboxNet.1.8.9.0\lib\IKVM.OpenJDK.SwingAWT.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.OpenJDK.Text, Version=7.2.4630.5, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
+      <HintPath>..\packages\pdfboxNet.1.8.9.0\lib\IKVM.OpenJDK.Text.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.OpenJDK.Util, Version=7.2.4630.5, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
+      <HintPath>..\packages\pdfboxNet.1.8.9.0\lib\IKVM.OpenJDK.Util.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.Runtime, Version=7.2.4630.5, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
+      <HintPath>..\packages\pdfboxNet.1.8.9.0\lib\IKVM.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="JiebaNet.Analyser, Version=0.42.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\jieba.NET.0.42.2\lib\net45\JiebaNet.Analyser.dll</HintPath>
@@ -61,17 +96,42 @@
     <Reference Include="Lucene.Net, Version=3.0.3.0, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
       <HintPath>..\packages\Lucene.Net.3.0.3\lib\NET40\Lucene.Net.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+    <Reference Include="Lucene.Net.Contrib.Analyzers, Version=3.0.3.0, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lucene.Net.Contrib.3.0.3\lib\net40\Lucene.Net.Contrib.Analyzers.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Office.Interop.PowerPoint, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Office.Interop.PowerPoint.15.0.4420.1017\lib\net20\Microsoft.Office.Interop.PowerPoint.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+    <Reference Include="Lucene.Net.Contrib.Core, Version=3.0.3.0, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lucene.Net.Contrib.3.0.3\lib\net40\Lucene.Net.Contrib.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Office.Interop.Word, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Office.Interop.Word.15.0.4797.1003\lib\net20\Microsoft.Office.Interop.Word.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+    <Reference Include="Lucene.Net.Contrib.FastVectorHighlighter, Version=3.0.3.0, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lucene.Net.Contrib.3.0.3\lib\net40\Lucene.Net.Contrib.FastVectorHighlighter.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net.Contrib.Highlighter, Version=2.3.2.1, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lucene.Net.Contrib.3.0.3\lib\net40\Lucene.Net.Contrib.Highlighter.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net.Contrib.Memory, Version=1.0.0.0, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lucene.Net.Contrib.3.0.3\lib\net40\Lucene.Net.Contrib.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net.Contrib.Queries, Version=3.0.3.0, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lucene.Net.Contrib.3.0.3\lib\net40\Lucene.Net.Contrib.Queries.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net.Contrib.Regex, Version=3.0.3.0, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lucene.Net.Contrib.3.0.3\lib\net40\Lucene.Net.Contrib.Regex.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net.Contrib.SimpleFacetedSearch, Version=3.0.3.0, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lucene.Net.Contrib.3.0.3\lib\net40\Lucene.Net.Contrib.SimpleFacetedSearch.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net.Contrib.Snowball, Version=2.0.0.1, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lucene.Net.Contrib.3.0.3\lib\net40\Lucene.Net.Contrib.Snowball.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net.Contrib.SpellChecker, Version=3.0.3.0, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lucene.Net.Contrib.3.0.3\lib\net40\Lucene.Net.Contrib.SpellChecker.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net.Linq, Version=3.6.0.125, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lucene.Net.Linq.3.6.0\lib\net40\Lucene.Net.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="NetOffice, Version=1.8.1.0, Culture=neutral, PublicKeyToken=297f57b43ae7c1de, processorArchitecture=MSIL">
+      <HintPath>..\packages\NetOfficeFw.Core.1.8.1\lib\net40\NetOffice.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -88,53 +148,68 @@
     <Reference Include="NPOI.OpenXmlFormats, Version=2.5.5.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
       <HintPath>..\packages\NPOI.2.5.5\lib\net45\NPOI.OpenXmlFormats.dll</HintPath>
     </Reference>
+    <Reference Include="OfficeApi, Version=1.8.1.0, Culture=neutral, PublicKeyToken=a39beb0835c43c8e, processorArchitecture=MSIL">
+      <HintPath>..\packages\NetOfficeFw.Core.1.8.1\lib\net40\OfficeApi.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="pdfbox-1.8.9, Version=1.8.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\pdfboxNet.1.8.9.0\lib\pdfbox-1.8.9.dll</HintPath>
+    </Reference>
+    <Reference Include="PowerPointApi, Version=1.8.1.0, Culture=neutral, PublicKeyToken=f3aefb8851e52dd2, processorArchitecture=MSIL">
+      <HintPath>..\packages\NetOfficeFw.PowerPoint.1.8.1\lib\net40\PowerPointApi.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="ReachFramework" />
+    <Reference Include="Remotion.Linq, Version=1.13.183.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Remotion.Linq.1.13.183.0\lib\net35\Remotion.Linq.dll</HintPath>
+    </Reference>
     <Reference Include="Rubyer, Version=1.0.16.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Rubyer.1.0.16\lib\net46\Rubyer.dll</HintPath>
     </Reference>
-    <Reference Include="SharpCompress, Version=0.30.1.0, Culture=neutral, PublicKeyToken=afb0a02973931d96, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpCompress.0.30.1\lib\net461\SharpCompress.dll</HintPath>
+    <Reference Include="SharpCompress, Version=0.31.0.0, Culture=neutral, PublicKeyToken=afb0a02973931d96, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpCompress.0.31.0\lib\net461\SharpCompress.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.Barcode, Version=6.1.1.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.Barcode.dll</HintPath>
+    <Reference Include="Spire.Barcode, Version=5.7.1.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.Barcode.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.DataExport, Version=4.1.10.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.DataExport.dll</HintPath>
+    <Reference Include="Spire.DataExport, Version=4.1.9.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.DataExport.dll</HintPath>
     </Reference>
     <Reference Include="Spire.DataExport.ResourceMgr, Version=2.1.0.0, Culture=neutral, PublicKeyToken=4bc1500157862925, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.DataExport.ResourceMgr.dll</HintPath>
+      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.DataExport.ResourceMgr.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.Doc, Version=10.1.14.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.Doc.dll</HintPath>
+    <Reference Include="Spire.Doc, Version=9.8.7.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.Doc.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.DocViewer.Forms, Version=7.1.3.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.DocViewer.Forms.dll</HintPath>
+    <Reference Include="Spire.DocViewer.Forms, Version=6.6.0.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.DocViewer.Forms.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.Email, Version=5.1.0.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.Email.dll</HintPath>
+    <Reference Include="Spire.Email, Version=4.7.0.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.Email.dll</HintPath>
     </Reference>
     <Reference Include="Spire.License, Version=1.4.0.40, Culture=neutral, PublicKeyToken=b1144360237c8b3f, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.License.dll</HintPath>
+      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.License.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.OfficeViewer.Forms, Version=7.2.0.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.OfficeViewer.Forms.dll</HintPath>
+    <Reference Include="Spire.OfficeViewer.Forms, Version=6.8.2.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.OfficeViewer.Forms.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.Pdf, Version=8.1.8.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.Pdf.dll</HintPath>
+    <Reference Include="Spire.Pdf, Version=7.8.9.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.Pdf.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.PdfViewer.Asp, Version=7.1.6.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.PdfViewer.Asp.dll</HintPath>
+    <Reference Include="Spire.PdfViewer.Asp, Version=6.8.4.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.PdfViewer.Asp.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.PdfViewer.Forms, Version=7.1.6.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.PdfViewer.Forms.dll</HintPath>
+    <Reference Include="Spire.PdfViewer.Forms, Version=6.8.4.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.PdfViewer.Forms.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.Presentation, Version=7.1.6.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.Presentation.dll</HintPath>
+    <Reference Include="Spire.Presentation, Version=6.8.4.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.Presentation.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.Spreadsheet, Version=6.1.3.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.Spreadsheet.dll</HintPath>
+    <Reference Include="Spire.Spreadsheet, Version=5.6.1.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.Spreadsheet.dll</HintPath>
     </Reference>
-    <Reference Include="Spire.XLS, Version=12.1.12.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Spire.Office.7.2.0\lib\net40\Spire.XLS.dll</HintPath>
+    <Reference Include="Spire.XLS, Version=11.8.4.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.Office.6.8.2\lib\net40\Spire.XLS.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -143,6 +218,12 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.FileSystem.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.FileSystem.Primitives.4.3.0\lib\net46\System.IO.FileSystem.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Packaging, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Packaging.6.0.0\lib\net461\System.IO.Packaging.dll</HintPath>
+    </Reference>
     <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
     </Reference>
@@ -150,13 +231,17 @@
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.5.0.0\lib\net45\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Printing" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
-    <Reference Include="System.Text.Encoding.CodePages, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Text.Encoding.CodePages.5.0.0\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Text.Encoding.CodePages, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encoding.CodePages.6.0.0\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -168,19 +253,43 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="UIAutomationProvider" />
+    <Reference Include="VBIDEApi, Version=1.8.1.0, Culture=neutral, PublicKeyToken=931cec8882205047, processorArchitecture=MSIL">
+      <HintPath>..\packages\NetOfficeFw.Core.1.8.1\lib\net40\VBIDEApi.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WordApi, Version=1.8.1.0, Culture=neutral, PublicKeyToken=f66d74591aaf8089, processorArchitecture=MSIL">
+      <HintPath>..\packages\NetOfficeFw.Word.1.8.1\lib\net40\WordApi.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AreaEditWindow.xaml.cs">
+      <DependentUpon>AreaEditWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AreaInfoItem.xaml.cs">
+      <DependentUpon>AreaInfoItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AreaWindow.xaml.cs">
+      <DependentUpon>AreaWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Cache\LFUCache.cs" />
-    <Compile Include="Cache\LFUCacheEntity.cs" />
+    <Compile Include="Cache\LRUCache.cs" />
+    <Compile Include="Entity\AreaInfo.cs" />
+    <Compile Include="Entity\CreareIndexParam.cs" />
+    <Compile Include="Entity\SearchParam.cs" />
+    <Compile Include="Entity\SearchResult.cs" />
+    <Compile Include="Enums\SearchRegion.cs" />
     <Compile Include="Exceptions\FileSizeTooBigException.cs" />
     <Compile Include="Exceptions\NotFoundFileServiceException.cs" />
+    <Compile Include="Index\RegexQuery.cs" />
+    <Compile Include="Message\MessageCore.cs" />
     <Compile Include="Service\ZipFileService.cs" />
     <Compile Include="SettingWindow.xaml.cs">
       <DependentUpon>SettingWindow.xaml</DependentUpon>
@@ -209,9 +318,6 @@
     <Compile Include="HotKey\HotKeySettingManager.cs" />
     <Compile Include="HotKey\HotKey.cs" />
     <Compile Include="Index\IndexCore.cs" />
-    <Compile Include="AreaWindow.xaml.cs">
-      <DependentUpon>AreaWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Index\MutipleThreadResetEvent.cs" />
     <Compile Include="Jieba\JiebaAnalyzer.cs" />
     <Compile Include="Jieba\JiebaTokenizer.cs" />
@@ -222,9 +328,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Service\DevelopFileService.cs" />
+    <Compile Include="Service\CodeFileService.cs" />
     <Compile Include="Service\ExcelFileService.cs" />
-    <Compile Include="Service\IFileInfoService.cs" />
+    <Compile Include="Factory\IFileInfoService.cs" />
     <Compile Include="Service\NoTextFileService.cs" />
     <Compile Include="Service\PdfFileService.cs" />
     <Compile Include="Service\PowerPointFileService.cs" />
@@ -232,12 +338,25 @@
     <Compile Include="Service\WordFileService.cs" />
     <Compile Include="Service\DomFileService.cs" />
     <Compile Include="Util\AppUtil.cs" />
+    <Compile Include="Util\AreaUtil.cs" />
     <Compile Include="Util\CacheUtil.cs" />
     <Compile Include="Util\FileTypeUtil.cs" />
     <Compile Include="Util\FileUtil.cs" />
     <Compile Include="Util\ListUtil.cs" />
     <Compile Include="Util\MD5Util.cs" />
     <Compile Include="Util\RichTextBoxUtil.cs" />
+    <Page Include="AreaEditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AreaInfoItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AreaWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SettingWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -266,10 +385,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="AreaWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Resource\GenericDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -294,22 +409,22 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Dict\char_state_tab.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Dict\pos_prob_emit.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Dict\pos_prob_start.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Dict\pos_prob_trans.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Dict\prob_emit.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Dict\prob_trans.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -327,7 +442,6 @@
     <Resource Include="Resource\ext\html.png" />
     <Resource Include="Resource\ext\pdf.png" />
     <Resource Include="Resource\ext\ppt.png" />
-    <Resource Include="Resource\ext\rtf.png" />
     <Resource Include="Resource\ext\txt.png" />
     <Resource Include="Resource\ext\word.png" />
   </ItemGroup>
@@ -338,18 +452,18 @@
     <Resource Include="Resource\ext\image.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Dict\cn_synonym.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Dict\dict.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Dict\idf.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Dict\stopwords.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
+    <None Include="Dict\cn_synonym.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Dict\dict.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Dict\idf.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Dict\stopwords.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resource\btn_left.png" />
@@ -357,6 +471,19 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resource\ext\zip.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\btn_search.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\ext\none.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\App.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\btn_last.png" />
+    <Resource Include="Resource\btn_next.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

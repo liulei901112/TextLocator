@@ -1,23 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+using TextLocator.Core;
 
 namespace TextLocator.Util
 {
     public class RichTextBoxUtil
     {
+        /// <summary>
+        /// 清空数据
+        /// </summary>
+        /// <param name="richTextBox">RichTextBox文本对象</param>
+        public static void EmptyData(RichTextBox richTextBox)
+        {
+            richTextBox.Document.Blocks.Clear();
+        }
 
         /// <summary>
         /// 填充数据
         /// </summary>
-        /// <param name="richTextBox"></param>
-        /// <param name="text"></param>
-        /// <param name="brush"></param>
+        /// <param name="richTextBox">RichTextBox文本对象</param>
+        /// <param name="text">高亮关键词</param>
+        /// <param name="brush">高亮颜色画刷</param>
+        /// <param name="underLine">下划线</param>
         public static void FillingData(RichTextBox richTextBox, string text, Brush brush, bool underLine = false)
         {
             richTextBox.Document.Blocks.Clear();
@@ -40,10 +49,13 @@ namespace TextLocator.Util
         /// <param name="richTextBox">UI元素</param>
         /// <param name="color">颜色值</param>
         /// <param name="keywords">关键词</param>
+        /// <param name="background">背景颜色</param>
         public static void Highlighted(RichTextBox richTextBox, Color color, List<string> keywords, bool background = false)
         {
+            if (keywords == null || keywords.Count <= 0) return;
             foreach (string keyword in keywords)
             {
+                if (string.IsNullOrEmpty(keyword)) continue;
                 // 设置文字指针为Document初始位置           
                 // richBox.Document.FlowDirection            
                 TextPointer position = richTextBox.Document.ContentStart;
@@ -54,19 +66,33 @@ namespace TextLocator.Util
                     {
                         // 拿出Run的Text                    
                         string text = position.GetTextInRun(LogicalDirection.Forward);
-                        // 可能包含多个keyword,做遍历查找                    
-                        int index = text.IndexOf(keyword, 0, StringComparison.CurrentCultureIgnoreCase);
-                        if (index != -1)
+                        // 关键词是正则表达式
+                        if (AppConst.REGEX_SUPPORT_WILDCARDS.IsMatch(keyword))
                         {
-                            TextPointer start = position.GetPositionAtOffset(index);
-                            TextPointer end = start.GetPositionAtOffset(keyword.Length);
-                            position = Selecta(richTextBox, color, start, end, background);
+                            Regex regex = new Regex(keyword, RegexOptions.IgnoreCase);
+                            Match matches = regex.Match(text);
+                            if (matches.Success)
+                            {
+                                TextPointer start = position.GetPositionAtOffset(matches.Index);
+                                TextPointer end = start.GetPositionAtOffset(matches.Length);
+                                position = Selecta(richTextBox, color, start, end, background);
+                            }
+                        }
+                        else
+                        {
+                            // 可能包含多个keyword,做遍历查找                    
+                            int index = text.IndexOf(keyword, 0, StringComparison.CurrentCultureIgnoreCase);
+                            if (index != -1)
+                            {
+                                TextPointer start = position.GetPositionAtOffset(index);
+                                TextPointer end = start.GetPositionAtOffset(keyword.Length);
+                                position = Selecta(richTextBox, color, start, end, background);
+                            }
                         }
                     }
                     // 文字指针向前偏移
                     position = position.GetNextContextPosition(LogicalDirection.Forward);
                 }
-
             }
         }
 
@@ -86,14 +112,15 @@ namespace TextLocator.Util
             //高亮选择
             if (background)
             {
-                range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(Colors.White));
                 range.ApplyPropertyValue(TextElement.BackgroundProperty, new SolidColorBrush(color));
+                range.ApplyPropertyValue(TextElement.FontWeightProperty, color == Colors.White ? FontWeights.Normal : FontWeights.Bold);
             }
             else
             {
                 range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(color));
+                range.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
             }
-            range.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
+            
 
             return tpEnd.GetNextContextPosition(LogicalDirection.Forward);
         }

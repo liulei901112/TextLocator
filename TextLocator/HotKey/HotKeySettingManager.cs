@@ -55,7 +55,7 @@ namespace TextLocator.HotKey
                         SelectKey = (HotKey)Enum.Parse(typeof(HotKey), tmp[4])
                     };
                 }
-                log.Debug(string.Format("热键注册：{0}，{1}", keySetting.ToString(), Newtonsoft.Json.JsonConvert.SerializeObject(keyModel)));
+                log.Debug(string.Format("热键注册：{0}", Newtonsoft.Json.JsonConvert.SerializeObject(keyModel)));
                 hotKeyList.Add(keyModel);
             }
             return hotKeyList;

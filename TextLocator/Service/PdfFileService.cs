@@ -1,9 +1,11 @@
-﻿using log4net;
-using Spire.Pdf;
-using Spire.Pdf.Widget;
+﻿using java.io;
+using log4net;
+using org.apache.pdfbox.pdmodel;
+using org.apache.pdfbox.util;
 using System;
 using System.IO;
 using System.Text;
+using TextLocator.Factory;
 
 namespace TextLocator.Service
 {
@@ -19,35 +21,74 @@ namespace TextLocator.Service
         public string GetFileContent(string filePath)
         {            
             // 文件内容
-            StringBuilder builder = new StringBuilder();
+            string content = string.Empty;
             lock (locker)
             {
                 try
                 {
-                    using (FileStream fs = File.OpenRead(filePath))
+                    // =========== PdfBOX ===========尝试解析
+                    content = PdfBOXParse(filePath);
+                }
+                catch (Exception ex1)
+                {
+                    log.Error(filePath + " -> PdfBOX 无法解析：" + ex1.Message, ex1);
+                    
+                    try
                     {
-                        // 实例化一个PdfDocument对象
-                        using (PdfDocument doc = new PdfDocument(fs))
-                        {
-                            PdfPageCollection pages = doc.Pages;
-                            if (pages != null && pages.Count > 0)
-                            {
-                                //提取PDF所有页面的文本
-                                foreach (PdfPageBase page in pages)
-                                {
-                                    try
-                                    {
-                                        builder.Append(page.ExtractText().Replace("Evaluation Warning : The document was created with Spire.PDF for .NET.", ""));
-                                    }
-                                    catch { }
-                                }
-                            }
-                        }
+                        // =========== Spire ===========
+                        content = SpirePdfParse(filePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error(filePath + " -> 无法解析：" + ex.Message, ex);
                     }
                 }
-                catch (Exception ex)
+            }
+            return content;
+        }
+
+        /// <summary>
+        /// PdfBOX 解析
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        private string PdfBOXParse(string filePath)
+        {
+            StringBuilder builder = new StringBuilder();
+            using (PDDocument pdf = PDDocument.load(filePath))
+            {
+                PDFTextStripper pdfText = new PDFTextStripper();
+                builder.Append(pdfText.getText(pdf));
+            }
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Spire.PDF 解析
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        private string SpirePdfParse(string filePath)
+        {
+            StringBuilder builder = new StringBuilder();
+            using (FileStream fs = System.IO.File.OpenRead(filePath))
+            {
+                // 实例化一个PdfDocument对象
+                using (Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument(fs))
                 {
-                    log.Error(filePath + " -> " + ex.Message, ex);
+                    Spire.Pdf.Widget.PdfPageCollection pages = doc.Pages;
+                    if (pages != null && pages.Count > 0)
+                    {
+                        //提取PDF所有页面的文本
+                        foreach (Spire.Pdf.PdfPageBase page in pages)
+                        {
+                            try
+                            {
+                                builder.Append(page.ExtractText().Replace("Evaluation Warning : The document was created with Spire.PDF for .NET.", ""));
+                            }
+                            catch { }
+                        }
+                    }
                 }
             }
             return builder.ToString();

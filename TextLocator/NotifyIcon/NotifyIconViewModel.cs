@@ -25,7 +25,7 @@ namespace TextLocator.NotifyIcon
                         // 显示
                         Application.Current.MainWindow.Show();
                         // 标准化
-                        Application.Current.MainWindow.WindowState = WindowState.Normal;
+                        Application.Current.MainWindow.Activate();
                     }
                 };
             }
@@ -45,6 +45,7 @@ namespace TextLocator.NotifyIcon
                         var win = HotkeyWindow.CreateInstance();
                         if (!win.IsVisible)
                         {
+                            win.Topmost = true;
                             win.ShowDialog();
                         }
                         else
@@ -70,6 +71,7 @@ namespace TextLocator.NotifyIcon
                         var win = SettingWindow.CreateInstance();
                         if (!win.IsVisible)
                         {
+                            win.Topmost = true;
                             win.ShowDialog();
                         }
                         else

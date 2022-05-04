@@ -2,6 +2,8 @@
 using System;
 using System.IO;
 using System.Text;
+using TextLocator.Factory;
+using TextLocator.Util;
 
 namespace TextLocator.Service
 {
@@ -22,7 +24,7 @@ namespace TextLocator.Service
             {
                 using (FileStream fs = File.OpenRead(filePath))
                 {
-                    using (StreamReader reader = new StreamReader(fs, Encoding.UTF8))
+                    using (StreamReader reader = new StreamReader(fs, FileUtil.GetEncoding(filePath)))
                     {
                         string line;
                         while ((line = reader.ReadLine()) != null)

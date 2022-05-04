@@ -83,6 +83,23 @@ namespace TextLocator
 
         #region 初始化
         /// <summary>
+        /// 初始化AppConfig
+        /// </summary>
+        private void InitAppConfig()
+        {
+            // 保存缓存池容量
+            AppUtil.WriteValue("AppConfig", "CachePoolCapacity", AppConst.CACHE_POOL_CAPACITY + "");
+
+            // 每页显示条数
+            AppUtil.WriteValue("AppConfig", "ResultListPageSize", AppConst.MRESULT_LIST_PAGE_SIZE + "");
+
+            // 文件读取超时时间
+            AppUtil.WriteValue("AppConfig", "FileReadTimeout", AppConst.FILE_READ_TIMEOUT + "");
+        }
+        #endregion
+
+        #region 文件服务引擎注册
+        /// <summary>
         /// 初始化文件信息服务引擎
         /// </summary>
         private void InitFileInfoServiceEngine()
@@ -100,33 +117,19 @@ namespace TextLocator
                 FileInfoServiceFactory.Register(FileType.PDF文档, new PdfFileService());
                 // HTML或XML服务
                 FileInfoServiceFactory.Register(FileType.DOM文档, new DomFileService());
-                // 常用图片服务
-                FileInfoServiceFactory.Register(FileType.图片, new NoTextFileService());
-                // 程序员服务
-                FileInfoServiceFactory.Register(FileType.代码, new DevelopFileService());
-                FileInfoServiceFactory.Register(FileType.压缩包, new ZipFileService());
                 // 纯文本服务
-                FileInfoServiceFactory.Register(FileType.纯文本, new TxtFileService());
+                FileInfoServiceFactory.Register(FileType.TXT文档, new TxtFileService());
+				// 常用图片服务
+                FileInfoServiceFactory.Register(FileType.常用图片, new NoTextFileService());
+                // 常用压缩包
+                FileInfoServiceFactory.Register(FileType.常用压缩包, new ZipFileService());
+				// 程序员服务
+                FileInfoServiceFactory.Register(FileType.程序员代码, new CodeFileService());
             }
             catch (Exception ex)
             {
                 log.Error("文件服务工厂初始化错误：" + ex.Message, ex);
             }
-        }
-
-        /// <summary>
-        /// 初始化AppConfig
-        /// </summary>
-        private void InitAppConfig()
-        {
-            // 保存缓存池容量
-            AppUtil.WriteValue("AppConfig", "CachePoolCapacity", AppConst.CACHE_POOL_CAPACITY + "");
-
-            // 每页显示条数
-            AppUtil.WriteValue("AppConfig", "ResultListPageSize", AppConst.MRESULT_LIST_PAGE_SIZE + "");
-
-            // 文件读取超时时间
-            AppUtil.WriteValue("AppConfig", "FileReadTimeout", AppConst.FILE_READ_TIMEOUT + "");
         }
         #endregion
 

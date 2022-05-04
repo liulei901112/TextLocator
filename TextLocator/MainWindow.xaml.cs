@@ -668,7 +668,9 @@ namespace TextLocator
             OpenFolder.Tag = null;
 
             // 滚动条回滚到最顶端
-            PreviewScrollViewer.ScrollToTop();
+            PreviewFileContent.ScrollToHome();
+            // 滚动条回滚到最顶端（图片）
+            // PreviewImageScrollViewer.ScrollToHome();
 
             // 预览文件名清空
             PreviewFileName.Text = "";
@@ -743,7 +745,9 @@ namespace TextLocator
             OpenFolder.Tag = fileInfo.FilePath.Substring(0, fileInfo.FilePath.LastIndexOf("\\"));
 
             // 滚动条回滚到最顶端
-            this.PreviewScrollViewer.ScrollToTop();
+            PreviewFileContent.ScrollToHome();
+            // 滚动条回滚到最顶端（图片）
+            // PreviewImageScrollViewer.ScrollToHome();
 
             // 图片文件
             if (FileType.常用图片 == FileTypeUtil.GetFileType(fileInfo.FilePath))
@@ -866,7 +870,9 @@ namespace TextLocator
             PreviewContentPage.Text = string.Format("{0}/{1}", page + 1, previewList.Count);
 
             // 滚动条回滚到最顶端
-            PreviewScrollViewer.ScrollToTop();
+            PreviewFileContent.ScrollToHome();
+            // 滚动条回滚到最顶端（图片）
+            // PreviewImageScrollViewer.ScrollToHome();
 
             // 获取文件名
             string fileName = PreviewFileName.Text;
@@ -1412,6 +1418,42 @@ namespace TextLocator
         #endregion
 
         #region 预览文本搜索
+        /// <summary>
+        /// 预览搜索文本框内容改变
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PreviewSearchText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string text = PreviewSearchText.Text.Trim();
+            PreviewCleanButton.Visibility = text.Length > 0 ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        /// <summary>
+        /// 预览搜索清空按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PreviewCleanButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 清理上一次的搜索关键词
+            if (!string.IsNullOrEmpty(_lastPreviewSearchText))
+            {
+                List<string> keywords = _lastPreviewSearchText.Split(' ').ToList();
+                Task.Factory.StartNew(() =>
+                {
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        // 关键词高亮
+                        RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.White, keywords, true);
+                    }));
+                });
+                _lastPreviewSearchText = "";
+            }
+
+            // 清理文本框
+            PreviewSearchText.Text = "";
+        }
         /// <summary>
         /// 预览搜索文本搜索按钮
         /// </summary>

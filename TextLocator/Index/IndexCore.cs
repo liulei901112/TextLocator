@@ -626,7 +626,7 @@ namespace TextLocator.Index
                     try
                     {
                         
-                        log.Debug("搜索缩影路径：" + subDir);
+                        log.Debug("搜索索引分区路径：" + subDir);
                         Lucene.Net.Store.FSDirectory directory = Lucene.Net.Store.FSDirectory.Open(new DirectoryInfo(subDir), new Lucene.Net.Store.NoLockFactory());
                         directorys.Add(directory);
                         searchers.Add(new Lucene.Net.Search.IndexSearcher(directory, true));

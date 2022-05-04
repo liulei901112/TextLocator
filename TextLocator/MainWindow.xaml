@@ -240,8 +240,10 @@
                                 <Grid x:Name="PreviewSearch" VerticalAlignment="Top" HorizontalAlignment="Right" Height="40">
                                     <!-- 搜索框 -->
                                     <TextBox x:Name="PreviewSearchText" Margin="0,0,40,0" Width="200" Height="25" FontSize="14" HorizontalAlignment="Right" VerticalContentAlignment="Center" 
-                                             PreviewKeyUp="PreviewSearchText_PreviewKeyUp">                                        
+                                             PreviewKeyUp="PreviewSearchText_PreviewKeyUp" TextChanged="PreviewSearchText_TextChanged">                                        
                                     </TextBox>
+                                    <!-- 清空按钮 -->
+                                    <Button x:Name="PreviewCleanButton" HorizontalAlignment="Right" Margin="0,0,40,0" Background="Red" BorderBrush="Gray" BorderThickness="1" Width="25" Height="25" Content="X" Visibility="Hidden" Click="PreviewCleanButton_Click"/>
                                     <!-- 搜索按钮 -->
                                     <Button x:Name="PreviewSearchButton" HorizontalAlignment="Right" Margin="0,0,10,0" BorderBrush="Gray" BorderThickness="0.5" Width="25" Height="25" Click="PreviewSearchButton_Click">
                                         <Button.Background>
@@ -254,16 +256,16 @@
                             </Grid>
 
                             <!-- 内容预览 -->
-                            <ScrollViewer x:Name="PreviewScrollViewer" Margin="0,80,0,0">
-                                <Grid>
-                                    <!-- 预览图片 -->
-                                    <Image x:Name="PreviewImage"/>
-                                    <!-- 预览文档 -->
-                                    <RichTextBox x:Name="PreviewFileContent" Margin="0,0,0,0" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="True">
-                                        <FlowDocument>
-                                            <Paragraph>
-                                                <Run>
-                                                    --------[ 概览 ]----------------------------------------------------------------------------------
+                            <Grid Margin="0,80,0,0">
+                                <!-- 预览图片 -->
+                                <Image x:Name="PreviewImage"/>
+
+                                <!-- 预览文档 -->
+                                <RichTextBox x:Name="PreviewFileContent" Margin="0,0,0,0" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="True" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                                    <FlowDocument>
+                                        <Paragraph>
+                                            <Run>
+                                                --------[ 概览 ]----------------------------------------------------------------------------------
 
                                                       电脑型号            X64 兼容 台式电脑
                                                       操作系统            Windows 10 专业版 64位 ( Version 2004 / DirectX 12 )
@@ -803,12 +805,11 @@
                                                       风扇                1050转
 
 
-                                                </Run>
-                                            </Paragraph>
-                                        </FlowDocument>
-                                    </RichTextBox>
-                                </Grid>
-                            </ScrollViewer>
+                                            </Run>
+                                        </Paragraph>
+                                    </FlowDocument>
+                                </RichTextBox>
+                            </Grid>
 
                             <!-- 预览列表切换 -->
                             <StackPanel x:Name="SwitchPreview" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,0,0,0" Visibility="Collapsed">

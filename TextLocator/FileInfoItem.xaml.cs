@@ -67,9 +67,9 @@ namespace TextLocator
                 RichTextBoxUtil.Highlighted(this.FileName, Colors.Red, fileInfo.Keywords);
             }
 
-            string filePath = fileInfo.FilePath.Replace(fileInfo.FileName, "");
+            string folderPath = fileInfo.FilePath.Substring(0, fileInfo.FilePath.LastIndexOf("\\")); //fileInfo.FilePath.Replace(fileInfo.FileName, "");
             // 文件路径
-            this.FileFolder.Text = filePath.Length > 70 ? filePath.Substring(0, 70) + "..." : filePath;
+            this.FileFolder.Text = folderPath.Length > 70 ? folderPath.Substring(0, 70) + "..." : folderPath;
 
             // 获取摘要
             RichTextBoxUtil.EmptyData(this.ContentBreviary);

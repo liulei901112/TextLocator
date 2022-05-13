@@ -47,10 +47,6 @@ namespace TextLocator
         /// </summary>
         private Entity.SearchParam _searchParam;
         /// <summary>
-        /// 上次预览区搜索文本
-        /// </summary>
-        private string _lastPreviewSearchText;
-        /// <summary>
         /// 索引构建中
         /// </summary>
         private static volatile bool build = false;
@@ -520,11 +516,7 @@ namespace TextLocator
             PreviewFileName.Text = "";
 
             // 预览文件内容清空
-            PreviewFileContent.Document.Blocks.Clear();
-
-            // 预览文件内容分页标记
-            SwitchPreviewContentPage.Tag = 0;
-            SwitchPreviewContentPage.Visibility = Visibility.Collapsed;
+            PreviewFileContent.Document = null;
 
             // 预览图标清空
             PreviewImage.Source = null;
@@ -701,16 +693,12 @@ namespace TextLocator
             SearchResultList.Items.Clear();
 
             // -------- 右侧预览区
-            // 清空预览搜索框
-            PreviewSearchText.Text = "";
-            _lastPreviewSearchText = "";
-
             // 右侧预览区，打开文件和文件夹标记清空
             OpenFile.Tag = null;
             OpenFolder.Tag = null;
 
             // 滚动条回滚到最顶端
-            PreviewFileContent.ScrollToHome();
+            //PreviewFileContent.ScrollToHome();
             // 滚动条回滚到最顶端（图片）
             // PreviewImageScrollViewer.ScrollToHome();
 
@@ -718,7 +706,7 @@ namespace TextLocator
             PreviewFileName.Text = "";
 
             // 预览文件内容清空
-            PreviewFileContent.Document.Blocks.Clear();
+            PreviewFileContent.Document = null;
 
             // 预览图片清空
             PreviewImage.Source = null;
@@ -735,9 +723,6 @@ namespace TextLocator
             // -------- 快捷标签
             // 隐藏上一个和下一个切换面板
             this.SwitchPreview.Visibility = Visibility.Collapsed;
-            // 预览文件内容分页标记
-            SwitchPreviewContentPage.Tag = 0;
-            SwitchPreviewContentPage.Visibility = Visibility.Collapsed;
 
             // -------- 搜索参数
             _searchParam = null;
@@ -776,23 +761,18 @@ namespace TextLocator
             // 根据文件类型显示图标
             PreviewFileTypeIcon.Source = FileUtil.GetFileIcon(fileInfo.FileType);
             PreviewFileName.Text = fileInfo.FileName;
-            PreviewFileContent.Document.Blocks.Clear();
+            PreviewFileContent.Document = null;
 
             // 绑定打开文件和打开路径的Tag
             OpenFile.Tag = fileInfo.FilePath;
             OpenFolder.Tag = fileInfo.FilePath.Substring(0, fileInfo.FilePath.LastIndexOf("\\"));
-
-            // 滚动条回滚到最顶端
-            PreviewFileContent.ScrollToHome();
-            // 滚动条回滚到最顶端（图片）
-            // PreviewImageScrollViewer.ScrollToHome();
 
             // 图片文件
             if (FileType.常用图片 == FileTypeUtil.GetFileType(fileInfo.FilePath))
             {
                 PreviewFileContent.Visibility = Visibility.Hidden;
                 PreviewImage.Visibility = Visibility.Visible;
-                Thread t = new Thread(new ThreadStart(() =>
+                Task.Factory.StartNew(() =>
                 {
                     try
                     {
@@ -820,38 +800,32 @@ namespace TextLocator
                         }
                         catch { }
                     }
-                }));
-                t.Priority = ThreadPriority.AboveNormal;
-                t.Start();
+                });
             }
             else
             {
                 PreviewImage.Visibility = Visibility.Hidden;
                 PreviewFileContent.Visibility = Visibility.Visible;
-                // 标记当前页
-                SwitchPreviewContentPage.Tag = 0;
-                // 填充数据
-                RichTextBoxUtil.EmptyData(PreviewFileContent);
                 // 文件内容预览
-                Thread t = new Thread(() =>
+                Task.Factory.StartNew(() =>
                 {
                     try
                     {
                         // 文件内容（预览）FileInfoServiceFactory.GetFileContent(fileInfo.FilePath, true);
                         string content = fileInfo.Preview;
-                        // 内容预览分页
-                        List<string> previewList = SplitContent(content);
-                        // 缓存预览列表，关键词列表，是否区分大小写
-                        CacheUtil.Put(AppConst.CacheKey.PREVIEW_CONTENT_SPLIT_LIST_KEY, previewList);
-                        CacheUtil.Put(AppConst.CacheKey.PREVIEW_FILE_INFO_KEYWORDS_KEY, fileInfo.Keywords);
 
                         Dispatcher.InvokeAsync(() =>
                         {
-
-                            PreviewRefresh(previewList, 0);
-
-                            // 显示或隐藏操作按钮
-                            SwitchPreviewContentPage.Visibility = previewList.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+                            // 填充数据
+                            RichTextBoxUtil.FillingDataFlowDocument(PreviewFileContent, content, new SolidColorBrush(Colors.Black));
+                            // 默认滚动到第一页
+                            PreviewFileContent.CanGoToPage(1);
+                            // 关键词高亮
+                            RichTextBoxUtil.HighlightedFlowDocument(
+                                PreviewFileContent,
+                                Colors.Red,
+                                fileInfo.Keywords
+                            );
                         });
                     }
                     catch (Exception ex)
@@ -859,82 +833,11 @@ namespace TextLocator
                         log.Error(ex.Message, ex);
                     }
                 });
-                t.Priority = ThreadPriority.Highest;
-                t.Start();
             }
-        }
-
-        /// <summary>
-        /// 分隔内容
-        /// </summary>
-        /// <param name="content"></param>
-        /// <returns></returns>
-        private List<string> SplitContent(string content)
-        {
-            int limit = AppConst.FILE_PREVIEW_LEN_LIMIT;
-            int lenth = content.Length;
-            List<string> splitList = new List<string>();
-            if (lenth < limit)
-            {
-                splitList.Add(content);
-            }
-            else
-            {
-                int splitLenth = lenth / limit;
-                for (int i = 0; i < splitLenth; i++)
-                {
-                    splitList.Add(content.Substring(limit * i, limit));
-                }
-                if (lenth % limit != 0)
-                {
-                    splitList.Add(content.Substring(limit * splitLenth));
-                }
-            }
-            return splitList;
-        }
-
-        /// <summary>
-        /// 刷新预览
-        /// </summary>
-        /// <param name="previewList">预览内容列表</param>
-        /// <param name="page">当前页</param>
-        private void PreviewRefresh(List<string> previewList, int page)
-        {
-            string preview = previewList[page];
-            // 填充数据
-            RichTextBoxUtil.FillingData(PreviewFileContent, preview, new SolidColorBrush(Colors.Black));
-
-            // 显示分页信息
-            PreviewContentPage.Text = string.Format("{0}/{1}", page + 1, previewList.Count);
-
-            // 滚动条回滚到最顶端
-            PreviewFileContent.ScrollToHome();
-            // 滚动条回滚到最顶端（图片）
-            // PreviewImageScrollViewer.ScrollToHome();
-
-            // 获取文件名
-            string fileName = PreviewFileName.Text;
-            Task.Factory.StartNew(() => {
-                int matchCount = IndexCore.GetMatchCount(new Entity.FileInfo()
-                {
-                    SearchRegion = SearchRegion.文件名和内容,
-                    FileName = fileName,
-                    Preview = preview,
-                });
-                Dispatcher.InvokeAsync(async () =>
-                {
-                    // 关键词高亮
-                    RichTextBoxUtil.Highlighted(
-                        PreviewFileContent, 
-                        Colors.Red, 
-                        CacheUtil.Get<List<string>>(AppConst.CacheKey.PREVIEW_FILE_INFO_KEYWORDS_KEY)
-                    );
-                });
-            });
         }
         #endregion
 
-        #region 界面事件
+        #region 功能事件
 
         /// <summary>
         /// 搜索域切换事件
@@ -1095,50 +998,6 @@ namespace TextLocator
 
             // 显示分页信息
             _viewModel.PreviewPage = String.Format("{0}/{1}", this.SearchResultList.SelectedIndex + 1, SearchResultList.Items.Count);
-        }
-
-        /// <summary>
-        /// 预览内容上一页
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void BtnLastPage_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            // 获取列表
-            List<string> previewList = CacheUtil.Get<List<string>>(AppConst.CacheKey.PREVIEW_CONTENT_SPLIT_LIST_KEY);
-            if (previewList != null)
-            {
-                // 获取当前页
-                int page = (int)SwitchPreviewContentPage.Tag;
-                if (page > 0)
-                {
-                    page = page - 1;
-                    SwitchPreviewContentPage.Tag = page;
-                }
-                PreviewRefresh(previewList, page);
-            }
-        }
-
-        /// <summary>
-        /// 预览内容下一页
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void BtnNextPage_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            // 获取列表
-            List<string> previewList = CacheUtil.Get<List<string>>(AppConst.CacheKey.PREVIEW_CONTENT_SPLIT_LIST_KEY);
-            if (previewList != null)
-            {
-                // 获取当前页
-                int page = (int)SwitchPreviewContentPage.Tag;
-                if (page < previewList.Count - 1)
-                {
-                    page = page + 1;
-                    SwitchPreviewContentPage.Tag = page;
-                }
-                PreviewRefresh(previewList, page);
-            }
         }
         #endregion
 
@@ -1437,105 +1296,6 @@ namespace TextLocator
                 {
                     log.Error(ex.Message, ex);
                 }
-            }
-        }
-        #endregion
-
-        #region 预览文本搜索
-        /// <summary>
-        /// 预览搜索文本框内容改变
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PreviewSearchText_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            string text = PreviewSearchText.Text.Trim();
-            PreviewCleanButton.Visibility = text.Length > 0 ? Visibility.Visible : Visibility.Hidden;
-        }
-
-        /// <summary>
-        /// 预览搜索清空按钮
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PreviewCleanButton_Click(object sender, RoutedEventArgs e)
-        {
-            // 清理上一次的搜索关键词
-            if (!string.IsNullOrEmpty(_lastPreviewSearchText))
-            {
-                List<string> keywords = _lastPreviewSearchText.Split(' ').ToList();
-                Task.Factory.StartNew(() =>
-                {
-                    Dispatcher.Invoke(new Action(() =>
-                    {
-                        // 关键词高亮
-                        RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.White, keywords, true);
-                    }));
-                });
-                _lastPreviewSearchText = "";
-            }
-
-            // 清理文本框
-            PreviewSearchText.Text = "";
-        }
-        /// <summary>
-        /// 预览搜索文本搜索按钮
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PreviewSearchButton_Click(object sender, RoutedEventArgs e)
-        {
-            // 预览搜索关键词高亮
-            PreviewSearchTextHighlighted();
-        }
-
-        /// <summary>
-        /// 预览搜索关键词高亮
-        /// </summary>
-        private void PreviewSearchTextHighlighted()
-        {
-            // 搜索关键词
-            string text = PreviewSearchText.Text.Trim();
-
-            // 清理上一次的搜索关键词（上一次搜索关键词不为空 && 和本次搜索关键词不相同才清理）
-            if (!string.IsNullOrEmpty(_lastPreviewSearchText) && !_lastPreviewSearchText.Equals(text))
-            {
-                List<string> keywords = _lastPreviewSearchText.Split(' ').ToList();
-                Task.Factory.StartNew(() => {
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        // 关键词高亮
-                        RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.White, keywords, true);
-                    }));
-                });
-            }
-            
-            if (!string.IsNullOrEmpty(text))
-            {
-                _lastPreviewSearchText = text;
-
-                List<string> keywords = text.Split(' ').ToList();
-                Task.Factory.StartNew(() => {
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        // 关键词高亮
-                        RichTextBoxUtil.Highlighted(PreviewFileContent, Colors.DeepSkyBlue, keywords, true);
-                    }));
-                });
-            }
-        }
-
-        /// <summary>
-        /// 预览搜索文本按键
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PreviewSearchText_PreviewKeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                // 预览搜索关键词高亮
-                PreviewSearchTextHighlighted();
             }
         }
         #endregion

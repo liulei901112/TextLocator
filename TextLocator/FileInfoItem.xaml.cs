@@ -67,7 +67,7 @@ namespace TextLocator
                 RichTextBoxUtil.Highlighted(this.FileName, Colors.Red, fileInfo.Keywords);
             }
 
-            string folderPath = fileInfo.FilePath.Substring(0, fileInfo.FilePath.LastIndexOf("\\")); //fileInfo.FilePath.Replace(fileInfo.FileName, "");
+            string folderPath = fileInfo.FilePath.Substring(0, fileInfo.FilePath.LastIndexOf("\\"));
             // 文件路径
             this.FileFolder.Text = folderPath.Length > 70 ? folderPath.Substring(0, 70) + "..." : folderPath;
 
@@ -85,17 +85,17 @@ namespace TextLocator
                 }));
             });
 
-            /*// 词频统计
+            // 词频统计
             Task.Factory.StartNew(() => {
-                string keywordFrequency = IndexCore.GetKeywordFrequency(fileInfo, searchRegion);
+                string matchCountDetails = IndexCore.GetMatchCountDetails(fileInfo);
                 this.Dispatcher.BeginInvoke(new Action(() => {
-                    if (!string.IsNullOrWhiteSpace(keywordFrequency))
+                    if (!string.IsNullOrWhiteSpace(matchCountDetails))
                     {
                         // 关键词匹配次数
-                        this.FileTypeIcon.ToolTip = keywordFrequency;
+                        this.FileTypeIcon.ToolTip = matchCountDetails;
                     }
                 }));
-            });*/
+            });
         }
     }
 }

@@ -161,19 +161,6 @@ namespace TextLocator.Core
             /// 区域文件类型
             /// </summary>
             public const string AREA_FILE_TYPES_KEY = "AreaFileTypes";
-
-            /// <summary>
-            /// 预览内容分隔列表
-            /// </summary>
-            public const string PREVIEW_CONTENT_SPLIT_LIST_KEY = "PreviewContentSplitList";
-            /// <summary>
-            /// 预览内容关键词列表
-            /// </summary>
-            public const string PREVIEW_FILE_INFO_KEYWORDS_KEY = "PreviewFileInfoKeywords";
-            /// <summary>
-            /// 预览内容是否区分大小写
-            /// </summary>
-            public const string PREVIEW_FILE_INFO_MATCH_CASE_KEY = "PreviewFileInfoIsMatchCase";
         }
     }
 }

@@ -85,15 +85,15 @@ namespace TextLocator.Core
         /// <summary>
         /// 匹配Lucene.NET内置关键词
         /// </summary>
-        public static readonly Regex REGEX_BUILT_IN_SYMBOL = new Regex("AND|OR|NOT|\\&\\&|\\|\\|");
+        public static readonly Regex REGEX_BUILT_IN_SYMBOL = new Regex("AND|OR|NOT|\\&\\&|\\|\\||\"|\\~|\\:");
         /// <summary>
         /// 匹配支持的通配符
         /// </summary>
-        public static readonly Regex REGEX_SUPPORT_WILDCARDS = new Regex("\\+|\\-|\\||\\!|\\(|\\)|\\{|\\}|\\[|\\]|\\^|\"|\\~|\\*|\\?|\\:|\\/"); 
+        public static readonly Regex REGEX_JUDGMENT = new Regex(@"\.|\\w|\\W|\\s|\\S|\\d|\\D|\\b|\\B|\\f|\\n|\\r|\\t|\\v|\^|\$|\*|\?|\+|\-|\{|\}|\[|\]|\(|\)|\\|\||\!"); 
         /// <summary>
         /// 匹配空白和换行
         /// </summary>
-        public static readonly Regex REGEX_LINE_BREAKS_AND_WHITESPACE = new Regex(@"  |\r\r|\n\n|┄|\. \. \. |\.\.\.|\s");
+        public static readonly Regex REGEX_LINE_BREAKS_WHITESPACE = new Regex(@"  |\r\r|\n\n|┄|\s");
         /// <summary>
         /// 匹配HTML和XML标签
         /// </summary>

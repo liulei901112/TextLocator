@@ -1314,9 +1314,6 @@ namespace TextLocator
         private List<string> GetSearchTextKeywords()
         {
             string searchText = SearchText.Text.Trim();
-
-            // 清理特殊字符
-
             // 申明关键词列表
             List<string> keywords = new List<string>();
             // 为空直接返回null
@@ -1325,7 +1322,7 @@ namespace TextLocator
             // 精确检索未选中
             if (PreciseRetrieval.IsChecked == false)
             {
-                // 替换内置关键词
+                // 替换内置（AND|OR|NOT|\\&\\&|\\|\\||\"|\\~|\\:）特殊字符
                 searchText = AppConst.REGEX_BUILT_IN_SYMBOL.Replace(searchText, " ");
             }
 
@@ -1342,26 +1339,23 @@ namespace TextLocator
                     keywords.Add(keyword);
                 }
             }
+            // 精确检索
+            else if (PreciseRetrieval.IsChecked == true)
+            {
+                keywords.Add(searchText);
+            }
+            // 正则表达式
+            else if (AppConst.REGEX_JUDGMENT.IsMatch(searchText))
+            {
+                keywords.Add(searchText);
+            }
+            // 分词器自动分词
             else
             {
-                // 精确检索
-                if (PreciseRetrieval.IsChecked == true)
-                {
-                    keywords.Add(searchText);
-                }
-                // 通配符 || 内置字符（AND|OR|NOT）
-                else if (AppConst.REGEX_SUPPORT_WILDCARDS.IsMatch(searchText))
-                {
-                    keywords.Add(searchText);
-                }
-                // 分词器分词
-                else
-                {
-                    // 分词列表
-                    List<string> segmentList = AppConst.INDEX_SEGMENTER.CutForSearch(searchText).ToList();
-                    // 合并关键列表
-                    keywords = keywords.Union(segmentList).ToList();
-                }
+                // 分词列表
+                List<string> segmentList = AppConst.INDEX_SEGMENTER.CutForSearch(searchText).ToList();
+                // 合并关键列表
+                keywords = keywords.Union(segmentList).ToList();
             }
             return keywords;
         }

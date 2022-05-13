@@ -573,7 +573,7 @@ namespace TextLocator.Index
                 // 文件标记
                 string fileMark = MD5Util.GetMD5Hash(filePath);
 
-                indexWriters[index].UpdateDocument(new Lucene.Net.Index.Term("FileMark", fileMark), doc);
+                indexWriters[index].UpdateDocument(new Lucene.Net.Index.Term("Id", fileMark), doc);
             }
             catch (Exception ex)
             {
@@ -658,7 +658,7 @@ namespace TextLocator.Index
                     bool hasContent = param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件内容;
 
                     // 3.1、---- 关键词正则 或 标记为正则
-                    if (AppConst.REGEX_SUPPORT_WILDCARDS.IsMatch(keyword))
+                    if (AppConst.REGEX_JUDGMENT.IsMatch(keyword))
                     {
                         keywordType = "正则";
                         // 文件名搜索
@@ -888,7 +888,7 @@ namespace TextLocator.Index
             // 获取内容
             string content = AppConst.REGEX_CONTENT_PAGE.Replace(fileInfo.Preview, "");
             // 缩略信息
-            string breviary = AppConst.REGEX_LINE_BREAKS_AND_WHITESPACE.Replace(content, "");
+            string breviary = AppConst.REGEX_LINE_BREAKS_WHITESPACE.Replace(content, "");
 
             int min = 0;
             int max = breviary.Length;
@@ -920,7 +920,7 @@ namespace TextLocator.Index
                 {
                     if (string.IsNullOrEmpty(keyword)) continue;
                     // 关键词是正则表达式
-                    if (AppConst.REGEX_SUPPORT_WILDCARDS.IsMatch(keyword))
+                    if (AppConst.REGEX_JUDGMENT.IsMatch(keyword))
                     {
                         Regex regex = new Regex(keyword, RegexOptions.IgnoreCase);
                         Match matches = regex.Match(content);

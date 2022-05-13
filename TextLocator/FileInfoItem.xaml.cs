@@ -31,7 +31,7 @@ namespace TextLocator
                 Refresh(fileInfo, searchRegion);
             }
             catch {
-                this.Dispatcher.BeginInvoke(new Action(() =>
+                Dispatcher.InvokeAsync(() =>
                 {
                     try
                     {
@@ -41,7 +41,7 @@ namespace TextLocator
                     {
                         log.Error(ex.Message, ex);
                     }
-                }));
+                });
             }
         }
 
@@ -75,26 +75,26 @@ namespace TextLocator
             FileContentUtil.EmptyRichTextDocument(this.ContentBreviary);
             Task.Factory.StartNew(() => {
                 string breviary = IndexCore.GetContentBreviary(fileInfo);
-                this.Dispatcher.BeginInvoke(new Action(() =>
+                Dispatcher.InvokeAsync(() =>
                 {
                     FileContentUtil.FillFlowDocument(this.ContentBreviary, breviary, (Brush)new BrushConverter().ConvertFromString("#545454"));
                     if (searchRegion == Enums.SearchRegion.文件名和内容 || searchRegion == Enums.SearchRegion.仅文件内容)
                     {
                         FileContentUtil.FlowDocumentHighlight(this.ContentBreviary, Colors.Red, fileInfo.Keywords);
                     }
-                }));
+                });
             });
 
             // 词频统计
             Task.Factory.StartNew(() => {
                 string matchCountDetails = IndexCore.GetMatchCountDetails(fileInfo);
-                this.Dispatcher.BeginInvoke(new Action(() => {
+                Dispatcher.InvokeAsync(() => {
                     if (!string.IsNullOrWhiteSpace(matchCountDetails))
                     {
                         // 关键词匹配次数
                         this.FileTypeIcon.ToolTip = matchCountDetails;
                     }
-                }));
+                });
             });
         }
     }

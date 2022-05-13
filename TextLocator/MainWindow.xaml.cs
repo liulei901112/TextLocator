@@ -320,7 +320,7 @@ namespace TextLocator
             if (string.IsNullOrEmpty(failList))
                 return true;
 
-            var result = await MessageCore.Confirm(string.Format("无法注册下列快捷键：\r\n\r\n{0}是否要改变这些快捷键？", failList), "确认提示", MessageBoxButton.YesNo);
+            var result = await MessageCore.ShowMessageBox(string.Format("无法注册下列快捷键：\r\n\r\n{0}是否要改变这些快捷键？", failList), "确认提示", MessageBoxButton.YesNo);
             // 弹出热键设置窗体
             var win = HotkeyWindow.CreateInstance();
             if (result == MessageBoxResult.Yes)
@@ -571,10 +571,10 @@ namespace TextLocator
                 try
                 {
                     // 1、---- 清空搜索结果列表
-                    Dispatcher.Invoke(new Action(() =>
+                    Dispatcher.Invoke(() =>
                     {
                         this.SearchResultList.Items.Clear();
-                    }));
+                    });
 
                     // 2、---- 查询列表（参数，消息回调）
                     Entity.SearchResult searchResult = IndexCore.Search(searchParam, ShowStatus);
@@ -582,10 +582,7 @@ namespace TextLocator
                     // 验证列表数据
                     if (null == searchResult || searchResult.Results.Count <= 0)
                     {
-                        this.Dispatcher.BeginInvoke(new Action(() =>
-                        {
-                            MessageCore.ShowWarning("没有搜到你想要的内容，请更换搜索条件。");
-                        }));
+                        MessageCore.ShowWarning("没有搜到你想要的内容，请更换搜索条件。");
                         return;
                     }
 
@@ -596,10 +593,10 @@ namespace TextLocator
                         {
                             return;
                         }
-                        this.Dispatcher.Invoke(new Action(() =>
+                        Dispatcher.Invoke(() =>
                         {
                             this.SearchResultList.Items.Add(new FileInfoItem(fileInfo, searchParam.SearchRegion));
-                        }));
+                        });
                     }
 
                     // 4、---- 显示预览列表分页信息
@@ -724,7 +721,7 @@ namespace TextLocator
 
             // -------- 状态栏
             // 工作状态更新为就绪
-            _viewModel.WorkStatus = "就绪";
+            ShowStatus("就绪");
         }
         #endregion
 
@@ -778,20 +775,20 @@ namespace TextLocator
                         bi.EndInit();
                         bi.Freeze();
 
-                        Dispatcher.BeginInvoke(new Action(() =>
+                        Dispatcher.InvokeAsync(() =>
                         {
                             PreviewImage.Source = bi;
-                        }));
+                        });
                     }
                     catch (Exception ex)
                     {
                         log.Error(ex.Message, ex);
                         try
                         {
-                            Dispatcher.BeginInvoke(new Action(() =>
+                            Dispatcher.InvokeAsync(() =>
                             {
                                 PreviewImage.Source = null;
-                            }));
+                            });
                         }
                         catch { }
                     }
@@ -912,7 +909,7 @@ namespace TextLocator
             }
             if (CheckIndexExist(false))
             {
-                var result = await MessageCore.Confirm("确定要重建索引嘛？时间可能比较久哦！", "确认提示");
+                var result = await MessageCore.ShowMessageBox("确定要重建索引嘛？时间可能比较久哦！", "确认提示");
                 if (result == MessageBoxResult.Cancel)
                 {
                     return;
@@ -1206,11 +1203,7 @@ namespace TextLocator
                     log.Info(msg);
                     ShowStatus(msg);
 
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        MessageCore.ShowSuccess(msg);
-                    }));
-
+                    MessageCore.ShowSuccess(msg);
 
                     // 2.8、-------- 记录文件总数、更新总数、删除总数、错误总数
                     fileTotalCount = fileTotalCount + allFilePaths.Count;
@@ -1246,13 +1239,26 @@ namespace TextLocator
         /// <param name="percent">进度，0-100</param>
         private void ShowStatus(string text, double percent = AppConst.MAX_PERCENT)
         {
-            _viewModel.WorkStatus = text;
-            if (percent > AppConst.MIN_PERCENT)
+            void Refresh()
             {
-                _viewModel.WorkProgress = percent;
-
-                _viewModel.ProgressState = percent < AppConst.MAX_PERCENT ? System.Windows.Shell.TaskbarItemProgressState.Normal : System.Windows.Shell.TaskbarItemProgressState.None;
-                _viewModel.ProgressValue = _viewModel.WorkProgress / 100;
+                WorkStatus.Text = text;
+                TaskbarInfo.ProgressState = percent < AppConst.MAX_PERCENT ? System.Windows.Shell.TaskbarItemProgressState.Normal : System.Windows.Shell.TaskbarItemProgressState.None;
+                if (percent > AppConst.MIN_PERCENT)
+                {
+                    WorkProgress.Value = percent;
+                    TaskbarInfo.ProgressValue = percent / 100;
+                }
+            }
+            try
+            {
+                Refresh();
+            }
+            catch
+            {
+                Dispatcher.InvokeAsync(() =>
+                {
+                    Refresh();
+                });
             }
         }
         #endregion

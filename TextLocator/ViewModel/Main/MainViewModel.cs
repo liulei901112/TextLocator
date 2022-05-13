@@ -24,12 +24,7 @@ namespace TextLocator.ViewModel.Main
                 TotalCount = 0,
 
                 PreviewPage = "0/0",
-                PreviewSwitchVisibility = Visibility.Hidden,
-
-                WorkStatus = "就绪",
-                WorkProgress = 100,
-                ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal,
-                ProgressValue = 100
+                PreviewSwitchVisibility = Visibility.Hidden
             };
         }
         /// <summary>
@@ -93,56 +88,6 @@ namespace TextLocator.ViewModel.Main
             {
                 model.PreviewSwitchVisibility = value;
                 RaisePropertyChanged("PreviewSwitchVisibility");
-            }
-        }
-
-        /// <summary>
-        /// 工作状态
-        /// </summary>
-        public string WorkStatus
-        {
-            get { return model.WorkStatus; }
-            set
-            {
-                model.WorkStatus = value;
-                RaisePropertyChanged("WorkStatus");
-            }
-        }
-        /// <summary>
-        /// 工作进度
-        /// </summary>
-        public double WorkProgress
-        {
-            get { return model.WorkProgress; }
-            set
-            {
-                model.WorkProgress = value;
-                RaisePropertyChanged("WorkProgress");
-            }
-        }
-
-        /// <summary>
-        /// 任务栏图标状态
-        /// </summary>
-        public System.Windows.Shell.TaskbarItemProgressState ProgressState
-        {
-            get { return model.ProgressState; }
-            set
-            {
-                model.ProgressState = value;
-                RaisePropertyChanged("ProgressState");
-            }
-        }
-        /// <summary>
-        /// 任务栏进度
-        /// </summary>
-        public double ProgressValue
-        {
-            get { return model.ProgressValue; }
-            set
-            {
-                model.ProgressValue = value;
-                RaisePropertyChanged("ProgressState");
             }
         }
     }

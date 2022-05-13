@@ -31,27 +31,5 @@ namespace TextLocator.ViewModel.Main
         /// 切换预览显示状态
         /// </summary>
         public Visibility PreviewSwitchVisibility { get; set; }
-
-        // ================================ 工作状态
-        /// <summary>
-        /// 工作状态
-        /// </summary>
-        public string WorkStatus { get; set; }
-
-        /// <summary>
-        /// 工作进度
-        /// </summary>
-        public double WorkProgress { get; set; }
-
-        // ================================ 任务栏图标
-        /// <summary>
-        /// 任务栏图标状态
-        /// </summary>
-        public System.Windows.Shell.TaskbarItemProgressState ProgressState { get; set; }
-
-        /// <summary>
-        /// 任务栏进度
-        /// </summary>
-        public double ProgressValue { get; set; }
     }
 }

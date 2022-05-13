@@ -9,7 +9,7 @@
         Title="文本搜索定位器" Width="1600" Height="900" Icon="Resource/App.ico"
         WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing" Activated="Window_Activated">
     <Window.TaskbarItemInfo>
-        <TaskbarItemInfo ProgressState="{Binding ProgressState}" ProgressValue="{Binding ProgressValue}" />
+        <TaskbarItemInfo x:Name="TaskbarInfo"/>
     </Window.TaskbarItemInfo>
     <!-- DockPanel停靠容器 && Viewbox显示盒子 && Canvas画布 -->
     <DockPanel LastChildFill="True">
@@ -907,16 +907,16 @@
                     <!-- 底部 -->
                     <Grid Height="25" VerticalAlignment="Bottom" Background="#C8C8C8">
                         <!-- 索引进度条 -->
-                        <ProgressBar Value="{Binding WorkProgress}" Maximum="100"
+                        <ProgressBar x:Name="WorkProgress" Value="80" Maximum="100"
                                                 rubyer:ProgressBarHelper.Thickness="100"
                                                 rubyer:ProgressBarHelper.IsShowPercent="false"/>
                         <!-- 状态信息 -->
-                        <TextBlock Text="{Binding WorkStatus}" Foreground="White" Margin="10,0,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock x:Name="WorkStatus"  Text="就绪" Foreground="White" Margin="10,0,0,0" HorizontalAlignment="Left"/>
                     </Grid>
 
                     <!-- 消息容器 -->
                     <rubyer:MessageContainer Identifier="MessageContainers" Grid.ColumnSpan="2"/>
-                    <rubyer:MessageBoxContainer Identifier="ConfirmContainers" Grid.ColumnSpan="2"/>
+                    <rubyer:MessageBoxContainer Identifier="MessageBoxContainers" Grid.ColumnSpan="2"/>
                 </Grid>
             </Canvas>
         </Viewbox>

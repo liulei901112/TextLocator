@@ -16,7 +16,7 @@
             <!-- 文件标题、大小、时间 -->
             <Grid VerticalAlignment="Top" Margin="0,10,0,0">
                 <!-- 预览 -->
-                <RichTextBox x:Name="FileName" Margin="-5,0,0,0" IsHitTestVisible="False" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="False">
+                <RichTextBox x:Name="FileName" Margin="-5,0,0,0" IsHitTestVisible="False" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsReadOnly="True" IsDocumentEnabled="False">
                     <FlowDocument>
                         <Paragraph>
                             <Run Foreground="#1A0DAB">配置信息详细报告.doc</Run>
@@ -36,13 +36,15 @@
             <TextBlock x:Name="FileFolder" Text="C:\Users\{User}\Document\配置信息详细报告.doc" Foreground="#006621" Margin="0,30,0,0" IsHitTestVisible="False" Background="Transparent" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
             <!-- 预览 -->
-            <RichTextBox x:Name="ContentBreviary" Margin="-5,50,0,0" IsHitTestVisible="False" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="True">
+            <RichTextBox x:Name="ContentBreviary" Margin="-5,50,0,0" IsHitTestVisible="False" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsReadOnly="True" IsDocumentEnabled="True">
                 <FlowDocument>
-                    <Paragraph>
-                        <Run Foreground="#545454">...电脑型号            X64 兼容 台式电脑
+                    <Paragraph Foreground="#545454">
+                        <Run>...电脑型号            X64 兼容 台式电脑
                                                       操作系统            Windows 10 专业版 64位 ( Version 2004 / DirectX 12 )
 
-                                                      处理器              AMD Ryzen 9 3900X 12-Core
+                        </Run>
+                        <Run Foreground="Red" FontWeight="Bold">处理器</Run>
+                        <Run>AMD Ryzen 9 3900X 12-Core
                                                       主板                华硕 PRIME X570-P ( AMD PCI 标准主机 CPU 桥 )
                                                       显卡                Nvidia GeForce RTX 2080 Ti ( 11 GB / 七彩虹 )
                                                       内存                64 GB ( 海盗船 DDR4 3200MHz )...</Run>

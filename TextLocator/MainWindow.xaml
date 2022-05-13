@@ -7,10 +7,9 @@
         xmlns:rubyer="clr-namespace:Rubyer;assembly=Rubyer"
         mc:Ignorable="d"
         Title="文本搜索定位器" Width="1600" Height="900" Icon="Resource/App.ico"
-        DataContext="{Binding RelativeSource={RelativeSource Self}}"
         WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing" Activated="Window_Activated">
     <Window.TaskbarItemInfo>
-        <TaskbarItemInfo/>
+        <TaskbarItemInfo x:Name="TaskbarInfo"/>
     </Window.TaskbarItemInfo>
     <!-- DockPanel停靠容器 && Viewbox显示盒子 && Canvas画布 -->
     <DockPanel LastChildFill="True">
@@ -162,9 +161,15 @@
                                             <!-- 文件标题、大小、时间 -->
                                             <Grid VerticalAlignment="Top" Margin="0,10,0,0">
                                                 <!-- 文件名 Click="Hyperlink_Click" -->
-                                                <TextBlock HorizontalAlignment="Left">
-                                                        <Hyperlink NavigateUri="/">配置信息详细报告.doc</Hyperlink>
-                                                </TextBlock>
+                                                <RichTextBox Margin="-5,0,0,0" IsHitTestVisible="False" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsReadOnly="True" IsDocumentEnabled="False">
+                                                    <FlowDocument>
+                                                        <Paragraph Foreground="#1A0DAB" TextDecorations="Underline">
+                                                            <Run>配置</Run>
+                                                            <Run Foreground="Red" FontWeight="Bold">信息</Run>
+                                                            <Run>详细报告.doc</Run>
+                                                        </Paragraph>
+                                                    </FlowDocument>
+                                                </RichTextBox>
                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                                     <!-- 文件大小 -->
                                                     <TextBlock Text="1MB" Foreground="#545454" HorizontalAlignment="Right"/>
@@ -185,7 +190,9 @@
                                                             ...电脑型号            X64 兼容 台式电脑
                                                               操作系统            Windows 10 专业版 64位 ( Version 2004 / DirectX 12 )
 
-                                                              处理器              AMD Ryzen 9 3900X 12-Core
+                                                            </Run>
+                                                        <Run Foreground="Red" FontWeight="Bold">处理器</Run>
+                                                        <Run Foreground="#545454">Ryzen 9 3900X 12-Core
                                                               主板                华硕 PRIME X570-P ( AMD PCI 标准主机 CPU 桥 )
                                                               显卡                Nvidia GeForce RTX 2080 Ti ( 11 GB / 七彩虹 )
                                                               内存                64 GB ( 海盗船 DDR4 3200MHz )...
@@ -205,12 +212,18 @@
                             <TextBlock x:Name="_searchLoading" Text="搜索处理中..." FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#2196f3" Margin="0,130,0,0" Visibility="Collapsed"/>
 
                             <!-- 分页 -->
-                            <rubyer:PageBar x:Name="PageBar" VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                            <StackPanel Orientation="Horizontal" Height="40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Background="White" Opacity="0.8">
+                                <rubyer:PageBar 
+                                    IsShowTotal="True"
+                                    IsShowPageSize="True"
+                                    PageIndex="{Binding PageIndex}"
                                     PageSize="{Binding PageSize}"
+                                    Total="{Binding TotalCount}"
                                     PageIndexChanged="PageBar_PageIndexChanged"
                                     PageSizeChanged="PageBar_PageSizeChanged"
                                     CurrentBackground="{DynamicResource Accent}"
                                     CurrentForeground="{DynamicResource AccentForeground}"/>
+                            </StackPanel>
                         </Grid>
                         <!-- 分割线 -->
                         <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Center" ShowsPreview="False" Background="Gray" />
@@ -234,594 +247,658 @@
                                 <GridSplitter Grid.Column="1" Height="1" Cursor="Arrow" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
                             </Grid>
 
-                            <!-- 预览操作 -->
-                            <Grid Margin="0,40,0,0" Height="40" VerticalAlignment="Top" Background="#F3F3F3">
-                                <!-- 预览内容搜索 -->
-                                <Grid x:Name="PreviewSearch" VerticalAlignment="Top" HorizontalAlignment="Right" Height="40">
-                                    <!-- 搜索框 -->
-                                    <TextBox x:Name="PreviewSearchText" Margin="0,0,40,0" Width="200" Height="25" FontSize="14" HorizontalAlignment="Right" VerticalContentAlignment="Center" 
-                                             PreviewKeyUp="PreviewSearchText_PreviewKeyUp" TextChanged="PreviewSearchText_TextChanged">                                        
-                                    </TextBox>
-                                    <!-- 清空按钮 -->
-                                    <Button x:Name="PreviewCleanButton" HorizontalAlignment="Right" Margin="0,0,40,0" Background="Red" BorderBrush="Gray" BorderThickness="1" Width="25" Height="25" Content="X" Visibility="Hidden" Click="PreviewCleanButton_Click"/>
-                                    <!-- 搜索按钮 -->
-                                    <Button x:Name="PreviewSearchButton" HorizontalAlignment="Right" Margin="0,0,10,0" BorderBrush="Gray" BorderThickness="0.5" Width="25" Height="25" Click="PreviewSearchButton_Click">
-                                        <Button.Background>
-                                            <ImageBrush ImageSource="/Resource/btn_search.png"/>
-                                        </Button.Background>
-                                    </Button>
-                                </Grid>
-                                <!-- 分割线 -->
-                                <GridSplitter Grid.Column="1" Height="1" Cursor="Arrow" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Gray" />
-                            </Grid>
-
                             <!-- 内容预览 -->
-                            <Grid Margin="0,80,0,0">
+                            <Grid Margin="0,40,0,0">
                                 <!-- 预览图片 -->
                                 <Image x:Name="PreviewImage"/>
 
                                 <!-- 预览文档 -->
-                                <RichTextBox x:Name="PreviewFileContent" Margin="0,0,0,0" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsDocumentEnabled="True" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                                <FlowDocumentReader x:Name="PreviewFileContent" ViewingMode="Page" ScrollViewer.VerticalScrollBarVisibility="Auto" IsManipulationEnabled="False" IsPrintEnabled="False">
                                     <FlowDocument>
-                                        <Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
                                             <Run>
-                                                --------[ 概览 ]----------------------------------------------------------------------------------
-
-                                                      电脑型号            X64 兼容 台式电脑
-                                                      操作系统            Windows 10 专业版 64位 ( Version 2004 / DirectX 12 )
-
-                                                      处理器              AMD Ryzen 9 3900X 12-Core
-                                                      主板                华硕 PRIME X570-P ( AMD PCI 标准主机 CPU 桥 )
-                                                      显卡                Nvidia GeForce RTX 2080 Ti ( 11 GB / 七彩虹 )
-                                                      内存                64 GB ( 海盗船 DDR4 3200MHz )
-                                                      主硬盘              创见 TS256GMTE220S ( 256 GB / 固态硬盘 )
-                                                      显示器              冠捷 AOC2790 U2790B ( 27.2 英寸  )
-                                                      声卡                瑞昱  @ AMD High Definition Audio 控制器
-                                                      网卡                瑞昱 RTL8168/8111/8112 Gigabit Ethernet Controller / 华硕
-                                                    --------[ 主板 ]----------------------------------------------------------------------------------
-
-                                                      主板型号            华硕 PRIME X570-P
-                                                      芯片组              AMD PCI 标准主机 CPU 桥
-                                                      序列号              190652794505186
-                                                      主板版本            Rev X.0x
-                                                      BIOS                American Megatrends Inc. 2204  /  BIOS程序发布日期: 06/17/2020
-                                                      BIOS的大小          16384 KB
-                                                      BIOS的序列号        IeiEr3Ul6IOzeS4EAT8EQeiGuD
-
-                                                      板载设备            视频设备 (启用)
-
-                                                    --------[ 处理器 ]--------------------------------------------------------------------------------
-
-                                                      处理器              AMD Ryzen 9 3900X 12-Core
-                                                      速度                3.80 GHz (100 MHz x 38.0)
-                                                      处理器数量          核心数: 12 / 线程数: 24
-                                                      插槽/插座           AM4
-                                                      一级数据缓存        32 KB, 16-Way, 64 byte lines
-                                                      一级代码缓存        32 KB, 16-Way, 64 byte lines
-                                                      二级缓存            12 x 512 KB, 8-Way, 64  byte lines
-                                                      三级缓存            64 MB, 8-Way, 64 byte lines
-                                                      特征                MMX+, SSE, SSE2, SSE3, SSSE3, SSE4A, SSE4.1, HTT, X86-64
-
-                                                    --------[ 硬盘 ]----------------------------------------------------------------------------------
-
-                                                      产品                西数 WDC WD10JPVX-22JC3T0
-                                                      大小                1 TB
-                                                      转速                5400 转/分
-                                                      缓存                8 MB
-                                                      硬盘已使用          共 1493 次，累计 10617 小时
-                                                      固件                01.01A01
-                                                      接口                SATA III
-                                                      数据传输率          600.00 MB/秒
-                                                      特征                S.M.A.R.T,  APM,  48-bit LBA,  NCQ
-
-                                                      产品                西数 WDC WD10JPVX-22JC3T0
-                                                      大小                1 TB
-                                                      转速                5400 转/分
-                                                      缓存                8 MB
-                                                      硬盘已使用          共 238 次，累计 594 小时
-                                                      固件                01.01A01
-                                                      接口                SATA III
-                                                      数据传输率          600.00 MB/秒
-                                                      特征                S.M.A.R.T,  APM,  48-bit LBA,  NCQ
-
-                                                      产品                希捷 ST2000DM008-2FR102
-                                                      大小                2 TB
-                                                      转速                7200 转/分
-                                                      缓存                256 MB
-                                                      硬盘已使用          共 430 次，累计 4274 小时
-                                                      固件                0001
-                                                      接口                SATA III
-                                                      数据传输率          600.00 MB/秒
-                                                      特征                S.M.A.R.T,  APM,  48-bit LBA,  NCQ
-
-                                                      产品                创见 TS256GMTE220S (固态硬盘)
-                                                      大小                256 GB
-                                                      硬盘已使用          共 286 次，累计 3809 小时
-                                                      固件                S0328C
-                                                      接口                NVM Express
-                                                      特征                S.M.A.R.T
-
-                                                      产品                Asgard AN2+ 256NVMe-M.2/80 (固态硬盘)
-                                                      大小                256 GB
-                                                      硬盘已使用          共 441 次，累计 4271 小时
-                                                      固件                S0614B0G
-                                                      接口                NVM Express
-                                                      特征                S.M.A.R.T
-
-                                                    --------[ 内存 ]----------------------------------------------------------------------------------
-
-                                                      DIMM_A1             海盗船 DDR4 3200MHz 16GB
-                                                      型号                7F7F9E CM4X16GC3200C16K2E
-                                                      厂商                Corsair
-                                                      模块位宽:           64 Bits
-                                                      模块电压:           SSTL 1.2V
-
-                                                      DIMM_A2             海盗船 DDR4 3200MHz 16GB
-                                                      型号                7F7F9E CM4X16GC3200C16K2E
-                                                      厂商                Corsair
-                                                      模块位宽:           64 Bits
-                                                      模块电压:           SSTL 1.2V
-
-                                                      DIMM_B1             海盗船 DDR4 3200MHz 16GB
-                                                      型号                7F7F9E CM4X16GC3200C16K2E
-                                                      厂商                Corsair
-                                                      模块位宽:           64 Bits
-                                                      模块电压:           SSTL 1.2V
-
-                                                      DIMM_B2             海盗船 DDR4 3200MHz 16GB
-                                                      型号                7F7F9E CM4X16GC3200C16K2E
-                                                      厂商                Corsair
-                                                      模块位宽:           64 Bits
-                                                      模块电压:           SSTL 1.2V
-
-                                                    --------[ 显卡 ]----------------------------------------------------------------------------------
-
-                                                      主显卡              Nvidia GeForce RTX 2080 Ti
-                                                      显存                11 GB
-                                                      制造商              七彩虹
-                                                      制造商              Nvidia
-                                                      驱动版本            27.21.14.5148
-                                                      驱动日期            20200621
-
-                                                    --------[ 显示器 ]--------------------------------------------------------------------------------
-
-                                                      产品                冠捷 AOC2790 U2790B
-                                                      厂商                冠捷
-                                                      固件程序日期        2019 年 38 周 (非显示器制造日期)
-                                                      屏幕尺寸            27.2 英寸 (60 厘米 x 34 厘米)
-                                                      显示比例            宽屏 16 : 9
-                                                      分辨率              3840 x 2160 32 位真彩色
-                                                      Gamma               2.20
-                                                      电源管理            Active-Off
-
-                                                    --------[ 其他设备 ]------------------------------------------------------------------------------
-
-
-                                                      网卡                瑞昱 RTL8168/8111/8112 Gigabit Ethernet Controller
-                                                      制造商              华硕
-
-                                                      无线网卡            瑞昱 802.11n NIC
-
-                                                      声卡                Nvidia GeForce 7800 GTX @ Nvidia High Definition Audio 控制器
-
-                                                      声卡                瑞昱  @ AMD High Definition Audio 控制器
-
-                                                      键盘                HID 标准键盘
-                                                      键盘                HID 标准键盘
-                                                      键盘                HID 标准键盘
-                                                      鼠标                HID-compliant 鼠标
-
-
-                                                    --------[ PCI设备 ]-------------------------------------------------------------------------------
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1480
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统制造商        ASUSTeK
-                                                      子系统ID            87C01043
-
-                                                      设备                IOMMU Device
-                                                      设备ID              1481
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                System / 
-                                                      子系统制造商        ASUSTeK
-                                                      子系统ID            87C01043
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1482
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 到 PCI 桥
-                                                      设备ID              1483
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to PCI
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 到 PCI 桥
-                                                      设备ID              1483
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to PCI
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1482
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1482
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 到 PCI 桥
-                                                      设备ID              1483
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to PCI
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1482
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1482
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1482
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 到 PCI 桥
-                                                      设备ID              1484
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to PCI
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1482
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 到 PCI 桥
-                                                      设备ID              1484
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to PCI
-                                                      子系统ID            00000000
-
-                                                      设备                SMBus
-                                                      设备ID              790B
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Serial / SMBus Controller
-                                                      子系统制造商        ASUSTeK
-                                                      子系统ID            87C01043
-
-                                                      设备                PCI 标准 ISA 桥
-                                                      设备ID              790E
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to ISA
-                                                      子系统制造商        ASUSTeK
-                                                      子系统ID            87C01043
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1440
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1441
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1442
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1443
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1444
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1445
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1446
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                PCI 标准主机 CPU 桥
-                                                      设备ID              1447
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to HOST
-                                                      子系统ID            00000000
-
-                                                      设备                标准 NVM Express 控制器
-                                                      设备ID              2262
-                                                      制造商              Silicon Motion
-                                                      制造商ID            126F
-                                                      类别                Storage / 
-                                                      子系统制造商        Silicon Motion
-                                                      子系统ID            2262126F
-
-                                                      设备                X570 Chipset
-                                                      设备ID              57AD
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to PCI
-                                                      子系统ID            00000000
-
-                                                      设备                PCI Express 下游交换机端口
-                                                      设备ID              57A3
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to PCI
-                                                      子系统ID            00000000
-
-                                                      设备                PCI Express 下游交换机端口
-                                                      设备ID              57A3
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to PCI
-                                                      子系统ID            00000000
-
-                                                      设备                PCI Express 下游交换机端口
-                                                      设备ID              57A4
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to PCI
-                                                      子系统ID            00000000
-
-                                                      设备                PCI Express 下游交换机端口
-                                                      设备ID              57A4
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to PCI
-                                                      子系统ID            00000000
-
-                                                      设备                PCI Express 下游交换机端口
-                                                      设备ID              57A4
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Bridge / PCI to PCI
-                                                      子系统ID            00000000
-
-                                                      设备                标准 NVM Express 控制器
-                                                      设备ID              2263
-                                                      制造商              Silicon Motion
-                                                      制造商ID            126F
-                                                      类别                Storage / 
-                                                      子系统制造商        Silicon Motion
-                                                      子系统ID            2263126F
-
-                                                      设备                RTL8168/8111/8112 Gigabit Ethernet Controller
-                                                      设备ID              8168
-                                                      制造商              Realtek
-                                                      制造商ID            10EC
-                                                      类别                Network / Ethernet
-                                                      子系统制造商        ASUSTeK
-                                                      子系统ID            86771043
-
-                                                      设备                PCI
-                                                      设备ID              1485
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                 / 
-                                                      子系统制造商        ASUSTeK
-                                                      子系统ID            87C01043
-
-                                                      设备                符合 USB xHCI 的主机控制器
-                                                      设备ID              149C
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Serial / USB (UHCI)
-                                                      子系统制造商        ASUSTeK
-                                                      子系统ID            87C01043
-
-                                                      设备                符合 USB xHCI 的主机控制器
-                                                      设备ID              149C
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Serial / USB (UHCI)
-                                                      子系统制造商        AMD
-                                                      子系统ID            148C1022
-
-                                                      设备                标准 SATA AHCI 控制器
-                                                      设备ID              7901
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Storage / Serial ATA (AHCI 1.0)
-                                                      子系统制造商        AMD
-                                                      子系统ID            79011022
-
-                                                      设备                标准 SATA AHCI 控制器
-                                                      设备ID              7901
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Storage / Serial ATA (AHCI 1.0)
-                                                      子系统制造商        AMD
-                                                      子系统ID            79011022
-
-                                                      设备                GeForce RTX 2080 Ti
-                                                      设备ID              1E04
-                                                      制造商              Nvidia
-                                                      制造商ID            10DE
-                                                      类别                Display / VGA
-                                                      子系统制造商        Colorful
-                                                      子系统ID            16507377
-
-                                                      设备                High Definition Audio 控制器
-                                                      设备ID              10F7
-                                                      制造商              Nvidia
-                                                      制造商ID            10DE
-                                                      类别                Multimedia / Hi-definition Audio
-                                                      子系统制造商        Colorful
-                                                      子系统ID            16507377
-
-                                                      设备                USB 3.10 可扩展主机控制器 - 1.10 (Microsoft)
-                                                      设备ID              1AD6
-                                                      制造商              Nvidia
-                                                      制造商ID            10DE
-                                                      类别                Serial / USB (UHCI)
-                                                      子系统制造商        Colorful
-                                                      子系统ID            16507377
-
-                                                      设备                USB Type-C Port Policy Controller
-                                                      设备ID              1AD7
-                                                      制造商              Nvidia
-                                                      制造商ID            10DE
-                                                      类别                Serial / Other
-                                                      子系统制造商        Colorful
-                                                      子系统ID            16507377
-
-                                                      设备                PCI
-                                                      设备ID              148A
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                 / 
-                                                      子系统制造商        ASUSTeK
-                                                      子系统ID            87C01043
-
-                                                      设备                PCI
-                                                      设备ID              1485
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                 / 
-                                                      子系统制造商        ASUSTeK
-                                                      子系统ID            87C01043
-
-                                                      设备                PSP 11.0 Device
-                                                      设备ID              1486
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                En/Decryption / Other
-                                                      子系统制造商        ASUSTeK
-                                                      子系统ID            87C01043
-
-                                                      设备                符合 USB xHCI 的主机控制器
-                                                      设备ID              149C
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Serial / USB (UHCI)
-                                                      子系统制造商        ASUSTeK
-                                                      子系统ID            87C01043
-
-                                                      设备                High Definition Audio 控制器
-                                                      设备ID              1487
-                                                      制造商              AMD
-                                                      制造商ID            1022
-                                                      类别                Multimedia / Hi-definition Audio
-                                                      子系统制造商        ASUSTeK
-                                                      子系统ID            87BB1043
-
-                                                    --------[ USB设备 ]-------------------------------------------------------------------------------
-
-                                                      制造商ID            18F8
-                                                      产品ID              1286
-                                                      类别                0 / 0 / 0
-                                                      设备                ? USB GAMING MOUSE
-                                                      Serial              ?
-                                                      版本                USB 1.1
-
-                                                      制造商ID            0BDA
-                                                      产品ID              8179
-                                                      类别                0 / 0 / 0
-                                                      设备                Realtek 802.11n NIC
-                                                      Serial              00E04C0001
-                                                      版本                USB 2.0
-
-                                                      制造商ID            0C45
-                                                      产品ID              6510
-                                                      类别                0 / 0 / 0
-                                                      设备                SONiX USB DEVICE
-                                                      Serial              ?
-                                                      版本                USB 2.0
-
-                                                      制造商ID            0B05
-                                                      产品ID              18F3
-                                                      类别                0 / 0 / 0
-                                                      设备                AsusTek Computer Inc. AURA LED Controller
-                                                      Serial              9876543210
-                                                      版本                USB 2.0
-
-                                                    --------[ 传感器 ]--------------------------------------------------------------------------------
-
-                                                      名称                WINBOND NCT6798D
-                                                      CPU温度             73℃
-                                                      CPU核心             74℃
-                                                      主板                36℃
-                                                      显卡                58℃
-                                                      硬盘温度            42℃
-                                                      风扇                1050转
+                                                --------[ 概览 ]--------------------------------------------------------------------------
+                                            </Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>
+
+                                                电脑型号            X64 兼容 台式电脑
+                                                操作系统            Windows 10 专业版 64位 ( Version 2004 / DirectX 12 )
+
+                                            </Run>
+                                            <Run Foreground="Red" FontWeight="Bold">处理器</Run>
+                                            <Run>AMD Ryzen 9 3900X 12-Core
+                                                主板                华硕 PRIME X570-P ( AMD PCI 标准主机 CPU 桥 )
+                                                显卡                Nvidia GeForce RTX 2080 Ti ( 11 GB / 七彩虹 )
+                                                内存                64 GB ( 海盗船</Run>
+                                            <Run Foreground="Red" FontWeight="Bold">DDR4</Run>
+                                            <Run>3200MHz )
+                                                主硬盘              创见 TS256GMTE220S ( 256 GB / 固态硬盘 )
+                                                显示器              冠捷 AOC2790 U2790B ( 27.2 英寸  )
+                                                声卡                瑞昱  @ AMD High Definition Audio 控制器
+                                                网卡                瑞昱 RTL8168/8111/8112 Gigabit Ethernet Controller / 华硕
+                                            </Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>
+                                                --------[ 主板 ]--------------------------------------------------------------------------
+                                            </Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>
+
+                                                主板型号            华硕 PRIME X570-P
+                                                芯片组              AMD PCI 标准主机 CPU 桥
+                                                序列号              190652794505186
+                                                主板版本            Rev X.0x
+                                                BIOS                American Megatrends Inc. 2204  /  BIOS程序发布日期: 06/17/2020
+                                                BIOS的大小          16384 KB
+                                                BIOS的序列号        IeiEr3Ul6IOzeS4EAT8EQeiGuD
+
+                                                板载设备            视频设备 (启用)
+
+                                            </Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>--------[</Run>
+                                            <Run Foreground="Red" FontWeight="Bold">处理器</Run>
+                                            <Run>]-----------------------------------------------------------------------
+
+                                            </Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run Foreground="Red" FontWeight="Bold">处理器</Run>
+                                            <Run>AMD Ryzen 9 3900X 12-Core
+                                                速度                3.80 GHz (100 MHz x 38.0)
+                                            </Run>
+                                            <Run Foreground="Red" FontWeight="Bold">处理器</Run>
+                                            <Run>数量          核心数: 12 / 线程数: 24
+                                                插槽/插座           AM4
+                                                一级数据缓存        32 KB, 16-Way, 64 byte lines
+                                                一级代码缓存        32 KB, 16-Way, 64 byte lines
+                                                二级缓存            12 x 512 KB, 8-Way, 64  byte lines
+                                                三级缓存            64 MB, 8-Way, 64 byte lines
+                                                特征                MMX+, SSE, SSE2, SSE3, SSSE3, SSE4A, SSE4.1, HTT, X86-64
+
+                                            </Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>--------[ 硬盘 ]--------------------------------------------------------------------------</Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>
+
+                                                产品                西数 WDC WD10JPVX-22JC3T0
+                                                大小                1 TB
+                                                转速                5400 转/分
+                                                缓存                8 MB
+                                                硬盘已使用          共 1493 次，累计 10617 小时
+                                                固件                01.01A01
+                                            </Run>
+                                            <Run Foreground="Red" FontWeight="Bold">接口</Run>
+                                            <Run>SATA III
+                                                数据传输率          600.00 MB/秒
+                                                特征                S.M.A.R.T,  APM,  48-bit LBA,  NCQ
+
+                                                产品                西数 WDC WD10JPVX-22JC3T0
+                                                大小                1 TB
+                                                转速                5400 转/分
+                                                缓存                8 MB
+                                                硬盘已使用          共 238 次，累计 594 小时
+                                                固件                01.01A01
+                                            </Run>
+                                            <Run Foreground="Red" FontWeight="Bold">接口</Run>
+                                            <Run>SATA III
+                                                数据传输率          600.00 MB/秒
+                                                特征                S.M.A.R.T,  APM,  48-bit LBA,  NCQ
+
+                                                产品                希捷 ST2000DM008-2FR102
+                                                大小                2 TB
+                                                转速                7200 转/分
+                                                缓存                256 MB
+                                                硬盘已使用          共 430 次，累计 4274 小时
+                                                固件                0001
+                                            </Run>
+                                            <Run Foreground="Red" FontWeight="Bold">接口</Run>
+                                            <Run>SATA III
+                                                数据传输率          600.00 MB/秒
+                                                特征                S.M.A.R.T,  APM,  48-bit LBA,  NCQ
+
+                                                产品                创见 TS256GMTE220S (固态硬盘)
+                                                大小                256 GB
+                                                硬盘已使用          共 286 次，累计 3809 小时
+                                                固件                S0328C
+                                            </Run>
+                                            <Run Foreground="Red" FontWeight="Bold">接口</Run>
+                                            <Run>NVM Express
+                                                特征                S.M.A.R.T
+
+                                                产品                Asgard AN2+ 256NVMe-M.2/80 (固态硬盘)
+                                                大小                256 GB
+                                                硬盘已使用          共 441 次，累计 4271 小时
+                                                固件                S0614B0G
+                                            </Run>
+                                            <Run Foreground="Red" FontWeight="Bold">接口</Run>
+                                            <Run>NVM Express
+                                                特征                S.M.A.R.T
+
+                                            </Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>--------[ 内存 ]--------------------------------------------------------------------------</Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>
+
+                                                DIMM_A1             海盗船</Run>
+                                            <Run Foreground="Red" FontWeight="Bold">DDR4</Run>
+                                            <Run>3200MHz 16GB
+                                                型号                7F7F9E CM4X16GC3200C16K2E
+                                                厂商                Corsair
+                                                模块位宽:           64 Bits
+                                                模块电压:           SSTL 1.2V
+
+                                                DIMM_A2             海盗船</Run>
+                                            <Run Foreground="Red" FontWeight="Bold">DDR4</Run>
+                                            <Run>3200MHz 16GB
+                                                型号                7F7F9E CM4X16GC3200C16K2E
+                                                厂商                Corsair
+                                                模块位宽:           64 Bits
+                                                模块电压:           SSTL 1.2V
+
+                                                DIMM_B1             海盗船</Run>
+                                            <Run Foreground="Red" FontWeight="Bold">DDR4</Run>
+                                            <Run>3200MHz 16GB
+                                                型号                7F7F9E CM4X16GC3200C16K2E
+                                                厂商                Corsair
+                                                模块位宽:           64 Bits
+                                                模块电压:           SSTL 1.2V
+
+                                                DIMM_B2             海盗船</Run>
+                                            <Run Foreground="Red" FontWeight="Bold">DDR4</Run>
+                                            <Run>3200MHz 16GB
+                                                型号                7F7F9E CM4X16GC3200C16K2E
+                                                厂商                Corsair
+                                                模块位宽:           64 Bits
+                                                模块电压:           SSTL 1.2V
+
+                                            </Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>--------[ 显卡 ]--------------------------------------------------------------------------</Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>
+
+                                                主显卡              Nvidia GeForce RTX 2080 Ti
+                                                显存                11 GB
+                                                制造商              七彩虹
+                                                制造商              Nvidia
+                                                驱动版本            27.21.14.5148
+                                                驱动日期            20200621
+
+                                            </Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>--------[ 显示器 ]--------------------------------------------------------------------------------</Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>
+
+                                                产品                冠捷 AOC2790 U2790B
+                                                厂商                冠捷
+                                                固件程序日期        2019 年 38 周 (非显示器制造日期)
+                                                屏幕尺寸            27.2 英寸 (60 厘米 x 34 厘米)
+                                                显示比例            宽屏 16 : 9
+                                                分辨率              3840 x 2160 32 位真彩色
+                                                Gamma               2.20
+                                                电源管理            Active-Off
+
+                                            </Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>--------[ 其他设备 ]------------------------------------------------------------------------------</Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>
+
+
+                                                网卡                瑞昱 RTL8168/8111/8112 Gigabit Ethernet Controller
+                                                制造商              华硕
+
+                                                无线网卡            瑞昱 802.11n NIC
+
+                                                声卡                Nvidia GeForce 7800 GTX @ Nvidia High Definition Audio 控制器
+
+                                                声卡                瑞昱  @ AMD High Definition Audio 控制器
+
+                                                键盘                HID 标准键盘
+                                                键盘                HID 标准键盘
+                                                键盘                HID 标准键盘
+                                                鼠标                HID-compliant 鼠标
 
 
                                             </Run>
                                         </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>--------[ PCI设备 ]-------------------------------------------------------------------------------</Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1480
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统制造商        ASUSTeK
+                                                子系统ID            87C01043
+
+                                                设备                IOMMU Device
+                                                设备ID              1481
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                System / 
+                                                子系统制造商        ASUSTeK
+                                                子系统ID            87C01043
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1482
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                PCI 到 PCI 桥
+                                                设备ID              1483
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to PCI
+                                                子系统ID            00000000
+
+                                                设备                PCI 到 PCI 桥
+                                                设备ID              1483
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to PCI
+                                                子系统ID            00000000
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1482
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1482
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                PCI 到 PCI 桥
+                                                设备ID              1483
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to PCI
+                                                子系统ID            00000000
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1482
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1482
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1482
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                PCI 到 PCI 桥
+                                                设备ID              1484
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to PCI
+                                                子系统ID            00000000
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1482
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                PCI 到 PCI 桥
+                                                设备ID              1484
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to PCI
+                                                子系统ID            00000000
+
+                                                设备                SMBus
+                                                设备ID              790B
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Serial / SMBus Controller
+                                                子系统制造商        ASUSTeK
+                                                子系统ID            87C01043
+
+                                                设备                PCI 标准 ISA 桥
+                                                设备ID              790E
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to ISA
+                                                子系统制造商        ASUSTeK
+                                                子系统ID            87C01043
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1440
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1441
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1442
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1443
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1444
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1445
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1446
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                PCI 标准主机 CPU 桥
+                                                设备ID              1447
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to HOST
+                                                子系统ID            00000000
+
+                                                设备                标准 NVM Express 控制器
+                                                设备ID              2262
+                                                制造商              Silicon Motion
+                                                制造商ID            126F
+                                                类别                Storage / 
+                                                子系统制造商        Silicon Motion
+                                                子系统ID            2262126F
+
+                                                设备                X570 Chipset
+                                                设备ID              57AD
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to PCI
+                                                子系统ID            00000000
+
+                                                设备                PCI Express 下游交换机端口
+                                                设备ID              57A3
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to PCI
+                                                子系统ID            00000000
+
+                                                设备                PCI Express 下游交换机端口
+                                                设备ID              57A3
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to PCI
+                                                子系统ID            00000000
+
+                                                设备                PCI Express 下游交换机端口
+                                                设备ID              57A4
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to PCI
+                                                子系统ID            00000000
+
+                                                设备                PCI Express 下游交换机端口
+                                                设备ID              57A4
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to PCI
+                                                子系统ID            00000000
+
+                                                设备                PCI Express 下游交换机端口
+                                                设备ID              57A4
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Bridge / PCI to PCI
+                                                子系统ID            00000000
+
+                                                设备                标准 NVM Express 控制器
+                                                设备ID              2263
+                                                制造商              Silicon Motion
+                                                制造商ID            126F
+                                                类别                Storage / 
+                                                子系统制造商        Silicon Motion
+                                                子系统ID            2263126F
+
+                                                设备                RTL8168/8111/8112 Gigabit Ethernet Controller
+                                                设备ID              8168
+                                                制造商              Realtek
+                                                制造商ID            10EC
+                                                类别                Network / Ethernet
+                                                子系统制造商        ASUSTeK
+                                                子系统ID            86771043
+
+                                                设备                PCI
+                                                设备ID              1485
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                 / 
+                                                子系统制造商        ASUSTeK
+                                                子系统ID            87C01043
+
+                                                设备                符合 USB xHCI 的主机控制器
+                                                设备ID              149C
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Serial / USB (UHCI)
+                                                子系统制造商        ASUSTeK
+                                                子系统ID            87C01043
+
+                                                设备                符合 USB xHCI 的主机控制器
+                                                设备ID              149C
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Serial / USB (UHCI)
+                                                子系统制造商        AMD
+                                                子系统ID            148C1022
+
+                                                设备                标准 SATA AHCI 控制器
+                                                设备ID              7901
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Storage / Serial ATA (AHCI 1.0)
+                                                子系统制造商        AMD
+                                                子系统ID            79011022
+
+                                                设备                标准 SATA AHCI 控制器
+                                                设备ID              7901
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Storage / Serial ATA (AHCI 1.0)
+                                                子系统制造商        AMD
+                                                子系统ID            79011022
+
+                                                设备                GeForce RTX 2080 Ti
+                                                设备ID              1E04
+                                                制造商              Nvidia
+                                                制造商ID            10DE
+                                                类别                Display / VGA
+                                                子系统制造商        Colorful
+                                                子系统ID            16507377
+
+                                                设备                High Definition Audio 控制器
+                                                设备ID              10F7
+                                                制造商              Nvidia
+                                                制造商ID            10DE
+                                                类别                Multimedia / Hi-definition Audio
+                                                子系统制造商        Colorful
+                                                子系统ID            16507377
+
+                                                设备                USB 3.10 可扩展主机控制器 - 1.10 (Microsoft)
+                                                设备ID              1AD6
+                                                制造商              Nvidia
+                                                制造商ID            10DE
+                                                类别                Serial / USB (UHCI)
+                                                子系统制造商        Colorful
+                                                子系统ID            16507377
+
+                                                设备                USB Type-C Port Policy Controller
+                                                设备ID              1AD7
+                                                制造商              Nvidia
+                                                制造商ID            10DE
+                                                类别                Serial / Other
+                                                子系统制造商        Colorful
+                                                子系统ID            16507377
+
+                                                设备                PCI
+                                                设备ID              148A
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                 / 
+                                                子系统制造商        ASUSTeK
+                                                子系统ID            87C01043
+
+                                                设备                PCI
+                                                设备ID              1485
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                 / 
+                                                子系统制造商        ASUSTeK
+                                                子系统ID            87C01043
+
+                                                设备                PSP 11.0 Device
+                                                设备ID              1486
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                En/Decryption / Other
+                                                子系统制造商        ASUSTeK
+                                                子系统ID            87C01043
+
+                                                设备                符合 USB xHCI 的主机控制器
+                                                设备ID              149C
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Serial / USB (UHCI)
+                                                子系统制造商        ASUSTeK
+                                                子系统ID            87C01043
+
+                                                设备                High Definition Audio 控制器
+                                                设备ID              1487
+                                                制造商              AMD
+                                                制造商ID            1022
+                                                类别                Multimedia / Hi-definition Audio
+                                                子系统制造商        ASUSTeK
+                                                子系统ID            87BB1043
+
+                                            </Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>--------[ USB设备 ]-------------------------------------------------------------------------------</Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>
+
+                                                制造商ID            18F8
+                                                产品ID              1286
+                                                类别                0 / 0 / 0
+                                                设备                ? USB GAMING MOUSE
+                                                Serial              ?
+                                                版本                USB 1.1
+
+                                                制造商ID            0BDA
+                                                产品ID              8179
+                                                类别                0 / 0 / 0
+                                                设备                Realtek 802.11n NIC
+                                                Serial              00E04C0001
+                                                版本                USB 2.0
+
+                                                制造商ID            0C45
+                                                产品ID              6510
+                                                类别                0 / 0 / 0
+                                                设备                SONiX USB DEVICE
+                                                Serial              ?
+                                                版本                USB 2.0
+
+                                                制造商ID            0B05
+                                                产品ID              18F3
+                                                类别                0 / 0 / 0
+                                                设备                AsusTek Computer Inc. AURA LED Controller
+                                                Serial              9876543210
+                                                版本                USB 2.0
+
+                                            </Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>--------[ 传感器 ]--------------------------------------------------------------------------------</Run>
+                                        </Paragraph>
+                                        <Paragraph FontSize="13" FontFamily="微软雅黑">
+                                            <Run>
+
+                                                名称                WINBOND NCT6798D
+                                                CPU温度             73℃
+                                                CPU核心             74℃
+                                                主板                36℃
+                                                显卡                58℃
+                                                硬盘温度            42℃
+                                                风扇                1050转
+                                            </Run>
+                                        </Paragraph>
                                     </FlowDocument>
-                                </RichTextBox>
+                                </FlowDocumentReader>
                             </Grid>
 
                             <!-- 预览列表切换 -->
                             <StackPanel x:Name="SwitchPreview" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,0,0,0" Visibility="Collapsed">
                                 <Image x:Name="BtnLast" ToolTip="上一个" Source="/Resource/btn_left.png" Width="30" HorizontalAlignment="Left" Margin="0,0,5,0"  MouseUp="BtnLast_MouseUp"/>
-                                <TextBlock x:Name="PreviewPage" Text="1/1" Foreground="#2196f3" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding PreviewPage}" Foreground="#2196f3" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 <Image x:Name="BtnNext" ToolTip="下一个" Source="/Resource/btn_right.png" Width="30" HorizontalAlignment="Left" Margin="5,0,0,0" MouseUp="BtnNext_MouseUp"/>
-                            </StackPanel>
-                            <!-- 预览分页切换 -->
-                            <StackPanel x:Name="SwitchPreviewContentPage" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,20,0" Visibility="Collapsed">
-                                <Image x:Name="BtnLastPage" ToolTip="上一页" Source="/Resource/btn_last.png" Width="30" HorizontalAlignment="Right" Margin="0,0,0,5"  MouseUp="BtnLastPage_MouseUp"/>
-                                <TextBlock x:Name="PreviewContentPage" Text="1/1" Foreground="#2196f3" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                <Image x:Name="BtnNextPage" ToolTip="下一页" Source="/Resource/btn_next.png" Width="30" HorizontalAlignment="Right" Margin="0,5,0,0" MouseUp="BtnNextPage_MouseUp"/>
                             </StackPanel>
                         </Grid>
                     </Grid>
@@ -830,16 +907,16 @@
                     <!-- 底部 -->
                     <Grid Height="25" VerticalAlignment="Bottom" Background="#C8C8C8">
                         <!-- 索引进度条 -->
-                        <ProgressBar x:Name="WorkProgress" Value="100" Maximum="100"
+                        <ProgressBar x:Name="WorkProgress" Value="80" Maximum="100"
                                                 rubyer:ProgressBarHelper.Thickness="100"
                                                 rubyer:ProgressBarHelper.IsShowPercent="false"/>
                         <!-- 状态信息 -->
-                        <TextBlock x:Name="WorkStatus" Text="就绪" Foreground="White" Margin="10,0,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock x:Name="WorkStatus"  Text="就绪" Foreground="White" Margin="10,0,0,0" HorizontalAlignment="Left"/>
                     </Grid>
 
                     <!-- 消息容器 -->
                     <rubyer:MessageContainer Identifier="MessageContainers" Grid.ColumnSpan="2"/>
-                    <rubyer:MessageBoxContainer Identifier="ConfirmContainers" Grid.ColumnSpan="2"/>
+                    <rubyer:MessageBoxContainer Identifier="MessageBoxContainers" Grid.ColumnSpan="2"/>
                 </Grid>
             </Canvas>
         </Viewbox>

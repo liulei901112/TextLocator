@@ -573,7 +573,7 @@ namespace TextLocator.Index
                 // 文件标记
                 string fileMark = MD5Util.GetMD5Hash(filePath);
 
-                indexWriters[index].UpdateDocument(new Lucene.Net.Index.Term("FileMark", fileMark), doc);
+                indexWriters[index].UpdateDocument(new Lucene.Net.Index.Term("Id", fileMark), doc);
             }
             catch (Exception ex)
             {
@@ -658,7 +658,7 @@ namespace TextLocator.Index
                     bool hasContent = param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件内容;
 
                     // 3.1、---- 关键词正则 或 标记为正则
-                    if (AppConst.REGEX_SUPPORT_WILDCARDS.IsMatch(keyword))
+                    if (AppConst.REGEX_JUDGMENT.IsMatch(keyword))
                     {
                         keywordType = "正则";
                         // 文件名搜索
@@ -828,7 +828,7 @@ namespace TextLocator.Index
                     };
 
                     // 词频统计（所有关键词匹配次数）
-                    fileInfo.MatchCount = GetMatchCount(fileInfo);
+                    // fileInfo.MatchCount = GetMatchCount(fileInfo);
 
                     fileInfos.Add(fileInfo);
                 }
@@ -878,7 +878,85 @@ namespace TextLocator.Index
         }
 
         /// <summary>
-        /// 获取关键词词频统计
+        /// 获取内容缩略
+        /// </summary>
+        /// <param name="keywords">关键词列表</param>
+        /// <param name="preview">预览内容</param>
+        /// <returns></returns>
+        public static string GetContentBreviary(Entity.FileInfo fileInfo)
+        {
+            // 获取内容
+            string content = AppConst.REGEX_CONTENT_PAGE.Replace(fileInfo.Preview, "");
+            // 缩略信息
+            string breviary = AppConst.REGEX_LINE_BREAKS_WHITESPACE.Replace(content, "");
+
+            int min = 0;
+            int max = breviary.Length;
+            int subLen = AppConst.FILE_CONTENT_SUB_LENGTH;
+            try
+            {
+                // 内部子方法
+                string ContentBreviary(int index)
+                {
+                    int startIndex = index - subLen / 2;
+                    int endIndex = index + subLen / 2;
+
+                    // 顺序不能乱
+                    if (startIndex < min) startIndex = min;
+                    if (endIndex > max) endIndex = max;
+                    if (startIndex > endIndex) startIndex = endIndex - subLen;
+                    if (startIndex < min) startIndex = min;
+                    if (startIndex + endIndex < subLen) endIndex = endIndex + subLen - (startIndex + endIndex);
+                    if (endIndex > max) endIndex = max;
+
+                    breviary = breviary.Substring(startIndex, endIndex - startIndex);
+
+                    if (startIndex > min) breviary = "..." + breviary;
+                    if (endIndex < max) breviary = breviary + "...";
+                    return breviary;
+                }
+
+                foreach (string keyword in fileInfo.Keywords)
+                {
+                    if (string.IsNullOrEmpty(keyword)) continue;
+                    // 关键词是正则表达式
+                    if (AppConst.REGEX_JUDGMENT.IsMatch(keyword))
+                    {
+                        Regex regex = new Regex(keyword, RegexOptions.IgnoreCase);
+                        Match matches = regex.Match(content);
+                        if (matches.Success)
+                        {
+                            return ContentBreviary(matches.Index);
+                        }
+                    }
+                    else
+                    {
+                        // 可能包含多个keyword,做遍历查找                    
+                        int index = breviary.IndexOf(keyword, 0, StringComparison.CurrentCultureIgnoreCase);
+                        if (index != -1)
+                        {
+                            return ContentBreviary(index);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("获取摘要信息失败：" + ex.Message, ex);
+            }
+
+            // 默认预览内容
+            if (breviary.Length > AppConst.FILE_CONTENT_SUB_LENGTH)
+            {
+                breviary = breviary.Substring(0, AppConst.FILE_CONTENT_SUB_LENGTH) + "...";
+            }
+            return breviary;
+        }
+        #endregion
+
+        #region 关键词词频统计（商业版）
+        /// <summary>
+        /// 获取关键词词频统计总数
         /// </summary>
         /// <param name="fileInfo">文件信息</param>
         /// <returns></returns>
@@ -935,81 +1013,91 @@ namespace TextLocator.Index
                 return 0;
             }
         }
-
         /// <summary>
-        /// 获取内容缩略
+        /// 获取关键词词频统计详情
         /// </summary>
-        /// <param name="keywords">关键词列表</param>
-        /// <param name="preview">预览内容</param>
+        /// <param name="fileInfo">文件信息</param>
         /// <returns></returns>
-        public static string GetContentBreviary(Entity.FileInfo fileInfo)
+        public static string GetMatchCountDetails(Entity.FileInfo fileInfo)
         {
-            // 获取内容
-            string content = AppConst.REGEX_CONTENT_PAGE.Replace(fileInfo.Preview, "");
-            // 缩略信息
-            string breviary = AppConst.REGEX_LINE_BREAKS_AND_WHITESPACE.Replace(content, "");
-
-            int min = 0;
-            int max = breviary.Length;
-            int subLen = AppConst.FILE_CONTENT_SUB_LENGTH;
             try
             {
-                // 内部子方法
-                string ContentBreviary(int index)
-                {
-                    int startIndex = index - subLen / 2;
-                    int endIndex = index + subLen / 2;
+                TaskTime taskTime = TaskTime.StartNew();
 
-                    // 顺序不能乱
-                    if (startIndex < min) startIndex = min;
-                    if (endIndex > max) endIndex = max;
-                    if (startIndex > endIndex) startIndex = endIndex - subLen;
-                    if (startIndex < min) startIndex = min;
-                    if (startIndex + endIndex < subLen) endIndex = endIndex + subLen - (startIndex + endIndex);
-                    if (endIndex > max) endIndex = max;
-
-                    breviary = breviary.Substring(startIndex, endIndex - startIndex);
-
-                    if (startIndex > min) breviary = "..." + breviary;
-                    if (endIndex < max) breviary = breviary + "...";
-                    return breviary;
-                }
-
+                // 定义词频词典
+                Dictionary<string, int> matchCountDic = new Dictionary<string, int>();
+                // 遍历关键词
                 foreach (string keyword in fileInfo.Keywords)
                 {
-                    if (string.IsNullOrEmpty(keyword)) continue;
-                    // 关键词是正则表达式
-                    if (AppConst.REGEX_SUPPORT_WILDCARDS.IsMatch(keyword))
+                    // 匹配内容
+                    int nameMatchCount = 0, contentMatchCount = 0;
+                    // 声明正则
+                    Regex regex = new Regex(keyword);
+
+                    // ---- 匹配文件名
+                    if (fileInfo.SearchRegion == SearchRegion.文件名和内容 || fileInfo.SearchRegion == SearchRegion.仅文件名)
                     {
-                        Regex regex = new Regex(keyword, RegexOptions.IgnoreCase);
-                        Match matches = regex.Match(content);
-                        if (matches.Success)
+                        // 匹配文件名
+                        Match matchName = regex.Match(fileInfo.FileName);
+                        // 文件名匹配成功
+                        if (matchName.Success)
                         {
-                            return ContentBreviary(matches.Index);
+                            // 获取匹配次数
+                            nameMatchCount = regex.Matches(fileInfo.FileName).Count;
                         }
                     }
-                    else
+
+                    // ---- 匹配文件内容
+                    if (fileInfo.SearchRegion == SearchRegion.文件名和内容 || fileInfo.SearchRegion == SearchRegion.仅文件内容)
                     {
-                        // 可能包含多个keyword,做遍历查找                    
-                        int index = breviary.IndexOf(keyword, 0, StringComparison.CurrentCultureIgnoreCase);
-                        if (index != -1)
+                        // 获取内容（预览内容替换----\d+----）
+                        string content = AppConst.REGEX_CONTENT_PAGE.Replace(fileInfo.Preview, "");
+
+                        // 匹配文件内容
+                        Match matchContent = regex.Match(content);
+                        // 文件内容匹配成功
+                        if (matchContent.Success)
                         {
-                            return ContentBreviary(index);
+                            // 获取匹配次数
+                            contentMatchCount = regex.Matches(content).Count;
                         }
+                    }
+
+                    // 匹配数量合并
+                    int count = nameMatchCount + contentMatchCount;
+                    // 匹配次数大于才是有效值
+                    if (count > 0)
+                    {
+                        matchCountDic[keyword] = count;
                     }
                 }
+
+                StringBuilder builder = new StringBuilder();
+                // 获取匹配词列表
+                List<string> matchCountList = matchCountDic.Keys.ToList();
+                for (int k = 0; k < matchCountList.Count; k++)
+                {
+                    // 词频统计信息
+                    builder.Append(string.Format("{0}：{1}；", matchCountList[k], matchCountDic[matchCountList[k]]));
+                    // 自动换行 && （下标不是0 && 每4次 && 下标不是最大）
+                    if (k > 0 && k % 6 == 0 && k < matchCountList.Count - 1)
+                    {
+                        builder.Append("\r\n");
+                    }
+                }
+                string text = builder.ToString();
+                if (text.EndsWith("，"))
+                {
+                    text = text.Substring(0, text.Length - 1);
+                }
+                log.Debug(fileInfo.FileName + " -> 词频统计耗时：" + taskTime.ConsumeTime + " 统计词频：" + text);
+                return text;
             }
             catch (Exception ex)
             {
-                log.Error("获取摘要信息失败：" + ex.Message, ex);
+                log.Error("获取关键词词频统计失败：" + ex.Message, ex);
+                return null;
             }
-
-            // 默认预览内容
-            if (breviary.Length > AppConst.FILE_CONTENT_SUB_LENGTH)
-            {
-                breviary = breviary.Substring(0, AppConst.FILE_CONTENT_SUB_LENGTH) + "...";
-            }
-            return breviary;
         }
         #endregion
 

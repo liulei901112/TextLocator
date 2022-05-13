@@ -31,7 +31,7 @@ namespace TextLocator
                 Refresh(fileInfo, searchRegion);
             }
             catch {
-                this.Dispatcher.BeginInvoke(new Action(() =>
+                Dispatcher.InvokeAsync(() =>
                 {
                     try
                     {
@@ -41,7 +41,7 @@ namespace TextLocator
                     {
                         log.Error(ex.Message, ex);
                     }
-                }));
+                });
             }
         }
 
@@ -61,41 +61,41 @@ namespace TextLocator
 
             string fileName = fileInfo.FileName;
             // 显示文件名称
-            RichTextBoxUtil.FillingData(this.FileName, fileName.Length > 55 ? fileName.Substring(0, 55) + "..." : fileName, (Brush)new BrushConverter().ConvertFromString("#1A0DAB"), true);
+            FileContentUtil.FillFlowDocument(this.FileName, fileName.Length > 55 ? fileName.Substring(0, 55) + "..." : fileName, (Brush)new BrushConverter().ConvertFromString("#1A0DAB"), true);
             if (searchRegion == Enums.SearchRegion.文件名和内容 || searchRegion == Enums.SearchRegion.仅文件名)
             {
-                RichTextBoxUtil.Highlighted(this.FileName, Colors.Red, fileInfo.Keywords);
+                FileContentUtil.FlowDocumentHighlight(this.FileName, Colors.Red, fileInfo.Keywords);
             }
 
-            string filePath = fileInfo.FilePath.Replace(fileInfo.FileName, "");
+            string folderPath = fileInfo.FilePath.Substring(0, fileInfo.FilePath.LastIndexOf("\\"));
             // 文件路径
-            this.FileFolder.Text = filePath.Length > 70 ? filePath.Substring(0, 70) + "..." : filePath;
+            this.FileFolder.Text = folderPath.Length > 70 ? folderPath.Substring(0, 70) + "..." : folderPath;
 
             // 获取摘要
-            RichTextBoxUtil.EmptyData(this.ContentBreviary);
+            FileContentUtil.EmptyRichTextDocument(this.ContentBreviary);
             Task.Factory.StartNew(() => {
                 string breviary = IndexCore.GetContentBreviary(fileInfo);
-                this.Dispatcher.BeginInvoke(new Action(() =>
+                Dispatcher.InvokeAsync(() =>
                 {
-                    RichTextBoxUtil.FillingData(this.ContentBreviary, breviary, (Brush)new BrushConverter().ConvertFromString("#545454"));
+                    FileContentUtil.FillFlowDocument(this.ContentBreviary, breviary, (Brush)new BrushConverter().ConvertFromString("#545454"));
                     if (searchRegion == Enums.SearchRegion.文件名和内容 || searchRegion == Enums.SearchRegion.仅文件内容)
                     {
-                        RichTextBoxUtil.Highlighted(this.ContentBreviary, Colors.Red, fileInfo.Keywords);
+                        FileContentUtil.FlowDocumentHighlight(this.ContentBreviary, Colors.Red, fileInfo.Keywords);
                     }
-                }));
+                });
             });
 
-            /*// 词频统计
+            // 词频统计
             Task.Factory.StartNew(() => {
-                string keywordFrequency = IndexCore.GetKeywordFrequency(fileInfo, searchRegion);
-                this.Dispatcher.BeginInvoke(new Action(() => {
-                    if (!string.IsNullOrWhiteSpace(keywordFrequency))
+                string matchCountDetails = IndexCore.GetMatchCountDetails(fileInfo);
+                Dispatcher.InvokeAsync(() => {
+                    if (!string.IsNullOrWhiteSpace(matchCountDetails))
                     {
                         // 关键词匹配次数
-                        this.FileTypeIcon.ToolTip = keywordFrequency;
+                        this.FileTypeIcon.ToolTip = matchCountDetails;
                     }
-                }));
-            });*/
+                });
+            });
         }
     }
 }

@@ -22,7 +22,7 @@ namespace TextLocator
             }
             catch
             {
-                this.Dispatcher.BeginInvoke(new Action(() =>
+                Dispatcher.InvokeAsync(() =>
                 {
                     try
                     {
@@ -32,7 +32,7 @@ namespace TextLocator
                     {
                         log.Error(ex.Message, ex);
                     }
-                }));
+                });
             }
         }
 

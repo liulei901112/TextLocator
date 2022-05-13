@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using TextLocator.Core;
 
 namespace TextLocator.Message
@@ -16,15 +17,29 @@ namespace TextLocator.Message
         /// <summary>
         /// Rubyer.MessageBoxR参数containerIdentifier
         /// </summary>
-        private const string CONFIRM_CONTAINER = "ConfirmContainers";
+        private const string MESSAGE_BOX_CONTAINER = "MessageBoxContainers";
 
         /// <summary>
         /// 警告
         /// </summary>
         /// <param name="message"></param>
         public static void ShowWarning(string message)
-        {
-            Rubyer.Message.ShowWarning(MESSAGE_CONTAINER, message);
+        {            
+            void TryShow()
+            {
+                Rubyer.Message.ShowWarning(MESSAGE_CONTAINER, message);
+            }
+            try
+            {
+                TryShow();
+            }
+            catch
+            {
+                Dispatcher.CurrentDispatcher.InvokeAsync(() =>
+                {
+                    TryShow();
+                });
+            }
         }
 
         /// <summary>
@@ -33,7 +48,21 @@ namespace TextLocator.Message
         /// <param name="message"></param>
         public static void ShowSuccess(string message)
         {
-            Rubyer.Message.ShowSuccess(MESSAGE_CONTAINER, message);
+            void TryShow()
+            {
+                Rubyer.Message.ShowSuccess(MESSAGE_CONTAINER, message);
+            }
+            try
+            {
+                TryShow();
+            }
+            catch
+            {
+                Dispatcher.CurrentDispatcher.InvokeAsync(() =>
+                {
+                    TryShow();
+                });
+            }
         }
 
         /// <summary>
@@ -42,7 +71,21 @@ namespace TextLocator.Message
         /// <param name="message"></param>
         public static void ShowError(string message)
         {
-            Rubyer.Message.ShowError(MESSAGE_CONTAINER, message);
+            void TryShow()
+            {
+                Rubyer.Message.ShowError(MESSAGE_CONTAINER, message);
+            }
+            try
+            {
+                TryShow();
+            }
+            catch
+            {
+                Dispatcher.CurrentDispatcher.InvokeAsync(() =>
+                {
+                    TryShow();
+                });
+            }
         }
 
         /// <summary>
@@ -51,7 +94,21 @@ namespace TextLocator.Message
         /// <param name="message"></param>
         public static void ShowInfo(string message)
         {
-            Rubyer.Message.ShowInfo(MESSAGE_CONTAINER, message);
+            void TryShow()
+            {
+                Rubyer.Message.ShowInfo(MESSAGE_CONTAINER, message);
+            }
+            try
+            {
+                TryShow();
+            }
+            catch
+            {
+                Dispatcher.CurrentDispatcher.InvokeAsync(() =>
+                {
+                    TryShow();
+                });
+            }
         }
 
         /// <summary>
@@ -61,9 +118,9 @@ namespace TextLocator.Message
         /// <param name="title"></param>
         /// <param name="button"></param>
         /// <returns></returns>
-        public static Task<MessageBoxResult> Confirm(string message, string title, MessageBoxButton button = MessageBoxButton.OKCancel)
+        public static Task<MessageBoxResult> ShowMessageBox(string message, string title, MessageBoxButton button = MessageBoxButton.OKCancel)
         {
-            return Rubyer.MessageBoxR.ConfirmInContainer(CONFIRM_CONTAINER, message, title, button);
+            return Rubyer.MessageBoxR.ConfirmInContainer(MESSAGE_BOX_CONTAINER, message, title, button);
         }
     }
 }

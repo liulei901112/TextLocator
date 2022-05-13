@@ -163,7 +163,7 @@
                                                 <!-- 文件名 Click="Hyperlink_Click" -->
                                                 <RichTextBox Margin="-5,0,0,0" IsHitTestVisible="False" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" IsReadOnly="True" IsDocumentEnabled="False">
                                                     <FlowDocument>
-                                                        <Paragraph Foreground="#1A0DAB">
+                                                        <Paragraph Foreground="#1A0DAB" TextDecorations="Underline">
                                                             <Run>配置</Run>
                                                             <Run Foreground="Red" FontWeight="Bold">信息</Run>
                                                             <Run>详细报告.doc</Run>
@@ -192,7 +192,7 @@
 
                                                             </Run>
                                                         <Run Foreground="Red" FontWeight="Bold">处理器</Run>
-                                                        <Run>Ryzen 9 3900X 12-Core
+                                                        <Run Foreground="#545454">Ryzen 9 3900X 12-Core
                                                               主板                华硕 PRIME X570-P ( AMD PCI 标准主机 CPU 桥 )
                                                               显卡                Nvidia GeForce RTX 2080 Ti ( 11 GB / 七彩虹 )
                                                               内存                64 GB ( 海盗船 DDR4 3200MHz )...
@@ -253,11 +253,11 @@
                                 <Image x:Name="PreviewImage"/>
 
                                 <!-- 预览文档 -->
-                                <FlowDocumentReader x:Name="PreviewFileContent" ViewingMode="Page" ScrollViewer.VerticalScrollBarVisibility="Disabled" IsScrollViewEnabled="False" IsManipulationEnabled="False" IsPrintEnabled="False">
+                                <FlowDocumentReader x:Name="PreviewFileContent" ViewingMode="Page" ScrollViewer.VerticalScrollBarVisibility="Auto" IsManipulationEnabled="False" IsPrintEnabled="False">
                                     <FlowDocument>
                                         <Paragraph FontSize="13" FontFamily="微软雅黑">
                                             <Run>
-                                                --------[ 概览 ]----------------------------------------------------------------------------------
+                                                --------[ 概览 ]--------------------------------------------------------------------------
                                             </Run>
                                         </Paragraph>
                                         <Paragraph FontSize="13" FontFamily="微软雅黑">
@@ -282,7 +282,7 @@
                                         </Paragraph>
                                         <Paragraph FontSize="13" FontFamily="微软雅黑">
                                             <Run>
-                                                --------[ 主板 ]----------------------------------------------------------------------------------
+                                                --------[ 主板 ]--------------------------------------------------------------------------
                                             </Run>
                                         </Paragraph>
                                         <Paragraph FontSize="13" FontFamily="微软雅黑">
@@ -303,7 +303,7 @@
                                         <Paragraph FontSize="13" FontFamily="微软雅黑">
                                             <Run>--------[</Run>
                                             <Run Foreground="Red" FontWeight="Bold">处理器</Run>
-                                            <Run>]--------------------------------------------------------------------------------
+                                            <Run>]-----------------------------------------------------------------------
 
                                             </Run>
                                         </Paragraph>
@@ -324,7 +324,7 @@
                                             </Run>
                                         </Paragraph>
                                         <Paragraph FontSize="13" FontFamily="微软雅黑">
-                                            <Run>--------[ 硬盘 ]----------------------------------------------------------------------------------</Run>
+                                            <Run>--------[ 硬盘 ]--------------------------------------------------------------------------</Run>
                                         </Paragraph>
                                         <Paragraph FontSize="13" FontFamily="微软雅黑">
                                             <Run>
@@ -386,7 +386,7 @@
                                             </Run>
                                         </Paragraph>
                                         <Paragraph FontSize="13" FontFamily="微软雅黑">
-                                            <Run>--------[ 内存 ]----------------------------------------------------------------------------------</Run>
+                                            <Run>--------[ 内存 ]--------------------------------------------------------------------------</Run>
                                         </Paragraph>
                                         <Paragraph FontSize="13" FontFamily="微软雅黑">
                                             <Run>
@@ -426,7 +426,7 @@
                                             </Run>
                                         </Paragraph>
                                         <Paragraph FontSize="13" FontFamily="微软雅黑">
-                                            <Run>--------[ 显卡 ]----------------------------------------------------------------------------------</Run>
+                                            <Run>--------[ 显卡 ]--------------------------------------------------------------------------</Run>
                                         </Paragraph>
                                         <Paragraph FontSize="13" FontFamily="微软雅黑">
                                             <Run>

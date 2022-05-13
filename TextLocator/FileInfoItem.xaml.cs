@@ -61,10 +61,10 @@ namespace TextLocator
 
             string fileName = fileInfo.FileName;
             // 显示文件名称
-            RichTextBoxUtil.FillingData(this.FileName, fileName.Length > 55 ? fileName.Substring(0, 55) + "..." : fileName, (Brush)new BrushConverter().ConvertFromString("#1A0DAB"), true);
+            FileContentUtil.FillFlowDocument(this.FileName, fileName.Length > 55 ? fileName.Substring(0, 55) + "..." : fileName, (Brush)new BrushConverter().ConvertFromString("#1A0DAB"), true);
             if (searchRegion == Enums.SearchRegion.文件名和内容 || searchRegion == Enums.SearchRegion.仅文件名)
             {
-                RichTextBoxUtil.Highlighted(this.FileName, Colors.Red, fileInfo.Keywords);
+                FileContentUtil.FlowDocumentHighlight(this.FileName, Colors.Red, fileInfo.Keywords);
             }
 
             string folderPath = fileInfo.FilePath.Substring(0, fileInfo.FilePath.LastIndexOf("\\"));
@@ -72,15 +72,15 @@ namespace TextLocator
             this.FileFolder.Text = folderPath.Length > 70 ? folderPath.Substring(0, 70) + "..." : folderPath;
 
             // 获取摘要
-            RichTextBoxUtil.EmptyData(this.ContentBreviary);
+            FileContentUtil.EmptyRichTextDocument(this.ContentBreviary);
             Task.Factory.StartNew(() => {
                 string breviary = IndexCore.GetContentBreviary(fileInfo);
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    RichTextBoxUtil.FillingData(this.ContentBreviary, breviary, (Brush)new BrushConverter().ConvertFromString("#545454"));
+                    FileContentUtil.FillFlowDocument(this.ContentBreviary, breviary, (Brush)new BrushConverter().ConvertFromString("#545454"));
                     if (searchRegion == Enums.SearchRegion.文件名和内容 || searchRegion == Enums.SearchRegion.仅文件内容)
                     {
-                        RichTextBoxUtil.Highlighted(this.ContentBreviary, Colors.Red, fileInfo.Keywords);
+                        FileContentUtil.FlowDocumentHighlight(this.ContentBreviary, Colors.Red, fileInfo.Keywords);
                     }
                 }));
             });

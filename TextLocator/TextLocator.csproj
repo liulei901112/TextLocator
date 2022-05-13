@@ -344,7 +344,7 @@
     <Compile Include="Util\FileUtil.cs" />
     <Compile Include="Util\ListUtil.cs" />
     <Compile Include="Util\MD5Util.cs" />
-    <Compile Include="Util\RichTextBoxUtil.cs" />
+    <Compile Include="Util\FileContentUtil.cs" />
     <Compile Include="ViewModel\Main\MainModel.cs" />
     <Compile Include="ViewModel\Main\MainViewModel.cs" />
     <Compile Include="ViewModel\NotificationObject.cs" />

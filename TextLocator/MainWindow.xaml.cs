@@ -697,11 +697,6 @@ namespace TextLocator
             OpenFile.Tag = null;
             OpenFolder.Tag = null;
 
-            // 滚动条回滚到最顶端
-            //PreviewFileContent.ScrollToHome();
-            // 滚动条回滚到最顶端（图片）
-            // PreviewImageScrollViewer.ScrollToHome();
-
             // 预览文件名清空
             PreviewFileName.Text = "";
 
@@ -817,11 +812,16 @@ namespace TextLocator
                         Dispatcher.InvokeAsync(() =>
                         {
                             // 填充数据
-                            RichTextBoxUtil.FillingDataFlowDocument(PreviewFileContent, content, new SolidColorBrush(Colors.Black));
+                            FileContentUtil.FillFlowDocument(PreviewFileContent, content, new SolidColorBrush(Colors.Black));
                             // 默认滚动到第一页
                             PreviewFileContent.CanGoToPage(1);
+                            ScrollViewer sourceScrollViewer = PreviewFileContent.Template.FindName("PART_ContentHost", PreviewFileContent) as ScrollViewer;
+                            if (sourceScrollViewer != null)
+                            {
+                                sourceScrollViewer.ScrollToTop();
+                            }
                             // 关键词高亮
-                            RichTextBoxUtil.HighlightedFlowDocument(
+                            FileContentUtil.FlowDocumentHighlight(
                                 PreviewFileContent,
                                 Colors.Red,
                                 fileInfo.Keywords

@@ -7,10 +7,9 @@
         xmlns:rubyer="clr-namespace:Rubyer;assembly=Rubyer"
         mc:Ignorable="d"
         Title="文本搜索定位器" Width="1600" Height="900" Icon="Resource/App.ico"
-        DataContext="{Binding RelativeSource={RelativeSource Self}}"
         WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing" Activated="Window_Activated">
     <Window.TaskbarItemInfo>
-        <TaskbarItemInfo/>
+        <TaskbarItemInfo ProgressState="{Binding ProgressState}" ProgressValue="{Binding ProgressValue}" />
     </Window.TaskbarItemInfo>
     <!-- DockPanel停靠容器 && Viewbox显示盒子 && Canvas画布 -->
     <DockPanel LastChildFill="True">
@@ -205,12 +204,18 @@
                             <TextBlock x:Name="_searchLoading" Text="搜索处理中..." FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#2196f3" Margin="0,130,0,0" Visibility="Collapsed"/>
 
                             <!-- 分页 -->
-                            <rubyer:PageBar x:Name="PageBar" VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                            <StackPanel Orientation="Horizontal" Height="40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Background="White" Opacity="0.8">
+                                <rubyer:PageBar 
+                                    IsShowTotal="True"
+                                    IsShowPageSize="True"
+                                    PageIndex="{Binding PageIndex}"
                                     PageSize="{Binding PageSize}"
+                                    Total="{Binding TotalCount}"
                                     PageIndexChanged="PageBar_PageIndexChanged"
                                     PageSizeChanged="PageBar_PageSizeChanged"
                                     CurrentBackground="{DynamicResource Accent}"
                                     CurrentForeground="{DynamicResource AccentForeground}"/>
+                            </StackPanel>
                         </Grid>
                         <!-- 分割线 -->
                         <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Center" ShowsPreview="False" Background="Gray" />
@@ -814,7 +819,7 @@
                             <!-- 预览列表切换 -->
                             <StackPanel x:Name="SwitchPreview" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,0,0,0" Visibility="Collapsed">
                                 <Image x:Name="BtnLast" ToolTip="上一个" Source="/Resource/btn_left.png" Width="30" HorizontalAlignment="Left" Margin="0,0,5,0"  MouseUp="BtnLast_MouseUp"/>
-                                <TextBlock x:Name="PreviewPage" Text="1/1" Foreground="#2196f3" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding PreviewPage}" Foreground="#2196f3" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 <Image x:Name="BtnNext" ToolTip="下一个" Source="/Resource/btn_right.png" Width="30" HorizontalAlignment="Left" Margin="5,0,0,0" MouseUp="BtnNext_MouseUp"/>
                             </StackPanel>
                             <!-- 预览分页切换 -->
@@ -830,11 +835,11 @@
                     <!-- 底部 -->
                     <Grid Height="25" VerticalAlignment="Bottom" Background="#C8C8C8">
                         <!-- 索引进度条 -->
-                        <ProgressBar x:Name="WorkProgress" Value="100" Maximum="100"
+                        <ProgressBar Value="{Binding WorkProgress}" Maximum="100"
                                                 rubyer:ProgressBarHelper.Thickness="100"
                                                 rubyer:ProgressBarHelper.IsShowPercent="false"/>
                         <!-- 状态信息 -->
-                        <TextBlock x:Name="WorkStatus" Text="就绪" Foreground="White" Margin="10,0,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="{Binding WorkStatus}" Foreground="White" Margin="10,0,0,0" HorizontalAlignment="Left"/>
                     </Grid>
 
                     <!-- 消息容器 -->

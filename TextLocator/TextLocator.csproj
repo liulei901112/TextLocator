@@ -345,6 +345,9 @@
     <Compile Include="Util\ListUtil.cs" />
     <Compile Include="Util\MD5Util.cs" />
     <Compile Include="Util\RichTextBoxUtil.cs" />
+    <Compile Include="ViewModel\Main\MainModel.cs" />
+    <Compile Include="ViewModel\Main\MainViewModel.cs" />
+    <Compile Include="ViewModel\NotificationObject.cs" />
     <Page Include="AreaEditWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -485,5 +488,6 @@
     <Resource Include="Resource\btn_last.png" />
     <Resource Include="Resource\btn_next.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

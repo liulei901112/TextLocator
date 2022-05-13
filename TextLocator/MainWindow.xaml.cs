@@ -23,13 +23,14 @@ using TextLocator.HotKey;
 using TextLocator.Index;
 using TextLocator.Message;
 using TextLocator.Util;
+using TextLocator.ViewModel.Main;
 
 namespace TextLocator
 {
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window
     {
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -59,6 +60,11 @@ namespace TextLocator
         /// </summary>
         private WindowState _windowState = WindowState.Normal;
 
+        /// <summary>
+        /// 数据模型
+        /// </summary>
+        private MainViewModel _viewModel = new MainViewModel();
+
         #region 热键
         /// <summary>
         /// 当前窗口句柄
@@ -70,9 +76,11 @@ namespace TextLocator
         private Dictionary<HotKeySetting, int> _hotKeySettings = new Dictionary<HotKeySetting, int>();
         #endregion
 
+
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = _viewModel;
         }
 
         #region 窗口初始化
@@ -397,7 +405,7 @@ namespace TextLocator
         }
         #endregion
 
-        #region 搜索
+        #region 关键词搜索
         /// <summary>
         /// 搜索
         /// </summary>
@@ -433,7 +441,7 @@ namespace TextLocator
         }
 
         /// <summary>
-        /// 回车搜索
+        /// 关键词文本框回车搜索
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -478,6 +486,78 @@ namespace TextLocator
             this.CleanButton.Visibility = this.SearchText.Text.Length > 0 ? Visibility.Visible : Visibility.Hidden;
             // 文本框颜色
             SearchTextBorder.BorderBrush = new SolidColorBrush(this.SearchText.Text.Length > 0 ? Colors.Green : (Color)ColorConverter.ConvertFromString("#2196f3"));
+        }
+
+        /// <summary>
+        /// 搜索前
+        /// </summary>
+        /// <param name="page">指定页</param>
+        private void BeforeSearch(int page = 1)
+        {
+            // 1、---- 搜索信息预处理
+            // 还原分页count
+            if (page != _viewModel.PageIndex)
+            {
+                _viewModel.PageIndex = page;
+                // 设置分页标签总条数
+                _viewModel.TotalCount = 0;
+            }
+
+            // 获取搜索关键词列表
+            List<string> keywords = GetSearchTextKeywords();
+            if (keywords.Count <= 0)
+            {
+                return;
+            }
+
+
+            // 2、---- 预览信息还原
+            // 预览区打开文件和文件夹标记清空
+            OpenFile.Tag = null;
+            OpenFolder.Tag = null;
+
+            // 预览文件名清空
+            PreviewFileName.Text = "";
+
+            // 预览文件内容清空
+            PreviewFileContent.Document.Blocks.Clear();
+
+            // 预览文件内容分页标记
+            SwitchPreviewContentPage.Tag = 0;
+            SwitchPreviewContentPage.Visibility = Visibility.Collapsed;
+
+            // 预览图标清空
+            PreviewImage.Source = null;
+
+            // 预览文件类型图标清空
+            PreviewFileTypeIcon.Source = null;
+
+            // 预览切换标记清空
+            SwitchPreview.Tag = null;
+
+
+            // 3、---- 生成本次搜索时间戳
+            _timestamp = Convert.ToInt64((DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds);
+
+
+            // 4、---- 构造搜索条件并保存（保存的搜索条件需要用于数据导出）
+            _searchParam = new Entity.SearchParam()
+            {
+                Keywords = keywords,
+                FileType = (FileType)SearchFileType.Tag,
+                SortType = (SortType)SortOptions.SelectedValue,
+                IsPreciseRetrieval = (bool)PreciseRetrieval.IsChecked,
+                IsMatchWords = (bool)MatchWords.IsChecked,
+                SearchRegion = (SearchRegion)SearchScope.SelectedValue,
+                PageSize = _viewModel.PageSize,
+                PageIndex = _viewModel.PageIndex
+            };
+
+            // 5、---- 搜索
+            Search(
+                _timestamp,
+                _searchParam
+            );
         }
 
         /// <summary>
@@ -531,20 +611,11 @@ namespace TextLocator
                     }
 
                     // 4、---- 显示预览列表分页信息
-                    Dispatcher.Invoke(new Action(() =>
-                    {
-                        this.PreviewPage.Text = string.Format("0/{0}", SearchResultList.Items.Count);
-                    }));
+                    _viewModel.PreviewPage = string.Format("0/{0}", searchResult.Results.Count);
 
                     // 5、---- 分页总数
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        // 如果总条数小于等于分页条数，则不显示分页
-                        this.PageBar.Total = searchResult.Total > PageSize ? searchResult.Total : 0;
-
-                        // 上一个和下一个切换面板是否显示
-                        this.SwitchPreview.Visibility = searchResult.Total > 0 ? Visibility.Visible : Visibility.Hidden;
-                    }));
+                    _viewModel.TotalCount = searchResult.Total;
+                    _viewModel.PreviewSwitchVisibility = searchResult.Total > 0 ? Visibility.Visible : Visibility.Hidden;
                 }
                 catch (Exception ex)
                 {
@@ -556,38 +627,7 @@ namespace TextLocator
         }
         #endregion
 
-        #region 分页
-        /// <summary>
-        /// 当前页
-        /// </summary>
-        public int PageNow = 1;
-        /// <summary>
-        /// 实现INotifyPropertyChanged接口
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged(string propertyName)
-        {
-            if (this.PropertyChanged != null)
-            {
-                this.PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-        /// <summary>
-        /// 每页显示数量
-        /// </summary>
-        public int PageSize
-        {
-            // 获取值时将私有字段传出；
-            get { return AppConst.MRESULT_LIST_PAGE_SIZE; }
-            set
-            {
-                // 赋值时将值传给私有字段
-                AppConst.MRESULT_LIST_PAGE_SIZE = value;
-                // 一旦执行了赋值操作说明其值被修改了，则立马通过INotifyPropertyChanged接口告诉UI(IntValue)被修改了
-                OnPropertyChanged("PageSize");
-            }
-        }
-
+        #region 数据分页
         // 切换页码
         private void PageBar_PageIndexChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
         {
@@ -599,10 +639,12 @@ namespace TextLocator
         private void PageBar_PageSizeChanged(object sender, RoutedPropertyChangedEventArgs<int> e)
         {
             log.Debug($"pageSize : {e.OldValue} => {e.NewValue}");
+
+            _viewModel.PageSize = e.NewValue;
         }
         #endregion
 
-        #region 排序
+        #region 列表排序
         /// <summary>
         /// 排序选中
         /// </summary>
@@ -610,11 +652,11 @@ namespace TextLocator
         /// <param name="e"></param>
         private void SortOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            BeforeSearch(PageNow);
+            BeforeSearch(_viewModel.PageIndex);
         }
         #endregion
 
-        #region 清空
+        #region 结果清空
         /// <summary>
         /// 清空按钮
         /// </summary>
@@ -686,13 +728,9 @@ namespace TextLocator
 
             // -------- 分页标签
             // 还原为第一页
-            PageNow = 1;
+            _viewModel.PageIndex = 1;
             // 设置分页标签总条数
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                this.PageBar.Total = 0;
-                this.PageBar.PageIndex = 1;
-            }));
+            _viewModel.TotalCount = 0;
 
             // -------- 快捷标签
             // 隐藏上一个和下一个切换面板
@@ -706,11 +744,11 @@ namespace TextLocator
 
             // -------- 状态栏
             // 工作状态更新为就绪
-            WorkStatus.Text = "就绪";
+            _viewModel.WorkStatus = "就绪";
         }
         #endregion
 
-        #region 列表
+        #region 数据列表
         /// <summary>
         /// 列表项被选中事件
         /// </summary>
@@ -726,7 +764,7 @@ namespace TextLocator
             // 预览切换索引标记
             this.SwitchPreview.Tag = SearchResultList.SelectedIndex;
             // 显示预览分页信息
-            this.PreviewPage.Text = String.Format("{0}/{1}", this.SearchResultList.SelectedIndex + 1, SearchResultList.Items.Count);
+            _viewModel.PreviewPage = String.Format("{0}/{1}", this.SearchResultList.SelectedIndex + 1, SearchResultList.Items.Count);
 
             // 手动GC
             GC.Collect();
@@ -1056,7 +1094,7 @@ namespace TextLocator
             }
 
             // 显示分页信息
-            this.PreviewPage.Text = String.Format("{0}/{1}", this.SearchResultList.SelectedIndex + 1, SearchResultList.Items.Count);
+            _viewModel.PreviewPage = String.Format("{0}/{1}", this.SearchResultList.SelectedIndex + 1, SearchResultList.Items.Count);
         }
 
         /// <summary>
@@ -1349,27 +1387,13 @@ namespace TextLocator
         /// <param name="percent">进度，0-100</param>
         private void ShowStatus(string text, double percent = AppConst.MAX_PERCENT)
         {
-            void refresh()
+            _viewModel.WorkStatus = text;
+            if (percent > AppConst.MIN_PERCENT)
             {
-                WorkStatus.Text = text;
-                if (percent > AppConst.MIN_PERCENT)
-                {
-                    WorkProgress.Value = percent;
+                _viewModel.WorkProgress = percent;
 
-                    TaskbarItemInfo.ProgressState = percent < AppConst.MAX_PERCENT ? System.Windows.Shell.TaskbarItemProgressState.Normal : System.Windows.Shell.TaskbarItemProgressState.None;
-                    TaskbarItemInfo.ProgressValue = WorkProgress.Value / WorkProgress.Maximum;
-                }
-            }
-            try
-            {
-                refresh();
-            }
-            catch
-            {
-                Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    refresh();
-                }));
+                _viewModel.ProgressState = percent < AppConst.MAX_PERCENT ? System.Windows.Shell.TaskbarItemProgressState.Normal : System.Windows.Shell.TaskbarItemProgressState.None;
+                _viewModel.ProgressValue = _viewModel.WorkProgress / 100;
             }
         }
         #endregion
@@ -1576,81 +1600,7 @@ namespace TextLocator
             return keywords;
         }
 
-        /// <summary>
-        /// 搜索前
-        /// </summary>
-        /// <param name="page">指定页</param>
-        private void BeforeSearch(int page = 1)
-        {
-            // 1、---- 搜索信息预处理
-            // 还原分页count
-            if (page != PageNow)
-            {
-                PageNow = page;
-                // 设置分页标签总条数
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    this.PageBar.Total = 0;
-                    this.PageBar.PageIndex = PageNow;
-                }));
-            }
-
-            // 获取搜索关键词列表
-            List<string> keywords = GetSearchTextKeywords();
-            if (keywords.Count <= 0)
-            {
-                return;
-            }
-
-
-            // 2、---- 预览信息还原
-            // 预览区打开文件和文件夹标记清空
-            OpenFile.Tag = null;
-            OpenFolder.Tag = null;
-
-            // 预览文件名清空
-            PreviewFileName.Text = "";
-
-            // 预览文件内容清空
-            PreviewFileContent.Document.Blocks.Clear();
-
-            // 预览文件内容分页标记
-            SwitchPreviewContentPage.Tag = 0;
-            SwitchPreviewContentPage.Visibility = Visibility.Collapsed;
-
-            // 预览图标清空
-            PreviewImage.Source = null;
-
-            // 预览文件类型图标清空
-            PreviewFileTypeIcon.Source = null;
-
-            // 预览切换标记清空
-            SwitchPreview.Tag = null;
-
-
-            // 3、---- 生成本次搜索时间戳
-            _timestamp = Convert.ToInt64((DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds);
-
-
-            // 4、---- 构造搜索条件并保存（保存的搜索条件需要用于数据导出）
-            _searchParam = new Entity.SearchParam()
-            {
-                Keywords = keywords,
-                FileType = (FileType)SearchFileType.Tag,
-                SortType = (SortType)SortOptions.SelectedValue,
-                IsPreciseRetrieval = (bool) PreciseRetrieval.IsChecked,
-                IsMatchWords = (bool)MatchWords.IsChecked,
-                SearchRegion = (SearchRegion)SearchScope.SelectedValue,
-                PageSize = PageSize,
-                PageIndex = PageNow
-            };
-
-            // 5、---- 搜索
-            Search(
-                _timestamp,
-                _searchParam
-            );
-        }
+        
         #endregion
     }
 }

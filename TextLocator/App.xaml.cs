@@ -140,7 +140,7 @@ namespace TextLocator
                 // 常用压缩包
                 FileInfoServiceFactory.Register(FileType.常用压缩包, new ZipFileService());
 				// 程序员服务
-                FileInfoServiceFactory.Register(FileType.程序员代码, new CodeFileService());
+                FileInfoServiceFactory.Register(FileType.程序源代码, new CodeFileService());
             }
             catch (Exception ex)
             {

@@ -53,9 +53,9 @@ namespace TextLocator.Enums
         [Description("rar,zip,7z,tar,jar")]
         常用压缩包,
         /// <summary>
-        /// 程序员代码
+        /// 程序源代码
         /// </summary>
         [Description("cs,java,js,css,md,py,c,h,cpp,lua,sql,jsp,json,php,rs,rb,yml,yaml,bat,ps1")]
-        程序员代码
+        程序源代码
     }
 }

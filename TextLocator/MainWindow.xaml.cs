@@ -52,11 +52,6 @@ namespace TextLocator
         private static volatile bool build = false;
 
         /// <summary>
-        /// 窗口状态
-        /// </summary>
-        private WindowState _windowState = WindowState.Normal;
-
-        /// <summary>
         /// 数据模型
         /// </summary>
         private MainViewModel _viewModel = new MainViewModel();
@@ -142,18 +137,6 @@ namespace TextLocator
         }
 
         /// <summary>
-        /// 窗口关闭中，改为隐藏
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            _windowState = this.WindowState;
-            this.Hide();
-            e.Cancel = true;
-        }
-
-        /// <summary>
         /// 窗口激活
         /// </summary>
         /// <param name="sender"></param>
@@ -161,7 +144,40 @@ namespace TextLocator
         private void Window_Activated(object sender, EventArgs e)
         {
             this.Show();
-            this.WindowState = _windowState;
+            this.WindowState = CacheUtil.Get<WindowState>("WindowState");
+        }
+
+        /// <summary>
+        /// 窗口关闭中，改为隐藏
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true;
+            CacheUtil.Put("WindowState", this.WindowState);
+        }
+
+        /// <summary>
+        /// 尺寸变化
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            CacheUtil.Put("WindowWidth", this.Width);
+            CacheUtil.Put("WindowHeight", this.Height);
+        }
+
+        /// <summary>
+        /// 状态变化
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            CacheUtil.Put("WindowState", this.WindowState);
         }
         #endregion
 
@@ -176,7 +192,6 @@ namespace TextLocator
 			
 			// 设置标题
             this.Title = string.Format("{0} v{1} (开放版)", this.Title, version);
-
         }
 
         /// <summary>
@@ -1360,7 +1375,7 @@ namespace TextLocator
             return keywords;
         }
 
-        
+
         #endregion
     }
 }

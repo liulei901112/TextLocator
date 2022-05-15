@@ -7,7 +7,7 @@
         xmlns:rubyer="clr-namespace:Rubyer;assembly=Rubyer"
         mc:Ignorable="d"
         Title="文本搜索定位器" Width="1600" Height="900" Icon="Resource/App.ico"
-        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing" Activated="Window_Activated">
+        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing" Activated="Window_Activated" SizeChanged="Window_SizeChanged" StateChanged="Window_StateChanged">
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo x:Name="TaskbarInfo"/>
     </Window.TaskbarItemInfo>

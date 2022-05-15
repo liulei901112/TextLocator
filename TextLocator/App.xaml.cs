@@ -65,7 +65,6 @@ namespace TextLocator
 
         public App()
         {
-
             // 初始化线程池大小
             AppCore.SetThreadPoolSize();
 
@@ -74,6 +73,9 @@ namespace TextLocator
 
             // 初始化文件服务引擎
             InitFileInfoServiceEngine();
+
+            // 初始化窗口状态尺寸
+            CacheUtil.Put("WindowState", WindowState.Normal);
         }
 
         /// <summary>

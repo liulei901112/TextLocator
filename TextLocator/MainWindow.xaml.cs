@@ -603,15 +603,17 @@ namespace TextLocator
                     }
 
                     // 3、---- 遍历结果
+                    int index = 1;
                     foreach (Entity.FileInfo fileInfo in searchResult.Results)
                     {
                         if (_timestamp != timestamp)
                         {
                             return;
                         }
+                        fileInfo.Index = index++;
                         Dispatcher.Invoke(() =>
                         {
-                            this.SearchResultList.Items.Add(new FileInfoItem(fileInfo, searchParam.SearchRegion));
+                            this.SearchResultList.Items.Add(new FileInfoItem(fileInfo));
                         });
                     }
 

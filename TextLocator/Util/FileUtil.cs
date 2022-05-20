@@ -52,7 +52,7 @@ namespace TextLocator.Util
                 case FileType.常用图片:
                     bitmap = Properties.Resources.image;
                     break;
-                case FileType.程序源代码:
+                case FileType.程序员代码:
                     bitmap = Properties.Resources.code;
                     break;
                 case FileType.TXT文档:

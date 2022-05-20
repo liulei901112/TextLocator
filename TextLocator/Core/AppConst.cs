@@ -25,7 +25,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 文件内容摘要切割长度
         /// </summary>
-        public static int FILE_CONTENT_BREVIARY_CUT_LENGTH = int.Parse(AppUtil.ReadValue("AppConfig", "FileContentBreviaryCutLength", "60"));
+        public static int FILE_CONTENT_BREVIARY_CUT_LENGTH = int.Parse(AppUtil.ReadValue("AppConfig", "FileContentBreviaryCutLength", "120"));
         /// <summary>
         /// 结果列表分页条数
         /// </summary>

@@ -222,7 +222,7 @@ namespace TextLocator.Util
                     paragraph.Inlines.Add(afterRun);
 
                     // 分割线                    
-                    Run pageRun = new Run(string.Format("\r\n------------------------------------------------------------------------------ {0}\r\n", page));
+                    Run pageRun = new Run(string.Format("\n------------------------------------------------------------------------------ {0}\n", page));
                     paragraph.Inlines.Add(pageRun);
                     document.Blocks.Add(paragraph);
 

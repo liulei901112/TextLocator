@@ -46,6 +46,7 @@ namespace TextLocator.NotifyIcon
                         if (!win.IsVisible)
                         {
                             win.Topmost = true;
+                            win.Owner = Application.Current.MainWindow;
                             win.ShowDialog();
                         }
                         else
@@ -72,6 +73,7 @@ namespace TextLocator.NotifyIcon
                         if (!win.IsVisible)
                         {
                             win.Topmost = true;
+                            win.Owner = Application.Current.MainWindow;
                             win.ShowDialog();
                         }
                         else

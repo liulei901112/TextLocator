@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TextLocator"
         mc:Ignorable="d"
         x:Name="hotkey"
-        Title="热键设置" Height="380" Width="520" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" ResizeMode="CanMinimize" Icon="/Resource/App.ico" Loaded="Window_Loaded" Closed="Window_Closed" >
+        Title="热键设置" Height="380" Width="520" WindowStartupLocation="CenterOwner" WindowStyle="ToolWindow" ResizeMode="CanMinimize" Icon="/Resource/App.ico" Loaded="Window_Loaded" Closed="Window_Closed" >
     <Grid>
         <Grid Margin="0,0,0,50">
             <GroupBox Header="热键">

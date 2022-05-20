@@ -1,5 +1,6 @@
 ﻿using log4net;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -83,19 +84,34 @@ namespace TextLocator
                         FileContentUtil.FlowDocumentHighlight(this.ContentBreviary, Colors.Red, fileInfo.Keywords);
                     }
                 });
-            });
+            });            
+        }
 
-            // 词频统计
-            Task.Factory.StartNew(() => {
-                string matchCountDetails = IndexCore.GetMatchCountDetails(fileInfo);
-                Dispatcher.InvokeAsync(() => {
+        /// <summary>
+        /// 光标在文件类型图标上移动事件（词频统计详情放在这里加载，主要是为了节省列表加载事件）
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FileTypeIcon_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (this.FileTypeIcon.ToolTip == null)
+            {
+                var fi = this.Tag as Entity.FileInfo;
+                Thread t = new Thread(() => {
+                    string matchCountDetails = IndexCore.GetMatchCountDetails(fi);
                     if (!string.IsNullOrWhiteSpace(matchCountDetails))
                     {
-                        // 关键词匹配次数
-                        this.FileTypeIcon.ToolTip = matchCountDetails;
+                        Dispatcher.InvokeAsync(() =>
+                        {
+                            // 关键词匹配次数
+                            this.FileTypeIcon.ToolTip = matchCountDetails;
+                            ToolTipService.SetShowDuration(this.FileTypeIcon, 600000);
+                        });
                     }
                 });
-            });
+                t.Priority = ThreadPriority.BelowNormal;
+                t.Start();
+            }
         }
     }
 }

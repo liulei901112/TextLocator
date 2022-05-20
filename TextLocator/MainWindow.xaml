@@ -913,7 +913,7 @@
                                                 rubyer:ProgressBarHelper.Thickness="100"
                                                 rubyer:ProgressBarHelper.IsShowPercent="false"/>
                         <!-- 状态信息 -->
-                        <TextBlock x:Name="WorkStatus"  Text="就绪" Foreground="White" Margin="10,0,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock x:Name="WorkStatus" Text="就绪" Foreground="White" FontSize="15" Margin="10,0,0,0" HorizontalAlignment="Left"/>
                     </Grid>
 
                     <!-- 消息容器 -->

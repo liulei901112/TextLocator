@@ -43,7 +43,6 @@ namespace TextLocator.Entity
         /// </summary>
         private List<string> keywords = new List<string>();
         public List<string> Keywords { get => keywords; set => keywords = value; }
-
         /// <summary>
         /// 搜索域
         /// </summary>

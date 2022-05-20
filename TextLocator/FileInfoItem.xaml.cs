@@ -88,11 +88,11 @@ namespace TextLocator
         }
 
         /// <summary>
-        /// 光标在文件类型图标上移动事件（词频统计详情放在这里加载，主要是为了节省列表加载事件）
+        /// 光标在文件类型图标边界移入事件（词频统计详情放在这里加载，主要是为了节省列表加载事件）
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void FileTypeIcon_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        private void FileTypeIcon_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (this.FileTypeIcon.ToolTip == null)
             {

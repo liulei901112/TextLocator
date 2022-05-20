@@ -9,7 +9,7 @@
     <!-- 内容 -->
     <Grid Width="1000" Height="90" HorizontalAlignment="Left" VerticalAlignment="Top">
         <!-- 图标 -->
-        <Image x:Name="FileTypeIcon" Source="/Resource/ext/word.png" Width="80" HorizontalAlignment="Left" MouseMove="FileTypeIcon_MouseMove"/>
+        <Image x:Name="FileTypeIcon" Source="/Resource/ext/word.png" Width="80" HorizontalAlignment="Left" MouseMove="FileTypeIcon_MouseMove" MouseEnter="FileTypeIcon_MouseEnter"/>
         
         <!-- 文件信息 -->
         <Grid Margin="80,0,0,0">

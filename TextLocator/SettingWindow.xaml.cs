@@ -70,6 +70,9 @@ namespace TextLocator
             this.EnableIndexUpdateTask.IsChecked = AppConst.ENABLE_INDEX_UPDATE_TASK;
             // 索引更新时间间隔
             this.IndexUpdateTaskInterval.Text = AppConst.INDEX_UPDATE_TASK_INTERVAL + "";
+
+            // 启用预览内容摘要
+            this.EnablePreviewSummary.IsChecked = AppConst.ENABLE_PREVIEW_SUMMARY;
         }
 
         #region 保存并关闭
@@ -136,7 +139,6 @@ namespace TextLocator
 
             // 启用索引更新任务
             bool enableIndexUpdateTask = (bool)this.EnableIndexUpdateTask.IsChecked;
-
             if (enableIndexUpdateTask)
             {
                 // 索引更新时间间隔
@@ -160,6 +162,9 @@ namespace TextLocator
                 AppConst.INDEX_UPDATE_TASK_INTERVAL = indexUpdateTaskInterval;
             }
 
+            // 启用预览内容摘要
+            bool enablePreviewSummary = (bool)this.EnablePreviewSummary.IsChecked;
+
             AppConst.CACHE_POOL_CAPACITY = cachePoolCapacity;
             AppUtil.WriteValue("AppConfig", "CachePoolCapacity", AppConst.CACHE_POOL_CAPACITY + "");
             log.Debug("修改缓存池容量：" + AppConst.CACHE_POOL_CAPACITY);
@@ -181,6 +186,9 @@ namespace TextLocator
                 AppUtil.WriteValue("AppConfig", "IndexUpdateTaskInterval", AppConst.INDEX_UPDATE_TASK_INTERVAL + "");
                 log.Debug("修改索引更新任务间隔时间：" + AppConst.INDEX_UPDATE_TASK_INTERVAL);
             }
+
+            AppConst.ENABLE_PREVIEW_SUMMARY = enablePreviewSummary;
+            AppUtil.WriteValue("AppConfig", "EnableIndexUpdateTask", AppConst.ENABLE_PREVIEW_SUMMARY + "");
 
             this.Close();
         }

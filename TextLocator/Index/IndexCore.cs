@@ -888,7 +888,7 @@ namespace TextLocator.Index
             // 获取内容
             string content = AppConst.REGEX_CONTENT_PAGE.Replace(fileInfo.Preview, "");
             // 缩略信息
-            string breviary = AppConst.REGEX_LINE_BREAKS_WHITESPACE.Replace(content, "");
+            string breviary = AppConst.REGEX_LINE_BREAKS_WHITESPACE.Replace(content, " ");
 
             int min = 0;
             int max = breviary.Length;

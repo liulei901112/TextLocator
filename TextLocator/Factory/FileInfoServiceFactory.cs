@@ -32,52 +32,27 @@ namespace TextLocator.Factory
 		/// <returns></returns>
 		public static string GetFileContent(string filePath)
 		{
-			FileInfo fileInfo = new FileInfo(filePath);
+			// 读取文件内容
+			string content = String.Empty;
 			try
 			{
-				// 如果文件存在
-				if (fileInfo == null && !fileInfo.Exists)
-				{
-					throw new FileNotFoundException("文件未找到，请确认");
-				}
-				// 文件太大
-				if (fileInfo.Length > AppConst.FILE_SIZE_LIMIT)
-				{
-					throw new FileBigSizeException("不支持大于 " + FileUtil.GetFileSizeFriendly(AppConst.FILE_SIZE_LIMIT) + " 的文件解析");
-				}
+				// 检查文件信息
+				CheckFileInfo(filePath);
+
+				// 获取文件服务对象
+				IFileInfoService fileInfoService = GetFileInfoService(FileTypeUtil.GetFileType(filePath));
+
+				// 获取文件内容
+				content = WaitTimeout(fileInfoService.GetFileContent, filePath);
+
+				// 特殊字符替换
+				content = AppConst.REGEX_LINE_BREAKS_WHITESPACE.Replace(content, "　");
 			}
 			catch (Exception ex)
 			{
-				log.Error(filePath + "->" + ex.Message, ex);
-
-				return null;
+				log.Error(filePath + " -> 文件读取错误：" + ex.Message, ex);
 			}
-
-			// 获取文件服务对象
-			IFileInfoService fileInfoService = GetFileInfoService(FileTypeUtil.GetFileType(filePath));
-
-			// 内容
-			string content = "";
-			// 缓存Key
-			string cacheKey = MD5Util.GetMD5Hash(filePath);
-
-			if (CacheUtil.Exists(cacheKey))
-			{
-				// 从缓存中读取
-				content = CacheUtil.Get<string>(cacheKey);
-#if DEBUG
-				log.Debug(filePath + "，缓存生效。");
-#endif
-			}
-			else
-			{
-				// 读取文件内容
-				content = WaitTimeout(fileInfoService.GetFileContent, filePath);
-
-				// 写入缓存
-				CacheUtil.Put(cacheKey, content);
-			}
-
+			// 返回
 			return content;
 		}
 
@@ -109,6 +84,25 @@ namespace TextLocator.Factory
 				throw new NotFoundFileServiceException("暂无[" + fileType.ToString() + "]服务实例， 返回默认其他类型文件服务实例");
 			}
 		}
+
+		/// <summary>
+		/// 检查文件信息
+		/// </summary>
+		/// <param name="filePath">文件路径</param>
+		private static void CheckFileInfo(string filePath)
+		{
+			FileInfo fileInfo = new FileInfo(filePath);
+			// 如果文件存在
+			if (fileInfo == null && !fileInfo.Exists)
+			{
+				throw new FileNotFoundException("文件未找到，请确认");
+			}
+			// 文件太大
+			if (fileInfo.Length > AppConst.FILE_SIZE_LIMIT)
+			{
+				throw new FileBigSizeException(string.Format("不支持大于 {0} 的文件解析", FileUtil.GetFileSizeFriendly(AppConst.FILE_SIZE_LIMIT)));
+			}
+		}
 		#endregion
 
 		#region 超时函数
@@ -130,7 +124,11 @@ namespace TextLocator.Factory
 		{
 			string obj = null;
 			AutoResetEvent are = new AutoResetEvent(false);
-			Thread t = new Thread(delegate () { obj = method(filePath); are.Set(); });
+			Thread t = new Thread(() =>
+			{ 
+				obj = method(filePath); 
+				are.Set(); 
+			});
 			t.Start();
 			Wait(t, are);
 			return obj;

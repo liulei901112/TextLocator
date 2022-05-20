@@ -11,7 +11,6 @@ namespace TextLocator.Util
 {
     public class FileContentUtil
     {
-        #region RichText操作
         /// <summary>
         /// 清空RichText的Document
         /// </summary>
@@ -126,6 +125,111 @@ namespace TextLocator.Util
 
             return tpEnd.GetNextContextPosition(LogicalDirection.Forward);
         }
-        #endregion
+
+        /// <summary>
+        /// 获取命中摘要列表
+        /// </summary>
+        /// <param name="content">内容文本</param>
+        /// <param name="keywords">关键词列表</param>
+        /// <param name="color">高亮色</param>
+        /// <param name="isBackground">是否高亮背景</param>
+        /// <param name="cutLength">切割长度</param>
+        /// <returns></returns>
+        public static FlowDocument GetHitBreviaryFlowDocument(string content, List<string> keywords, System.Windows.Media.Color color, bool isBackground = false, int cutLength = int.MinValue)
+        {
+            // 定义接收命中内容上下文的列表
+            FlowDocument document = new FlowDocument();
+            if (string.IsNullOrEmpty(content))
+            {
+                return document;
+            }
+            // 如果默认值，就使用参数定义值
+            if (cutLength == int.MinValue)
+            {
+                cutLength = AppConst.FILE_CONTENT_BREVIARY_CUT_LENGTH;
+            }
+
+            // 内容（替换页码分隔符）
+            content = AppConst.REGEX_CONTENT_PAGE.Replace(content, "");
+            // 替换多余的换行
+            content = AppConst.REGEX_LINE_BREAKS_WHITESPACE.Replace(content, " ");
+            // 定义最大值和最小值、截取长度
+            int min = 0;
+            int max = content.Length;
+            // 命中数索引下标
+            int page = 1;
+            // 遍历关键词列表
+            foreach (string keyword in keywords)
+            {
+                // 定义关键词正则
+                Regex regex = new Regex(keyword, RegexOptions.IgnoreCase);
+                // 匹配集合
+                MatchCollection collection = regex.Matches(content);
+                // 遍历命中列表
+                foreach (Match match in collection)
+                {
+                    // 匹配位置
+                    int index = match.Index;
+
+                    int startIndex = index - cutLength / 2;
+                    int endIndex = index + match.Length + cutLength / 2;
+
+                    // 顺序不能乱
+                    if (startIndex < min) startIndex = min;
+                    if (endIndex > max) endIndex = max;
+                    if (startIndex > endIndex) startIndex = endIndex - cutLength;
+                    if (startIndex < min) startIndex = min;
+                    if (startIndex + endIndex < cutLength) endIndex = endIndex + cutLength - (startIndex + endIndex);
+                    if (endIndex > max) endIndex = max;
+
+                    // 开始位置
+                    string before = content.Substring(startIndex, index - startIndex);
+                    if (startIndex > min)
+                    {
+                        before = "..." + before;
+                    }
+                    // 关键词位置（高亮处理）
+                    string highlight = content.Substring(index, match.Length);
+                    // 结束位置
+                    string after = content.Substring(index + match.Length, endIndex - (index + match.Length));
+                    if (endIndex < max)
+                    {
+                        after = after + "...";
+                    }
+
+                    Paragraph paragraph = new Paragraph();
+                    paragraph.FontSize = 13;
+                    paragraph.FontFamily = new System.Windows.Media.FontFamily("微软雅黑");
+
+                    Run beforeRun = new Run(before);
+                    paragraph.Inlines.Add(beforeRun);
+
+                    Run highlightRun = new Run(highlight);
+                    highlightRun.FontWeight = FontWeight.FromOpenTypeWeight(700);
+                    if (isBackground)
+                    {
+                        highlightRun.Background = new SolidColorBrush(color);
+                        highlightRun.Foreground = new SolidColorBrush(Colors.White);
+                    }
+                    else
+                    {
+                        highlightRun.Foreground = new SolidColorBrush(color);
+                    }
+
+                    paragraph.Inlines.Add(highlightRun);
+
+                    Run afterRun = new Run(after);
+                    paragraph.Inlines.Add(afterRun);
+
+                    // 分割线                    
+                    Run pageRun = new Run(string.Format("\r\n------------------------------------------------------------------------------ {0}\r\n", page));
+                    paragraph.Inlines.Add(pageRun);
+                    document.Blocks.Add(paragraph);
+
+                    page++;
+                }
+            }
+            return document;
+        }
     }
 }

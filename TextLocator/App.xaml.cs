@@ -51,11 +51,11 @@ namespace TextLocator
         {
             if (this.MainWindow.WindowState == WindowState.Minimized)
             {
-                this.MainWindow.WindowState = CacheUtil.Get<WindowState>("WindowState");
+                this.MainWindow.WindowState = WindowState.Normal;
             }
 
-            this.MainWindow.Show();
             this.MainWindow.Activate();
+
             return true;
         }
 

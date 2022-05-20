@@ -109,9 +109,9 @@
                     <!-- 中间 -->
                     <Grid VerticalAlignment="Top" Margin="0,116,0,0" Height="758">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="654*" MinWidth="500"/>
-                            <ColumnDefinition Width="3"/>
-                            <ColumnDefinition Width="361*" MinWidth="460"/>
+                            <ColumnDefinition Width="653*" MinWidth="500"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="360*" MinWidth="460"/>
                         </Grid.ColumnDefinitions>
                         <!-- 左边 -->
                         <Grid HorizontalAlignment="Stretch" Grid.Column="0">

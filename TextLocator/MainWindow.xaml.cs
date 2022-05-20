@@ -1028,12 +1028,16 @@ namespace TextLocator
                         if (build)
                         {
                             log.Info("上次任务还没执行完成，跳过本次任务。");
-                            return;
                         }
-                        build = true;
-                        // 执行索引更新，扫描新文件。
-                        log.Info("开始执行索引更新检查。");
-                        BuildIndex(false, true);
+                        else
+                        {
+                            // 执行索引更新，扫描新文件。
+                            log.Info("开始执行索引更新检查。");
+
+                            build = true;
+                            
+                            BuildIndex(false, true);
+                        }
 
                         // 配置参数错误导致的bug矫正
                         if (AppConst.INDEX_UPDATE_TASK_INTERVAL <= 5)

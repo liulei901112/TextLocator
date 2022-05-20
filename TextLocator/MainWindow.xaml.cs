@@ -581,6 +581,7 @@ namespace TextLocator
             }
 
             ShowStatus("搜索处理中...");
+            ShowSearchLoading();
 
             Thread t = new Thread(() =>
             {
@@ -599,6 +600,7 @@ namespace TextLocator
                     if (null == searchResult || searchResult.Results.Count <= 0)
                     {
                         MessageCore.ShowWarning("没有搜到你想要的内容，请更换搜索条件。");
+                        HideSearchLoading();
                         return;
                     }
 
@@ -617,16 +619,18 @@ namespace TextLocator
                         });
                     }
 
-                    // 4、---- 显示预览列表分页信息
-                    _viewModel.PreviewPage = string.Format("0/{0}", searchResult.Results.Count);
-
-                    // 5、---- 分页总数
+                    // 4、---- 分页总数、显示预览列表分页信息
                     _viewModel.TotalCount = searchResult.Total;
+                    _viewModel.PreviewPage = string.Format("0/{0}", searchResult.Results.Count);
                     _viewModel.PreviewSwitchVisibility = searchResult.Total > 0 ? Visibility.Visible : Visibility.Hidden;
                 }
                 catch (Exception ex)
                 {
                     log.Error("搜索错误：" + ex.Message, ex);
+                }
+                finally
+                {
+                    HideSearchLoading();
                 }
             });
             t.Priority = ThreadPriority.Highest;
@@ -1445,8 +1449,30 @@ namespace TextLocator
             }
             return keywords;
         }
+        #endregion
 
+        #region Loading
 
+        /// <summary>
+        /// 显示搜索Loading
+        /// </summary>
+        private void ShowSearchLoading()
+        {
+            Dispatcher.Invoke(new Action(() =>
+            {
+                this._searchLoading.Visibility = Visibility.Visible;
+            }));
+        }
+        /// <summary>
+        /// 隐藏搜索Loading
+        /// </summary>
+        private void HideSearchLoading()
+        {
+            Dispatcher.Invoke(new Action(() =>
+            {
+                this._searchLoading.Visibility = Visibility.Collapsed;
+            }));
+        }
         #endregion
     }
 }

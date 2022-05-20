@@ -93,7 +93,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 匹配空白和换行
         /// </summary>
-        public static readonly Regex REGEX_LINE_BREAKS_WHITESPACE = new Regex(@"  |\r\r|\n\n|┄|\s");
+        public static readonly Regex REGEX_LINE_BREAKS_WHITESPACE = new Regex(@"  |\r\r|\n\n|\s\s|┄");
         /// <summary>
         /// 匹配HTML和XML标签
         /// </summary>

@@ -8,12 +8,13 @@ namespace TextLocator.Entity
     /// </summary>
     public class FileInfo
     {
-        // -------- 查询参数携带回传 --------
+        // -------- 列表索引 --------
         /// <summary>
         /// 列表序号
         /// </summary>
         public int Index { get; set; }
 
+        // -------- 文件信息 --------
         /// <summary>
         /// 文件类型
         /// </summary>

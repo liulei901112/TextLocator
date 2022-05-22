@@ -74,7 +74,7 @@ namespace TextLocator
             // 获取摘要
             FileContentUtil.EmptyRichTextDocument(this.ContentBreviary);
             Task.Factory.StartNew(async () => {
-                await Task.Delay((AppConst.MRESULT_LIST_PAGE_SIZE - 10) * fileInfo.Index);
+                await Task.Delay(AppConst.MRESULT_LIST_PAGE_SIZE / 2 * fileInfo.Index);
                 string breviary = IndexCore.GetContentBreviary(fileInfo);
                 await Dispatcher.InvokeAsync(() =>
                 {
@@ -88,7 +88,7 @@ namespace TextLocator
 
             // 词频统计明细
             Task.Factory.StartNew(async () => {
-                await Task.Delay((AppConst.MRESULT_LIST_PAGE_SIZE - 15) * fileInfo.Index);
+                await Task.Delay(AppConst.MRESULT_LIST_PAGE_SIZE * fileInfo.Index);
                 LoadMatchCountDetails(fileInfo);
             });
         }

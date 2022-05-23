@@ -8,6 +8,13 @@ namespace TextLocator.Entity
     /// </summary>
     public class FileInfo
     {
+        // -------- 列表索引 --------
+        /// <summary>
+        /// 列表序号
+        /// </summary>
+        public int Index { get; set; }
+
+        // -------- 文件信息 --------
         /// <summary>
         /// 文件类型
         /// </summary>
@@ -43,7 +50,6 @@ namespace TextLocator.Entity
         /// </summary>
         private List<string> keywords = new List<string>();
         public List<string> Keywords { get => keywords; set => keywords = value; }
-
         /// <summary>
         /// 搜索域
         /// </summary>

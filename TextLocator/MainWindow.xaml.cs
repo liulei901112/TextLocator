@@ -12,6 +12,7 @@ using System.Windows;
 using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -50,11 +51,6 @@ namespace TextLocator
         /// 索引构建中
         /// </summary>
         private static volatile bool build = false;
-
-        /// <summary>
-        /// 窗口状态
-        /// </summary>
-        private WindowState _windowState = WindowState.Normal;
 
         /// <summary>
         /// 数据模型
@@ -142,18 +138,6 @@ namespace TextLocator
         }
 
         /// <summary>
-        /// 窗口关闭中，改为隐藏
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            _windowState = this.WindowState;
-            this.Hide();
-            e.Cancel = true;
-        }
-
-        /// <summary>
         /// 窗口激活
         /// </summary>
         /// <param name="sender"></param>
@@ -161,7 +145,40 @@ namespace TextLocator
         private void Window_Activated(object sender, EventArgs e)
         {
             this.Show();
-            this.WindowState = _windowState;
+            this.WindowState = CacheUtil.Get<WindowState>("WindowState");
+        }
+
+        /// <summary>
+        /// 窗口关闭中，改为隐藏
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true;
+            CacheUtil.Put("WindowState", this.WindowState);
+        }
+
+        /// <summary>
+        /// 尺寸变化
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            CacheUtil.Put("WindowWidth", this.Width);
+            CacheUtil.Put("WindowHeight", this.Height);
+        }
+
+        /// <summary>
+        /// 状态变化
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            CacheUtil.Put("WindowState", this.WindowState);
         }
         #endregion
 
@@ -176,7 +193,6 @@ namespace TextLocator
 			
 			// 设置标题
             this.Title = string.Format("{0} v{1} (开放版)", this.Title, version);
-
         }
 
         /// <summary>
@@ -565,6 +581,7 @@ namespace TextLocator
             }
 
             ShowStatus("搜索处理中...");
+            ShowSearchLoading();
 
             Thread t = new Thread(() =>
             {
@@ -583,32 +600,37 @@ namespace TextLocator
                     if (null == searchResult || searchResult.Results.Count <= 0)
                     {
                         MessageCore.ShowWarning("没有搜到你想要的内容，请更换搜索条件。");
+                        HideSearchLoading();
                         return;
                     }
 
                     // 3、---- 遍历结果
+                    int index = 1;
                     foreach (Entity.FileInfo fileInfo in searchResult.Results)
                     {
                         if (_timestamp != timestamp)
                         {
                             return;
                         }
+                        fileInfo.Index = index++;
                         Dispatcher.Invoke(() =>
                         {
-                            this.SearchResultList.Items.Add(new FileInfoItem(fileInfo, searchParam.SearchRegion));
+                            this.SearchResultList.Items.Add(new FileInfoItem(fileInfo));
                         });
                     }
 
-                    // 4、---- 显示预览列表分页信息
-                    _viewModel.PreviewPage = string.Format("0/{0}", searchResult.Results.Count);
-
-                    // 5、---- 分页总数
+                    // 4、---- 分页总数、显示预览列表分页信息
                     _viewModel.TotalCount = searchResult.Total;
+                    _viewModel.PreviewPage = string.Format("0/{0}", searchResult.Results.Count);
                     _viewModel.PreviewSwitchVisibility = searchResult.Total > 0 ? Visibility.Visible : Visibility.Hidden;
                 }
                 catch (Exception ex)
                 {
                     log.Error("搜索错误：" + ex.Message, ex);
+                }
+                finally
+                {
+                    HideSearchLoading();
                 }
             });
             t.Priority = ThreadPriority.Highest;
@@ -803,26 +825,37 @@ namespace TextLocator
                 {
                     try
                     {
-                        // 文件内容（预览）FileInfoServiceFactory.GetFileContent(fileInfo.FilePath, true);
+                        // 方案一：通过工厂接口读取文档内容（为提高预览速度，现已放弃） -> FileInfoServiceFactory.GetFileContent(fileInfo.FilePath, true);
+                        // 方案二：创建索引时写入内容到索引，预览时直接读取使用。
                         string content = fileInfo.Preview;
 
                         Dispatcher.InvokeAsync(() =>
                         {
-                            // 填充数据
-                            FileContentUtil.FillFlowDocument(PreviewFileContent, content, new SolidColorBrush(Colors.Black));
-                            // 默认滚动到第一页
-                            PreviewFileContent.CanGoToPage(1);
-                            ScrollViewer sourceScrollViewer = PreviewFileContent.Template.FindName("PART_ContentHost", PreviewFileContent) as ScrollViewer;
-                            if (sourceScrollViewer != null)
+                            // 预览摘要启用
+                            if (AppConst.ENABLE_PREVIEW_SUMMARY)
                             {
-                                sourceScrollViewer.ScrollToTop();
+                                FlowDocument document = FileContentUtil.GetHitBreviaryFlowDocument(content, fileInfo.Keywords, Colors.Red);
+                                PreviewFileContent.Document = document;
+                                PreviewFileContent.CanGoToPage(1);
                             }
-                            // 关键词高亮
-                            FileContentUtil.FlowDocumentHighlight(
-                                PreviewFileContent,
-                                Colors.Red,
-                                fileInfo.Keywords
-                            );
+                            else
+                            {
+                                // 填充数据
+                                FileContentUtil.FillFlowDocument(PreviewFileContent, content, new SolidColorBrush(Colors.Black));
+                                // 默认滚动到第一页
+                                PreviewFileContent.CanGoToPage(1);
+                                ScrollViewer sourceScrollViewer = PreviewFileContent.Template.FindName("PART_ContentHost", PreviewFileContent) as ScrollViewer;
+                                if (sourceScrollViewer != null)
+                                {
+                                    sourceScrollViewer.ScrollToTop();
+                                }
+                                // 关键词高亮
+                                FileContentUtil.FlowDocumentHighlight(
+                                    PreviewFileContent,
+                                    Colors.Red,
+                                    fileInfo.Keywords
+                                );
+                            }
                         });
                     }
                     catch (Exception ex)
@@ -871,6 +904,26 @@ namespace TextLocator
         private void CheckChange(object sender, RoutedEventArgs e)
         {
             BeforeSearch();
+        }
+
+        /// <summary>
+        /// 参数设置
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SettingButton_Click(object sender, RoutedEventArgs e)
+        {
+            var win = SettingWindow.CreateInstance();
+            if (!win.IsVisible)
+            {
+                win.Topmost = true;
+                win.Owner = this;
+                win.ShowDialog();
+            }
+            else
+            {
+                win.Activate();
+            }
         }
 
         /// <summary>
@@ -1004,6 +1057,18 @@ namespace TextLocator
         /// </summary>
         private void IndexUpdateTask()
         {
+            // 方案一：定时器
+            /*if (AppConst.INDEX_UPDATE_TASK_INTERVAL <= 5)
+                AppConst.INDEX_UPDATE_TASK_INTERVAL = 5;
+
+            System.Timers.Timer timer = new System.Timers.Timer();
+            timer.Interval = AppConst.INDEX_UPDATE_TASK_INTERVAL * 60 * 1000;
+            timer.Elapsed += Timer_Elapsed;
+            timer.AutoReset = true;
+            timer.Enabled = true;
+            timer.Start();*/
+
+            // 方案二：线程
             Task.Factory.StartNew(() =>
             {
                 try
@@ -1015,12 +1080,16 @@ namespace TextLocator
                             log.Info("上次任务还没执行完成，跳过本次任务。");
                             return;
                         }
-                        build = true;
-                        // 执行索引更新，扫描新文件。
-                        log.Info("开始执行索引更新检查。");
-                        BuildIndex(false, true);
+                        else
+                        {
+                            log.Info("开始执行索引更新检查。");
 
-                        // 配置参数错误导致的bug矫正
+                            build = true;
+
+                            BuildIndex(false, true);
+                        }
+
+                        // 修复bug容错处理
                         if (AppConst.INDEX_UPDATE_TASK_INTERVAL <= 5)
                             AppConst.INDEX_UPDATE_TASK_INTERVAL = 5;
 
@@ -1032,6 +1101,27 @@ namespace TextLocator
                     log.Error("索引更新任务执行错误：" + ex.Message, ex);
                 }
             });
+        }
+
+        /// <summary>
+        /// 定时器执行逻辑
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (build)
+            {
+                log.Info("上次任务还没执行完成，跳过本次任务。");
+            }
+            else
+            {
+                log.Info("开始执行索引更新检查。");
+
+                build = true;
+
+                BuildIndex(false, true);
+            }
         }
 
         /// <summary>
@@ -1359,8 +1449,30 @@ namespace TextLocator
             }
             return keywords;
         }
+        #endregion
 
-        
+        #region Loading
+
+        /// <summary>
+        /// 显示搜索Loading
+        /// </summary>
+        private void ShowSearchLoading()
+        {
+            Dispatcher.Invoke(new Action(() =>
+            {
+                this._searchLoading.Visibility = Visibility.Visible;
+            }));
+        }
+        /// <summary>
+        /// 隐藏搜索Loading
+        /// </summary>
+        private void HideSearchLoading()
+        {
+            Dispatcher.Invoke(new Action(() =>
+            {
+                this._searchLoading.Visibility = Visibility.Collapsed;
+            }));
+        }
         #endregion
     }
 }

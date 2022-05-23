@@ -15,10 +15,6 @@ namespace TextLocator.Core
     public class AppConst
     {
         /// <summary>
-        /// 结果列表分页条数
-        /// </summary>
-        public static int MRESULT_LIST_PAGE_SIZE = int.Parse(AppUtil.ReadValue("AppConfig", "ResultListPageSize", "100"));
-        /// <summary>
         /// 文件读取超时时间，单位：秒
         /// </summary>
         public static int FILE_READ_TIMEOUT = int.Parse(AppUtil.ReadValue("AppConfig", "FileReadTimeout", "600"));
@@ -27,17 +23,30 @@ namespace TextLocator.Core
         /// </summary>
         public static int FILE_SIZE_LIMIT = int.Parse(AppUtil.ReadValue("AppConfig", "FileSizeLimit", "200000000"));
         /// <summary>
+        /// 文件内容摘要切割长度
+        /// </summary>
+        public static int FILE_CONTENT_BREVIARY_CUT_LENGTH = int.Parse(AppUtil.ReadValue("AppConfig", "FileContentBreviaryCutLength", "120"));
+        /// <summary>
+        /// 结果列表分页条数
+        /// </summary>
+        public static int MRESULT_LIST_PAGE_SIZE = int.Parse(AppUtil.ReadValue("AppConfig", "ResultListPageSize", "100"));
+        /// <summary>
         /// 缓存池容量
         /// </summary>
         public static int CACHE_POOL_CAPACITY = int.Parse(AppUtil.ReadValue("AppConfig", "CachePoolCapacity", "100000"));
+        /// <summary>
+        /// 索引更新任务间隔时间，单位：分
+        /// </summary>
+        public static int INDEX_UPDATE_TASK_INTERVAL = int.Parse(AppUtil.ReadValue("AppConfig", "IndexUpdateTaskInterval", "10"));
+
         /// <summary>
         /// 启用索引更新任务，默认启用
         /// </summary>
         public static bool ENABLE_INDEX_UPDATE_TASK = bool.Parse(AppUtil.ReadValue("AppConfig", "EnableIndexUpdateTask", "True"));
         /// <summary>
-        /// 索引更新任务间隔时间，单位：分
+        /// 启用预览摘要
         /// </summary>
-        public static int INDEX_UPDATE_TASK_INTERVAL = int.Parse(AppUtil.ReadValue("AppConfig", "IndexUpdateTaskInterval", "10"));
+        public static bool ENABLE_PREVIEW_SUMMARY = bool.Parse(AppUtil.ReadValue("AppConfig", "EnablePreviewSummary", "False"));
 
         /// <summary>
         /// 最小工作线程（CPU线程数 * 2）
@@ -93,7 +102,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 匹配空白和换行
         /// </summary>
-        public static readonly Regex REGEX_LINE_BREAKS_WHITESPACE = new Regex(@"  |\r\r|\n\n|┄|\s");
+        public static readonly Regex REGEX_LINE_BREAKS_WHITESPACE = new Regex(@"  |\r\r|\n\n|\s\s|┄");
         /// <summary>
         /// 匹配HTML和XML标签
         /// </summary>

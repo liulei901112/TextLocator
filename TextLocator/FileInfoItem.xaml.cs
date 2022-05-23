@@ -3,6 +3,8 @@ using System;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
+using TextLocator.Core;
 using TextLocator.Index;
 using TextLocator.Util;
 
@@ -19,8 +21,7 @@ namespace TextLocator
         /// 文件信息显示条目
         /// </summary>
         /// <param name="fileInfo">文件信息</param>
-        /// <param name="searchRegion">搜索域</param>
-        public FileInfoItem(Entity.FileInfo fileInfo, Enums.SearchRegion searchRegion)
+        public FileInfoItem(Entity.FileInfo fileInfo)
         {
             InitializeComponent();
 
@@ -28,14 +29,14 @@ namespace TextLocator
 
             try
             {
-                Refresh(fileInfo, searchRegion);
+                Refresh(fileInfo);
             }
             catch {
                 Dispatcher.InvokeAsync(() =>
                 {
                     try
                     {
-                        Refresh(fileInfo, searchRegion);
+                        Refresh(fileInfo);
                     }
                     catch (Exception ex)
                     {
@@ -49,8 +50,7 @@ namespace TextLocator
         /// 刷新数据
         /// </summary>
         /// <param name="fileInfo">文件信息</param>
-        /// <param name="searchRegion">搜索域</param>
-        public void Refresh(Entity.FileInfo fileInfo, Enums.SearchRegion searchRegion)
+        public void Refresh(Entity.FileInfo fileInfo)
         {
             // 根据文件类型显示图标
             this.FileTypeIcon.Source = FileUtil.GetFileIcon(fileInfo.FileType);
@@ -62,7 +62,7 @@ namespace TextLocator
             string fileName = fileInfo.FileName;
             // 显示文件名称
             FileContentUtil.FillFlowDocument(this.FileName, fileName.Length > 55 ? fileName.Substring(0, 55) + "..." : fileName, (Brush)new BrushConverter().ConvertFromString("#1A0DAB"), true);
-            if (searchRegion == Enums.SearchRegion.文件名和内容 || searchRegion == Enums.SearchRegion.仅文件名)
+            if (fileInfo.SearchRegion == Enums.SearchRegion.文件名和内容 || fileInfo.SearchRegion == Enums.SearchRegion.仅文件名)
             {
                 FileContentUtil.FlowDocumentHighlight(this.FileName, Colors.Red, fileInfo.Keywords);
             }
@@ -73,29 +73,64 @@ namespace TextLocator
 
             // 获取摘要
             FileContentUtil.EmptyRichTextDocument(this.ContentBreviary);
-            Task.Factory.StartNew(() => {
+            Task.Factory.StartNew(async () => {
+                await Task.Delay(AppConst.MRESULT_LIST_PAGE_SIZE / 2 * fileInfo.Index);
                 string breviary = IndexCore.GetContentBreviary(fileInfo);
-                Dispatcher.InvokeAsync(() =>
+                await Dispatcher.InvokeAsync(() =>
                 {
                     FileContentUtil.FillFlowDocument(this.ContentBreviary, breviary, (Brush)new BrushConverter().ConvertFromString("#545454"));
-                    if (searchRegion == Enums.SearchRegion.文件名和内容 || searchRegion == Enums.SearchRegion.仅文件内容)
+                    if (fileInfo.SearchRegion == Enums.SearchRegion.文件名和内容 || fileInfo.SearchRegion == Enums.SearchRegion.仅文件内容)
                     {
                         FileContentUtil.FlowDocumentHighlight(this.ContentBreviary, Colors.Red, fileInfo.Keywords);
                     }
                 });
             });
 
-            // 词频统计
-            Task.Factory.StartNew(() => {
-                string matchCountDetails = IndexCore.GetMatchCountDetails(fileInfo);
-                Dispatcher.InvokeAsync(() => {
-                    if (!string.IsNullOrWhiteSpace(matchCountDetails))
-                    {
-                        // 关键词匹配次数
-                        this.FileTypeIcon.ToolTip = matchCountDetails;
-                    }
-                });
+            // 词频统计明细
+            Task.Factory.StartNew(async () => {
+                await Task.Delay(AppConst.MRESULT_LIST_PAGE_SIZE * fileInfo.Index);
+                LoadMatchCountDetails(fileInfo);
             });
+        }
+
+        /// <summary>
+        /// 光标在文件类型图标边界移入事件（词频统计详情放在这里加载，主要是为了节省列表加载事件）
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FileTypeIcon_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (this.FileTypeIcon.ToolTip == null)
+            {
+                LoadMatchCountDetails(this.Tag as Entity.FileInfo);
+            }
+        }
+
+        /// <summary>
+        /// 加载词频统计详情放在这里
+        /// </summary>
+        private void LoadMatchCountDetails(Entity.FileInfo fileInfo)
+        {
+            string matchCountDetails = IndexCore.GetMatchCountDetails(fileInfo);
+            if (!string.IsNullOrWhiteSpace(matchCountDetails))
+            {
+                void Load()
+                {
+                    this.FileTypeIcon.ToolTip = matchCountDetails;
+                    ToolTipService.SetShowDuration(this.FileTypeIcon, 600000);
+                }
+                try
+                {
+                    Load();
+                }
+                catch
+                {
+                    Dispatcher.InvokeAsync(() =>
+                    {
+                        Load();
+                    });
+                }
+            }
         }
     }
 }

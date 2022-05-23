@@ -97,7 +97,7 @@ namespace TextLocator.Service
                             {
                                 for (int j = 0; j < columnCount; j++)
                                 {
-                                    builder.Append(sheet.Cells[i + 1, j + 1].Value + " ");
+                                    builder.Append(sheet.Cells[i + 1, j + 1].Value + "　");
                                 }
                                 builder.AppendLine();
                             }
@@ -199,7 +199,7 @@ namespace TextLocator.Service
                             int cellCount = row.LastCellNum;
                             for (int k = 0; k < cellCount; k++)
                             {
-                                builder.Append(row.GetCell(j) + " ");
+                                builder.Append(row.GetCell(j) + "　");
                             }
                             builder.AppendLine();
                         }

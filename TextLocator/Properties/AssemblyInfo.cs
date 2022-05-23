@@ -50,9 +50,9 @@ using System.Windows;
 //通过使用 "*"，如下所示:
 // [assembly: AssemblyVersion("1.0.*")]
 // 大版本，强制更新最小版本
-[assembly: AssemblyVersion("2.1.20")]
+[assembly: AssemblyVersion("2.1.28")]
 // 小版本，选择更新版本
-[assembly: AssemblyFileVersion("2.1.20.1")]
+[assembly: AssemblyFileVersion("2.1.28.1")]
 // Version minVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 // Version version = new Version(FileVersionInfo.GetVersionInfo(System.Windows.Forms.Application.ExecutablePath).ProductVersion);
 

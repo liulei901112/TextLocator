@@ -7,7 +7,7 @@
         xmlns:rubyer="clr-namespace:Rubyer;assembly=Rubyer"
         mc:Ignorable="d"
         Title="文本搜索定位器" Width="1600" Height="900" Icon="Resource/App.ico"
-        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing" Activated="Window_Activated">
+        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing" Activated="Window_Activated" SizeChanged="Window_SizeChanged" StateChanged="Window_StateChanged">
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo x:Name="TaskbarInfo"/>
     </Window.TaskbarItemInfo>
@@ -97,6 +97,8 @@
                                 </StackPanel>
                             </StackPanel>
                             <StackPanel Margin="0,0,0,10" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                                <!-- 设置按钮 -->
+                                <Button x:Name="SettingButton" Content="设置" ToolTip="打开参数设置界面" Margin="0,0,10,0" Width="80" Height="25" Background="Gray" Click="SettingButton_Click" Cursor="Hand"/>
                                 <!-- 搜索按钮 -->
                                 <Button x:Name="IndexUpdateButton" Content="更新" ToolTip="增量更新索引" Margin="0,0,10,0" Width="80" Height="25" Background="Green" Click="IndexUpdateButton_Click"/>
                                 <!-- 清空按钮 -->
@@ -109,9 +111,9 @@
                     <!-- 中间 -->
                     <Grid VerticalAlignment="Top" Margin="0,116,0,0" Height="758">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="654*" MinWidth="500"/>
-                            <ColumnDefinition Width="3"/>
-                            <ColumnDefinition Width="361*" MinWidth="460"/>
+                            <ColumnDefinition Width="653*" MinWidth="500"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="360*" MinWidth="460"/>
                         </Grid.ColumnDefinitions>
                         <!-- 左边 -->
                         <Grid HorizontalAlignment="Stretch" Grid.Column="0">
@@ -911,7 +913,7 @@
                                                 rubyer:ProgressBarHelper.Thickness="100"
                                                 rubyer:ProgressBarHelper.IsShowPercent="false"/>
                         <!-- 状态信息 -->
-                        <TextBlock x:Name="WorkStatus"  Text="就绪" Foreground="White" Margin="10,0,0,0" HorizontalAlignment="Left"/>
+                        <TextBlock x:Name="WorkStatus" Text="就绪" Foreground="White" FontSize="15" Margin="10,0,0,0" HorizontalAlignment="Left"/>
                     </Grid>
 
                     <!-- 消息容器 -->

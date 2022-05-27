@@ -188,7 +188,7 @@ namespace TextLocator
             }
 
             AppConst.ENABLE_PREVIEW_SUMMARY = enablePreviewSummary;
-            AppUtil.WriteValue("AppConfig", "EnableIndexUpdateTask", AppConst.ENABLE_PREVIEW_SUMMARY + "");
+            AppUtil.WriteValue("AppConfig", "EnablePreviewSummary", AppConst.ENABLE_PREVIEW_SUMMARY + "");
 
             this.Close();
         }

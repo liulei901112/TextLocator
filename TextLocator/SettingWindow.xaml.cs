@@ -189,6 +189,7 @@ namespace TextLocator
 
             AppConst.ENABLE_PREVIEW_SUMMARY = enablePreviewSummary;
             AppUtil.WriteValue("AppConfig", "EnablePreviewSummary", AppConst.ENABLE_PREVIEW_SUMMARY + "");
+            log.Debug("修改启用预览上下文摘要：" + AppConst.ENABLE_PREVIEW_SUMMARY);
 
             this.Close();
         }

@@ -27,7 +27,7 @@
                                 <CheckBox x:Name="EnableIndexUpdateTask" Content="启用自动更新任务（启用后需要重启软件才能生效）" Margin="100,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                                 <Grid Margin="20,30,20,0">
                                     <Grid HorizontalAlignment="Left">
-                                        <TextBox x:Name="IndexUpdateTaskInterval" Text="10" ToolTip="建议：大于5分钟，小于60"  HorizontalAlignment="Left" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
+                                        <TextBox x:Name="IndexUpdateTaskInterval" Text="10" ToolTip="建议：大于5分钟，小于60分钟"  HorizontalAlignment="Left" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
                                         <TextBlock Text="单位：分钟（太长新增或修改不能及时更新）"  HorizontalAlignment="Left" Margin="110,0,0,0" />
                                     </Grid>
                                 </Grid>
@@ -39,8 +39,8 @@
                                 <TextBlock Text="文件读取超时时间：" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                                 <Grid Margin="20,30,20,0">
                                     <Grid HorizontalAlignment="Left">
-                                        <TextBox x:Name="FileReadTimeout" Text="600" ToolTip="建议：大于5分钟，小于15分钟"  HorizontalAlignment="Left" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
-                                        <TextBlock Text="单位：秒（太短正常文件未返回，太长影响速度）"  HorizontalAlignment="Left" Margin="110,0,0,0" />
+                                        <TextBox x:Name="FileContentReadTimeout" Text="10" ToolTip="建议：大于5分钟，小于15分钟"  HorizontalAlignment="Left" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
+                                        <TextBlock Text="单位：分钟（太短正常文件未返回，太长影响速度）"  HorizontalAlignment="Left" Margin="110,0,0,0" />
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -53,7 +53,7 @@
                                 <TextBlock Text="列表分页条数：" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                                 <Grid Margin="20,30,20,0">
                                     <Grid HorizontalAlignment="Left">
-                                        <TextBox x:Name="ResultListPageSize" Text="100" ToolTip="建议：大于50，小于300" HorizontalAlignment="Left" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
+                                        <TextBox x:Name="ResultListPageSize" Text="100" ToolTip="建议：大于50行，小于300行" HorizontalAlignment="Left" Width="100" input:InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Number_TextBox_PreviewTextInput"/>
                                         <TextBlock Text="默认：100（每页显示太多可能会卡顿）"  HorizontalAlignment="Left" Margin="110,0,0,0" />
                                     </Grid>
                                 </Grid>
@@ -85,11 +85,9 @@
                                     </Grid>
                                 </Grid>
                             </Grid>
-                            <!-- 分割线 -->
-                            <Line X1="0" Y1="60" X2="0" Y2="0" Margin="10,0,10,0" Stroke="White" StrokeThickness="1"></Line>
                         </StackPanel>
                     </GroupBox>
-
+                    
                     <!-- 底部增加10高度，否则太近了 -->
                     <Grid Margin="0,10,0,0"></Grid>
                 </StackPanel>

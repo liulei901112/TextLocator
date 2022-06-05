@@ -2,6 +2,7 @@
 using System;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using TextLocator.Core;
 using TextLocator.Message;
 using TextLocator.Util;
@@ -56,7 +57,7 @@ namespace TextLocator
             this.IndexUpdateTaskInterval.Text = AppConst.INDEX_UPDATE_TASK_INTERVAL + "";
 
             // 文件读取超时时间
-            this.FileReadTimeout.Text = AppConst.FILE_READ_TIMEOUT + "";
+            this.FileContentReadTimeout.Text = AppConst.FILE_CONTENT_READ_TIMEOUT + "";
 
             // -------- 列表和缓存
             // 每页显示条数
@@ -97,29 +98,29 @@ namespace TextLocator
                     MessageCore.ShowWarning("索引更新任务间隔时间错误");
                     return;
                 }
-                if (indexUpdateTaskInterval < 5 || indexUpdateTaskInterval > 30)
+                if (indexUpdateTaskInterval < 5 || indexUpdateTaskInterval > 60)
                 {
-                    MessageCore.ShowWarning("建议设置在5 - 30分钟范围内");
+                    MessageCore.ShowWarning("索引更新任务间隔时间：建议设置在5 - 60分钟范围内");
                     return;
                 }
 
                 AppConst.INDEX_UPDATE_TASK_INTERVAL = indexUpdateTaskInterval;
             }
             // 文件读取超时时间
-            string fileReadTimeoutText = this.FileReadTimeout.Text;
-            int fileReadTimeout = 0;
+            string fileContentReadTimeoutText = this.FileContentReadTimeout.Text;
+            int fileContentReadTimeout = 0;
             try
             {
-                fileReadTimeout = int.Parse(fileReadTimeoutText);
+                fileContentReadTimeout = int.Parse(fileContentReadTimeoutText);
             }
             catch
             {
                 MessageCore.ShowWarning("文件读取超时时间错误");
                 return;
             }
-            if (fileReadTimeout < 5 * 60 || fileReadTimeout > 15 * 60)
+            if (fileContentReadTimeout < 5 || fileContentReadTimeout > 15)
             {
-                MessageCore.ShowWarning("建议设置在5 - 15分钟范围内");
+                MessageCore.ShowWarning("文件内容读取超时时间：建议设置在5 - 15分钟范围内");
                 return;
             }
 
@@ -138,7 +139,7 @@ namespace TextLocator
             }
             if (resultListPageSize < 50 || resultListPageSize > 300)
             {
-                MessageCore.ShowWarning("建议设置在50 - 300范围内");
+                MessageCore.ShowWarning("列表枫叶条数：建议设置在50 - 300范围内");
                 return;
             }
             // 缓存池容量
@@ -155,7 +156,7 @@ namespace TextLocator
             }
             if (cachePoolCapacity < 50000 || cachePoolCapacity > 500000)
             {
-                MessageCore.ShowWarning("建议设置在5-50W范围内");
+                MessageCore.ShowWarning("缓存池容量：建议设置在5 - 50W范围内");
                 return;
             }
 
@@ -173,17 +174,18 @@ namespace TextLocator
                 }
                 catch
                 {
-                    MessageCore.ShowWarning("分页条数错误");
+                    MessageCore.ShowWarning("文件内容摘要切割长度错误");
                     return;
                 }
                 if (fileContentBreviaryCutLength < 30 || fileContentBreviaryCutLength > 120)
                 {
-                    MessageCore.ShowWarning("建议设置在30 - 120范围内");
+                    MessageCore.ShowWarning("文件内容摘要切割长度：建议设置在30 - 120范围内");
                     return;
                 }
 
                 AppConst.FILE_CONTENT_BREVIARY_CUT_LENGTH = fileContentBreviaryCutLength;
             }
+
 
             // -------- 刷新、保存
             // ---- 索引和文件
@@ -195,9 +197,9 @@ namespace TextLocator
                 AppUtil.WriteValue("AppConfig", "IndexUpdateTaskInterval", AppConst.INDEX_UPDATE_TASK_INTERVAL + "");
                 log.Debug("修改索引更新任务间隔时间：" + AppConst.INDEX_UPDATE_TASK_INTERVAL);
             }
-            AppConst.FILE_READ_TIMEOUT = fileReadTimeout;
-            AppUtil.WriteValue("AppConfig", "FileReadTimeout", AppConst.FILE_READ_TIMEOUT + "");
-            log.Debug("修改文件读取超时时间：" + AppConst.FILE_READ_TIMEOUT);
+            AppConst.FILE_CONTENT_READ_TIMEOUT = fileContentReadTimeout;
+            AppUtil.WriteValue("AppConfig", "FileContentReadTimeout", AppConst.FILE_CONTENT_READ_TIMEOUT + "");
+            log.Debug("修改文件读取超时时间：" + AppConst.FILE_CONTENT_READ_TIMEOUT);
 
             // ---- 列表和缓存
             AppConst.MRESULT_LIST_PAGE_SIZE = resultListPageSize;

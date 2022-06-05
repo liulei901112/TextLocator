@@ -143,7 +143,7 @@ namespace TextLocator.Factory
 		private static void Wait(Thread t, WaitHandle are)
 		{
 			WaitHandle[] ares = new WaitHandle[] { are };
-			int index = WaitHandle.WaitAny(ares, TimeSpan.FromSeconds(AppConst.FILE_READ_TIMEOUT));
+			int index = WaitHandle.WaitAny(ares, TimeSpan.FromMinutes(AppConst.FILE_CONTENT_READ_TIMEOUT));
 			if ((index != 0) && t.IsAlive) // 如果不是执行完成的信号,并且,线程还在执行,那么,结束这个线程
 			{
 				t.Abort();

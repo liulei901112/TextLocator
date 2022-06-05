@@ -9,7 +9,7 @@
         Title="热键设置" Height="380" Width="520" WindowStartupLocation="CenterOwner" WindowStyle="ToolWindow" ResizeMode="CanMinimize" Icon="/Resource/App.ico" Loaded="Window_Loaded" Closed="Window_Closed" >
     <Grid>
         <Grid Margin="0,0,0,50">
-            <GroupBox Header="热键">
+            <GroupBox Style="{StaticResource ColorHeaderGroupBox}" Width="Auto" Height="Auto" Margin="0 0 0 0" Header="热键绑定" >
                 <ItemsControl Margin="10" ItemsSource="{Binding HotKeyList, ElementName=hotkey}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>

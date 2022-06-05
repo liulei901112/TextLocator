@@ -15,9 +15,13 @@ namespace TextLocator.Core
     public class AppConst
     {
         /// <summary>
-        /// 文件读取超时时间，单位：秒
+        /// 索引更新任务间隔时间，单位：分
         /// </summary>
-        public static int FILE_READ_TIMEOUT = int.Parse(AppUtil.ReadValue("AppConfig", "FileReadTimeout", "600"));
+        public static int INDEX_UPDATE_TASK_INTERVAL = int.Parse(AppUtil.ReadValue("AppConfig", "IndexUpdateTaskInterval", "10"));
+        /// <summary>
+        /// 文件读取超时时间，单位：分钟
+        /// </summary>
+        public static int FILE_CONTENT_READ_TIMEOUT = int.Parse(AppUtil.ReadValue("AppConfig", "FileContentReadTimeout", "10"));
         /// <summary>
         /// 文件大小限制
         /// </summary>
@@ -34,10 +38,7 @@ namespace TextLocator.Core
         /// 缓存池容量
         /// </summary>
         public static int CACHE_POOL_CAPACITY = int.Parse(AppUtil.ReadValue("AppConfig", "CachePoolCapacity", "100000"));
-        /// <summary>
-        /// 索引更新任务间隔时间，单位：分
-        /// </summary>
-        public static int INDEX_UPDATE_TASK_INTERVAL = int.Parse(AppUtil.ReadValue("AppConfig", "IndexUpdateTaskInterval", "10"));
+        
 
         /// <summary>
         /// 启用索引更新任务，默认启用

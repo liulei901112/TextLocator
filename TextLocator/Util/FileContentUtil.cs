@@ -82,7 +82,12 @@ namespace TextLocator.Util
                         // 拿出Run的Text                    
                         string text = position.GetTextInRun(LogicalDirection.Forward);
                         // 关键词匹配查找
-                        Regex regex = new Regex(keyword, RegexOptions.IgnoreCase);
+                        string reg = keyword;
+                        if (keyword.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
+                        {
+                            reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
+                        }
+                        Regex regex = new Regex(reg, RegexOptions.IgnoreCase);
                         Match matches = regex.Match(text);
                         if (matches.Success)
                         {
@@ -161,8 +166,13 @@ namespace TextLocator.Util
             // 遍历关键词列表
             foreach (string keyword in keywords)
             {
+                string reg = keyword;
+                if (keyword.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
+                {
+                    reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
+                }
                 // 定义关键词正则
-                Regex regex = new Regex(keyword, RegexOptions.IgnoreCase);
+                Regex regex = new Regex(reg, RegexOptions.IgnoreCase);
                 // 匹配集合
                 MatchCollection collection = regex.Matches(content);
                 // 遍历命中列表

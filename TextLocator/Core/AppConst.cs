@@ -83,10 +83,11 @@ namespace TextLocator.Core
         public static readonly string APP_INDEX_DIR = Path.Combine(APP_DIR, "Index");
         /// <summary>
         /// 分词器
-        /// new Lucene.Net.Analysis.Cn.ChineseAnalyzer();
+        /// new Lucene.Net.Analysis.Cn.ChineseAnalyzer(); // 中文分词器
         /// new Lucene.Net.Analysis.Standard.StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);// 用standardAnalyzer分词器
+        /// new Lucene.Net.Analysis.PanGuAnalyzer(); // PanGu分词器
         /// </summary>
-        public static readonly Analyzer INDEX_ANALYZER = new JiebaAnalyzer(); //new Lucene.Net.Analysis.PanGuAnalyzer();
+        public static readonly Analyzer INDEX_ANALYZER = new JiebaAnalyzer(); // Jieba分词器
         /// <summary>
         /// 分割器
         /// </summary>
@@ -95,11 +96,11 @@ namespace TextLocator.Core
         /// <summary>
         /// 匹配Lucene.NET内置关键词
         /// </summary>
-        public static readonly Regex REGEX_BUILT_IN_SYMBOL = new Regex("AND|OR|NOT|\\&\\&|\\|\\||\"|\\~|\\:");
+        public static readonly Regex REGEX_BUILT_IN_SYMBOL = new Regex("AND|OR|NOT|\\&\\&|\\|\\||\"|\\~"); // \\:
         /// <summary>
         /// 匹配支持的通配符
         /// </summary>
-        public static readonly Regex REGEX_JUDGMENT = new Regex(@"\.|\\w|\\W|\\s|\\S|\\d|\\D|\\b|\\B|\\f|\\n|\\r|\\t|\\v|\^|\$|\*|\?|\+|\-|\{|\}|\[|\]|\(|\)|\\|\||\!"); 
+        //public static readonly Regex REGEX_JUDGMENT = new Regex(@"\.|\\w|\\W|\\s|\\S|\\d|\\D|\\b|\\B|\\f|\\n|\\r|\\t|\\v|\^|\$|\*|\?|\+|\-|\{|\}|\[|\]|\(|\)|\\|\||\!"); 
         /// <summary>
         /// 匹配空白和换行
         /// </summary>
@@ -121,6 +122,10 @@ namespace TextLocator.Core
         /// </summary>
         public static readonly Regex REGEX_CONTENT_PAGE = new Regex(@"----\d+----");
 
+        /// <summary>
+        /// 正则搜索前缀
+        /// </summary>
+        public const string REGEX_SEARCH_PREFIX = "re:";
         /// <summary>
         /// 索引写入器
         /// </summary>

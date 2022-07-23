@@ -1435,7 +1435,8 @@ namespace TextLocator
                 keywords.Add(searchText);
             }
             // 正则表达式
-            else if (AppConst.REGEX_JUDGMENT.IsMatch(searchText))
+            //else if (AppConst.REGEX_JUDGMENT.IsMatch(searchText))
+            else if (searchText.StartsWith("re:"))
             {
                 keywords.Add(searchText);
             }
@@ -1443,7 +1444,7 @@ namespace TextLocator
             else
             {
                 // 分词列表
-                List<string> segmentList = AppConst.INDEX_SEGMENTER.CutForSearch(searchText).ToList();
+                List<string> segmentList = IndexCore.GetKeywords(searchText);//AppConst.INDEX_SEGMENTER.CutForSearch(searchText).ToList();
                 // 合并关键列表
                 keywords = keywords.Union(segmentList).ToList();
             }

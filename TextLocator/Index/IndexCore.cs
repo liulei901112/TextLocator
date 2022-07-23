@@ -658,19 +658,22 @@ namespace TextLocator.Index
                     bool hasContent = param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件内容;
 
                     // 3.1、---- 关键词正则 或 标记为正则
-                    if (AppConst.REGEX_JUDGMENT.IsMatch(keyword))
+                    //if (AppConst.REGEX_JUDGMENT.IsMatch(keyword))
+                    if (keyword.StartsWith("re:"))
                     {
                         keywordType = "正则";
+
+                        string reg = keyword.Replace("re:", "");
                         // 文件名搜索
                         if (hasFileName)
                         {
-                            RegexQuery query = new RegexQuery(new Lucene.Net.Index.Term("FileName", keyword));
+                            RegexQuery query = new RegexQuery(new Lucene.Net.Index.Term("FileName", reg));
                             boolQuery.Add(query, Lucene.Net.Search.Occur.SHOULD);
                         }
                         // 文件内容搜索
                         if (hasContent)
                         {
-                            RegexQuery query = new RegexQuery(new Lucene.Net.Index.Term("Content", keyword));
+                            RegexQuery query = new RegexQuery(new Lucene.Net.Index.Term("Content", reg));
                             boolQuery.Add(query, Lucene.Net.Search.Occur.SHOULD);
                         }
                     }
@@ -678,7 +681,7 @@ namespace TextLocator.Index
                     else
                     {
                         // 关键词再次分词（用于短语查询），UI选中精确搜索时，文本框输入内容不分词，业务处理中查询需要按照短语分词查询
-                        string[] phrases = AppConst.INDEX_SEGMENTER.CutForSearch(keyword).ToArray();
+                        string[] phrases = IndexCore.GetKeywords(keyword).ToArray();// AppConst.INDEX_SEGMENTER.CutForSearch(keyword).ToArray();
 
                         // 【内部函数】域组合查询内部函数
                         void FieldCombineQuery(string fieldName)
@@ -827,6 +830,15 @@ namespace TextLocator.Index
                         SearchRegion = param.SearchRegion
                     };
 
+                    /*if ("正则".Equals(keywordType))
+                    {
+                        string keyword = param.Keywords[0];
+
+                        param.Keywords = new List<string>();
+                        param.Keywords.Add(keyword.Replace("re:", ""));
+                        fileInfo.Keywords = param.Keywords;
+                    }*/
+
                     // 词频统计（所有关键词匹配次数）
                     // fileInfo.MatchCount = GetMatchCount(fileInfo);
 
@@ -920,9 +932,11 @@ namespace TextLocator.Index
                 {
                     if (string.IsNullOrEmpty(keyword)) continue;
                     // 关键词是正则表达式
-                    if (AppConst.REGEX_JUDGMENT.IsMatch(keyword))
+                    if (keyword.StartsWith("re:"))
+                    //if (AppConst.REGEX_JUDGMENT.IsMatch(keyword))
                     {
-                        Regex regex = new Regex(keyword, RegexOptions.IgnoreCase);
+                        string reg = keyword.Replace("re:", "");
+                        Regex regex = new Regex(reg, RegexOptions.IgnoreCase);
                         Match matches = regex.Match(content);
                         if (matches.Success)
                         {
@@ -1142,5 +1156,31 @@ namespace TextLocator.Index
             return finishCount * 1.00F / totalCount * 1.00F * 100.00F;
         }
         #endregion
+
+        /// <summary>
+        /// 文本分词
+        /// </summary>
+        /// <param name="q"></param>
+        /// <returns></returns>
+        public static List<string> GetKeywords(string q)
+        {
+            /*// 标准分词器分词
+            List<string> keyworkds = new List<string>();
+            Lucene.Net.Analysis.Analyzer analyzer = new Lucene.Net.Analysis.Standard.StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);
+            using (Lucene.Net.Analysis.TokenStream tokenStream = analyzer.TokenStream(null, new StringReader(q)))
+            {
+                Lucene.Net.Analysis.Tokenattributes.ITermAttribute termAttribute = null;
+                bool hasNext = tokenStream.IncrementToken();
+                while (hasNext)
+                {
+                    termAttribute = tokenStream.GetAttribute<Lucene.Net.Analysis.Tokenattributes.ITermAttribute>();
+                    keyworkds.Add(termAttribute.Term);
+                    hasNext = tokenStream.IncrementToken();
+                }
+            }
+            return keyworkds;*/
+            // Jieba分词器分词
+            return AppConst.INDEX_SEGMENTER.CutForSearch(q).ToList();
+        }
     }
 }

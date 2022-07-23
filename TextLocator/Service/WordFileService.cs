@@ -175,7 +175,7 @@ namespace TextLocator.Service
 
                         foreach (XmlNode textNode in textNodes)
                         {
-                            builder.Append(textNode.InnerText);
+                            builder.AppendLine(textNode.InnerText);
                         }
                         builder.AppendLine();
                     }

@@ -651,7 +651,7 @@ namespace TextLocator.Index
                 {
                     // 1、---- 关键词
                     string keyword = param.Keywords[i];
-                    text += keyword + ",";
+                    text += keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "") + ",";
 
                     // 2、---- 搜索域
                     bool hasFileName = param.SearchRegion == SearchRegion.文件名和内容 || param.SearchRegion == SearchRegion.仅文件名;
@@ -659,11 +659,11 @@ namespace TextLocator.Index
 
                     // 3.1、---- 关键词正则 或 标记为正则
                     //if (AppConst.REGEX_JUDGMENT.IsMatch(keyword))
-                    if (keyword.StartsWith("re:"))
+                    if (keyword.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
                     {
                         keywordType = "正则";
 
-                        string reg = keyword.Replace("re:", "");
+                        string reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
                         // 文件名搜索
                         if (hasFileName)
                         {
@@ -835,7 +835,7 @@ namespace TextLocator.Index
                         string keyword = param.Keywords[0];
 
                         param.Keywords = new List<string>();
-                        param.Keywords.Add(keyword.Replace("re:", ""));
+                        param.Keywords.Add(keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, ""));
                         fileInfo.Keywords = param.Keywords;
                     }*/
 
@@ -932,10 +932,10 @@ namespace TextLocator.Index
                 {
                     if (string.IsNullOrEmpty(keyword)) continue;
                     // 关键词是正则表达式
-                    if (keyword.StartsWith("re:"))
+                    if (keyword.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
                     //if (AppConst.REGEX_JUDGMENT.IsMatch(keyword))
                     {
-                        string reg = keyword.Replace("re:", "");
+                        string reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
                         Regex regex = new Regex(reg, RegexOptions.IgnoreCase);
                         Match matches = regex.Match(content);
                         if (matches.Success)

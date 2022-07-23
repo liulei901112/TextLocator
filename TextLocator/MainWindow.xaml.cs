@@ -1436,7 +1436,7 @@ namespace TextLocator
             }
             // 正则表达式
             //else if (AppConst.REGEX_JUDGMENT.IsMatch(searchText))
-            else if (searchText.StartsWith("re:"))
+            else if (searchText.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
             {
                 keywords.Add(searchText);
             }

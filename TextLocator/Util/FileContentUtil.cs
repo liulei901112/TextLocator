@@ -83,9 +83,9 @@ namespace TextLocator.Util
                         string text = position.GetTextInRun(LogicalDirection.Forward);
                         // 关键词匹配查找
                         string reg = keyword;
-                        if (keyword.StartsWith("re:"))
+                        if (keyword.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
                         {
-                            reg = keyword.Replace("re:", "");
+                            reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
                         }
                         Regex regex = new Regex(reg, RegexOptions.IgnoreCase);
                         Match matches = regex.Match(text);
@@ -167,9 +167,9 @@ namespace TextLocator.Util
             foreach (string keyword in keywords)
             {
                 string reg = keyword;
-                if (keyword.StartsWith("re:"))
+                if (keyword.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
                 {
-                    reg = keyword.Replace("re:", "");
+                    reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
                 }
                 // 定义关键词正则
                 Regex regex = new Regex(reg, RegexOptions.IgnoreCase);

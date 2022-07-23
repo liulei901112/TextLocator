@@ -123,6 +123,10 @@ namespace TextLocator.Core
         public static readonly Regex REGEX_CONTENT_PAGE = new Regex(@"----\d+----");
 
         /// <summary>
+        /// 正则搜索前缀
+        /// </summary>
+        public const string REGEX_SEARCH_PREFIX = "re:";
+        /// <summary>
         /// 索引写入器
         /// </summary>
         public const int INDEX_PARTITION_COUNT = 5;

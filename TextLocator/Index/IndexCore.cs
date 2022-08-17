@@ -1164,7 +1164,7 @@ namespace TextLocator.Index
         /// <returns></returns>
         public static List<string> GetKeywords(string q)
         {
-            /*// 标准分词器分词
+            // 标准分词器分词
             List<string> keyworkds = new List<string>();
             Lucene.Net.Analysis.Analyzer analyzer = new Lucene.Net.Analysis.Standard.StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);
             using (Lucene.Net.Analysis.TokenStream tokenStream = analyzer.TokenStream(null, new StringReader(q)))
@@ -1178,9 +1178,9 @@ namespace TextLocator.Index
                     hasNext = tokenStream.IncrementToken();
                 }
             }
-            return keyworkds;*/
-            // Jieba分词器分词
-            return AppConst.INDEX_SEGMENTER.CutForSearch(q).ToList();
+            return keyworkds;
+            /**// Jieba分词器分词
+            return AppConst.INDEX_SEGMENTER.CutForSearch(q).ToList();*/
         }
     }
 }

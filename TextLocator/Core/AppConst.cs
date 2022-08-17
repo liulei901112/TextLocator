@@ -87,7 +87,7 @@ namespace TextLocator.Core
         /// new Lucene.Net.Analysis.Standard.StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);// 用standardAnalyzer分词器
         /// new Lucene.Net.Analysis.PanGuAnalyzer(); // PanGu分词器
         /// </summary>
-        public static readonly Analyzer INDEX_ANALYZER = new JiebaAnalyzer(); // Jieba分词器
+        public static readonly Analyzer INDEX_ANALYZER = new Lucene.Net.Analysis.Standard.StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);// new JiebaAnalyzer(); //new Lucene.Net.Analysis.PanGuAnalyzer();
         /// <summary>
         /// 分割器
         /// </summary>
@@ -96,7 +96,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 匹配Lucene.NET内置关键词
         /// </summary>
-        public static readonly Regex REGEX_BUILT_IN_SYMBOL = new Regex("AND|OR|NOT|\\&\\&|\\|\\||\"|\\~"); // \\:
+		public static readonly Regex REGEX_BUILT_IN_SYMBOL = new Regex("AND|OR|NOT|\\&\\&|\\|\\||\"|\\~"); // \\:
         /// <summary>
         /// 匹配支持的通配符
         /// </summary>
@@ -104,7 +104,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 匹配空白和换行
         /// </summary>
-        public static readonly Regex REGEX_LINE_BREAKS_WHITESPACE = new Regex(@"  |\r\r|\n\n|\s\s|┄");
+        public static readonly Regex REGEX_LINE_BREAKS_WHITESPACE = new Regex(@"  |┄");
         /// <summary>
         /// 匹配HTML和XML标签
         /// </summary>

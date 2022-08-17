@@ -435,9 +435,9 @@ namespace TextLocator
 
             // ---- 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
             // 取消精确检索
-            PreciseRetrieval.IsChecked = false;
+            // PreciseRetrieval.IsChecked = false;
             // 取消匹配全词
-            MatchWords.IsChecked = false;
+            // MatchWords.IsChecked = false;
 
             // 全部文件类型
             ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(_radioButtonAll);
@@ -466,9 +466,9 @@ namespace TextLocator
 
                 // ---- 搜索按钮时，下拉框和其他筛选条件全部恢复默认值
                 // 取消精确检索
-                PreciseRetrieval.IsChecked = false;
+                // PreciseRetrieval.IsChecked = false;
                 // 取消匹配全词
-                MatchWords.IsChecked = false;
+                // MatchWords.IsChecked = false;
 
                 // 全部文件类型
                 ToggleButtonAutomationPeer toggleButtonAutomationPeer = new ToggleButtonAutomationPeer(_radioButtonAll);
@@ -1436,7 +1436,7 @@ namespace TextLocator
             }
             // 正则表达式
             //else if (AppConst.REGEX_JUDGMENT.IsMatch(searchText))
-            else if (searchText.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
+            else if (searchText.StartsWith("re:"))
             {
                 keywords.Add(searchText);
             }

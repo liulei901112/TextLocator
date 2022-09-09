@@ -1,5 +1,5 @@
 # 本地文本搜索定位器
-![封面](./images/Cover.png)
+![封面](images/Cover.png)
 
 ## 提示：发行版zip包在[gitee](https://gitee.com/liulei901112/TextLocator)下，[github](https://github.com/liulei901112/TextLocator)只是同步了代码
 
@@ -17,21 +17,21 @@
 * 发布版下载解压可用（或自己下载源码编译）
 
 #### 软件截图
-![主界面](./images/MainWindow.png)
-![区域管理](./images/SearchAreaManagement1.png)
-![区域编辑](./images/SearchAreaManagement2.png)
-![创建索引](./images/BuildIndex.png)
-![自动分词](./images/Keywords1.png)
-![手动分词](./images/Keywords2.png)
-![正则支持](./images/Keywords3.png)
-![类型筛选](./images/FileFilter1.png)
-![类型筛选](./images/FileFilter2.png)
-![搜索分页](./images/Page.png)
-![预览搜索](./images/PreviewSearch.png)
-![重建确认](./images/RebuildIndexConfirm.png)
-![清空按钮](./images/Clean.png)
-![热键设置](./images/HotKey.png)
-![参数设置](./images/Setting.png)
+![主界面](images/MainWindow.png)
+![区域管理](images/SearchAreaManagement1.png)
+![区域编辑](images/SearchAreaManagement2.png)
+![创建索引](images/BuildIndex.png)
+![自动分词](images/Keywords1.png)
+![手动分词](images/Keywords2.png)
+![正则支持](images/Keywords3.png)
+![类型筛选](images/FileFilter1.png)
+![类型筛选](images/FileFilter2.png)
+![搜索分页](images/Page.png)
+![预览搜索](images/PreviewSearch.png)
+![重建确认](images/RebuildIndexConfirm.png)
+![清空按钮](images/Clean.png)
+![热键设置](images/HotKey.png)
+![参数设置](images/Setting.png)
 
 #### 使用说明
 1. 双击文件夹设置自己需要搜索的文件夹（和排除的文件夹）

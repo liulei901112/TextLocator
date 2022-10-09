@@ -15,6 +15,7 @@
         <Separator />
         <MenuItem Header="热键" Command="{Binding ShowHotKeyWindowCommand}" />
         <MenuItem Header="设置" Command="{Binding ShowSettingWindowCommand}" />
+        <MenuItem Header="帮助" Command="{Binding HelpWindowCommand}" />
         <Separator />
         <MenuItem Header="退出" Command="{Binding ExitApplicationCommand}" />
     </ContextMenu>

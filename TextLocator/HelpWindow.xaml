@@ -1,0 +1,42 @@
+﻿<Window x:Class="TextLocator.HelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TextLocator"
+        xmlns:input="clr-namespace:System.Windows.Input;assembly=PresentationCore"
+        mc:Ignorable="d"
+        x:Name="hotkey"
+        Title="帮助" Height="350" Width="586" WindowStartupLocation="CenterOwner" WindowStyle="ToolWindow" ResizeMode="CanMinimize" Icon="/Resource/App.ico" Closed="Window_Closed">
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="#252526" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <StackPanel>
+            <GroupBox Style="{StaticResource ColorHeaderGroupBox}" Width="Auto" Height="Auto" Margin="0 0 0 10" Header="联系作者（如需帮助，可以联系我哦）" >
+                <StackPanel Orientation="Vertical" Margin="0,10,0,10">
+                    <!-- 联系方式 -->
+                    <TextBlock Text="姓名：刘磊" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                    <TextBlock Text="微信：liulei901112" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                    <TextBlock Text="邮箱：liulei901112@163.com" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Style="{StaticResource ColorHeaderGroupBox}" Width="Auto" Height="Auto" Margin="0 0 0 10" Header="奖励作者（如果对您有帮助，并且您愿意）" >
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
+                    <Grid Width="293">
+                        <!-- 微信 -->
+                        <Image Source="/Resource/donate/weixin.png" Width="150"/>
+                    </Grid>
+                    <Grid Width="293">
+                        <!-- 支付宝 -->
+                        <Image Source="/Resource/donate/zhifubao.png" Width="150"/>
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+    </Grid>
+</Window>

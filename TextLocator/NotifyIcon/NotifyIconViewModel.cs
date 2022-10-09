@@ -100,6 +100,33 @@ namespace TextLocator.NotifyIcon
             }
         }
 
+        /// <summary>
+        /// 帮助窗口
+        /// </summary>
+        public ICommand HelpWindowCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = () =>
+                    {
+                        var win = HelpWindow.CreateInstance();
+                        if (!win.IsVisible)
+                        {
+                            win.Topmost = true;
+                            win.Owner = Application.Current.MainWindow;
+                            win.ShowDialog();
+                        }
+                        else
+                        {
+                            win.Activate();
+                        }
+                    }
+                };
+            }
+        }
+
 
         /// <summary>
         /// 关闭软件

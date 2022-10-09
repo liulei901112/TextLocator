@@ -282,6 +282,9 @@
     </Compile>
     <Compile Include="Cache\LFUCache.cs" />
     <Compile Include="Cache\LRUCache.cs" />
+    <Compile Include="HelpWindow.xaml.cs">
+      <DependentUpon>HelpWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SingleInstance\ISingleInstanceApp.cs" />
     <Compile Include="SingleInstance\NativeMethods.cs" />
     <Compile Include="SingleInstance\SingleInstance.cs" />
@@ -362,6 +365,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="AreaWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="HelpWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -493,6 +500,9 @@
     <Resource Include="Resource\btn_last.png" />
     <Resource Include="Resource\btn_next.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resource\donate\weixin.png" />
+    <Resource Include="Resource\donate\zhifubao.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

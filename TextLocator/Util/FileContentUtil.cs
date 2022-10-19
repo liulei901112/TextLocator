@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Office2016.Excel;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -82,12 +83,12 @@ namespace TextLocator.Util
                         // 拿出Run的Text                    
                         string text = position.GetTextInRun(LogicalDirection.Forward);
                         // 关键词匹配查找
-                        string reg = keyword;
+                        string regexText = keyword;
                         if (keyword.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
                         {
-                            reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
+                            regexText = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
                         }
-                        Regex regex = new Regex(reg, RegexOptions.IgnoreCase);
+                        Regex regex = RegexUtil.BuildRegex(regexText, false);// new Regex(regexText, RegexOptions.IgnoreCase);
                         Match matches = regex.Match(text);
                         if (matches.Success)
                         {
@@ -166,13 +167,13 @@ namespace TextLocator.Util
             // 遍历关键词列表
             foreach (string keyword in keywords)
             {
-                string reg = keyword;
+                string regexText = keyword;
                 if (keyword.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
                 {
-                    reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
+                    regexText = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
                 }
                 // 定义关键词正则
-                Regex regex = new Regex(reg, RegexOptions.IgnoreCase);
+                Regex regex = RegexUtil.BuildRegex(regexText, false);// new Regex(regexText, RegexOptions.IgnoreCase);
                 // 匹配集合
                 MatchCollection collection = regex.Matches(content);
                 // 遍历命中列表
@@ -208,6 +209,13 @@ namespace TextLocator.Util
                     }
 
                     Paragraph paragraph = new Paragraph();
+                    // 摘要匹配位置序号                    
+                    Run pageRun = new Run(string.Format("\n『{0}』\n", page));
+                    pageRun.Background = new SolidColorBrush(Colors.DarkRed);
+                    pageRun.Foreground = new SolidColorBrush(Colors.White);
+                    paragraph.Inlines.Add(pageRun);
+                    document.Blocks.Add(paragraph);
+
                     paragraph.FontSize = 13;
                     paragraph.FontFamily = new System.Windows.Media.FontFamily("微软雅黑");
 
@@ -231,10 +239,10 @@ namespace TextLocator.Util
                     Run afterRun = new Run(after);
                     paragraph.Inlines.Add(afterRun);
 
-                    // 分割线                    
+                    /*// 分割线                    
                     Run pageRun = new Run(string.Format("\n------------------------------------------------------------------------------ {0}\n", page));
                     paragraph.Inlines.Add(pageRun);
-                    document.Blocks.Add(paragraph);
+                    document.Blocks.Add(paragraph);*/
 
                     page++;
                 }

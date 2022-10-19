@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TextLocator"
         xmlns:input="clr-namespace:System.Windows.Input;assembly=PresentationCore"
         mc:Ignorable="d"
-        x:Name="hotkey"
+        x:Name="help"
         Title="帮助" Height="350" Width="586" WindowStartupLocation="CenterOwner" WindowStyle="ToolWindow" ResizeMode="CanMinimize" Icon="/Resource/App.ico" Closed="Window_Closed">
     <Window.Resources>
         <Style TargetType="TextBlock">

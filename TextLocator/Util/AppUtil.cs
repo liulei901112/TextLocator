@@ -297,7 +297,10 @@ namespace TextLocator.Util
                 }
                 log.Debug("加载" + section + "节点下全部键值，总数：" + _AppIniCache.Count);
             }
-            catch { }
+            catch(Exception ex) {
+                log.Fatal("配置文件加载失败：" + ex.Message, ex);
+                AppCore.Restart();
+            }
         }
         #endregion
 

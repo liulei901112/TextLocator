@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Windows.Input;
 using TextLocator.Core;
 using TextLocator.Enums;
 using TextLocator.Factory;
@@ -663,7 +664,9 @@ namespace TextLocator.Index
                     {
                         keywordType = "正则";
 
-                        string reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
+						// string reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
+						// 修正关键词中出现“re：”的问题，所以只删除文本头
+                        string reg = keyword.Substring(AppConst.REGEX_SEARCH_PREFIX.Length);
                         // 文件名搜索
                         if (hasFileName)
                         {
@@ -673,8 +676,11 @@ namespace TextLocator.Index
                         // 文件内容搜索
                         if (hasContent)
                         {
-                            RegexQuery query = new RegexQuery(new Lucene.Net.Index.Term("Content", reg));
-                            boolQuery.Add(query, Lucene.Net.Search.Occur.SHOULD);
+                            /*RegexQuery queryContent = new RegexQuery(new Lucene.Net.Index.Term("Content", reg));
+                            boolQuery.Add(queryContent, Lucene.Net.Search.Occur.SHOULD);*/
+
+                            RegexQuery queryContentSource = new RegexQuery(new Lucene.Net.Index.Term("Preview", reg));
+                            boolQuery.Add(queryContentSource, Lucene.Net.Search.Occur.SHOULD);
                         }
                     }
                     // 3.2、---- 常规
@@ -935,8 +941,8 @@ namespace TextLocator.Index
                     if (keyword.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
                     //if (AppConst.REGEX_JUDGMENT.IsMatch(keyword))
                     {
-                        string reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
-                        Regex regex = new Regex(reg, RegexOptions.IgnoreCase);
+                        string regexText = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
+                        Regex regex = RegexUtil.BuildRegex(regexText, false); // new Regex(regexText, RegexOptions.IgnoreCase);
                         Match matches = regex.Match(content);
                         if (matches.Success)
                         {
@@ -985,7 +991,7 @@ namespace TextLocator.Index
                     // 匹配内容
                     int nameMatchCount = 0, contentMatchCount = 0;
                     // 声明正则
-                    Regex regex = new Regex(keyword);
+                    Regex regex = RegexUtil.BuildRegex(keyword);
 
                     // ---- 匹配文件名
                     if (fileInfo.SearchRegion == SearchRegion.文件名和内容 || fileInfo.SearchRegion == SearchRegion.仅文件名)
@@ -1045,8 +1051,14 @@ namespace TextLocator.Index
                 {
                     // 匹配内容
                     int nameMatchCount = 0, contentMatchCount = 0;
+                    // 修正关键词
+                    string revise = keyword;
+                    if (keyword.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
+                    {
+                        revise = keyword.Substring(AppConst.REGEX_SEARCH_PREFIX.Length);
+                    }
                     // 声明正则
-                    Regex regex = new Regex(keyword);
+                    Regex regex = RegexUtil.BuildRegex(revise);
 
                     // ---- 匹配文件名
                     if (fileInfo.SearchRegion == SearchRegion.文件名和内容 || fileInfo.SearchRegion == SearchRegion.仅文件名)
@@ -1091,8 +1103,14 @@ namespace TextLocator.Index
                 List<string> matchCountList = matchCountDic.Keys.ToList();
                 for (int k = 0; k < matchCountList.Count; k++)
                 {
+                    // 修正关键词
+                    string keyword = matchCountList[k];
+                    if (keyword.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
+                    {
+                        keyword = keyword.Substring(AppConst.REGEX_SEARCH_PREFIX.Length);
+                    }
                     // 词频统计信息
-                    builder.Append(string.Format("{0}：{1}；", matchCountList[k], matchCountDic[matchCountList[k]]));
+                    builder.Append(string.Format("{0}：{1}；", keyword, matchCountDic[matchCountList[k]]));
                     // 自动换行 && （下标不是0 && 每4次 && 下标不是最大）
                     if (k > 0 && k % 6 == 0 && k < matchCountList.Count - 1)
                     {

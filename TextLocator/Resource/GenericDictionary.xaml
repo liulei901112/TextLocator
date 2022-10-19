@@ -6,6 +6,8 @@
     <ResourceDictionary.MergedDictionaries>
         <!-- Rubyer -->
         <ResourceDictionary Source="pack://application:,,,/Rubyer;component/Themes/Generic.xaml" />
+        <!-- RegularTool -->
+        <ResourceDictionary Source="/RegularTool;component/Styles/TreeViewStyle.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <!-- 托盘图标菜单 -->

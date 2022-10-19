@@ -76,7 +76,7 @@ namespace TextLocator
             Task.Factory.StartNew(async () => {
                 await Task.Delay(AppConst.MRESULT_LIST_PAGE_SIZE / 2 * fileInfo.Index);
                 string breviary = IndexCore.GetContentBreviary(fileInfo);
-                await Dispatcher.InvokeAsync(() =>
+                _ = Dispatcher.InvokeAsync(() =>
                 {
                     FileContentUtil.FillFlowDocument(this.ContentBreviary, breviary, (Brush)new BrushConverter().ConvertFromString("#545454"));
                     if (fileInfo.SearchRegion == Enums.SearchRegion.文件名和内容 || fileInfo.SearchRegion == Enums.SearchRegion.仅文件内容)

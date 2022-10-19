@@ -254,8 +254,8 @@ namespace TextLocator
                     if (_areaInfo.AreaId == areaInfo.AreaId)
                     {
                         areaInfos[i] = _areaInfo;
+                        break;
                     }
-                    break;
                 }
             }
             else

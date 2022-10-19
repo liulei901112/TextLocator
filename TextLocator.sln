@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextLocator", "TextLocator\TextLocator.csproj", "{E88D6B51-1FF1-4F8E-93BC-3FB158BA0D5D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegularTool", "RegularTool\RegularTool.csproj", "{CEF879D2-32C7-4598-94CD-981B18576ACB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,18 @@ Global
 		{E88D6B51-1FF1-4F8E-93BC-3FB158BA0D5D}.Release|x64.Build.0 = Release|Any CPU
 		{E88D6B51-1FF1-4F8E-93BC-3FB158BA0D5D}.Release|x86.ActiveCfg = Release|Any CPU
 		{E88D6B51-1FF1-4F8E-93BC-3FB158BA0D5D}.Release|x86.Build.0 = Release|Any CPU
+		{CEF879D2-32C7-4598-94CD-981B18576ACB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEF879D2-32C7-4598-94CD-981B18576ACB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEF879D2-32C7-4598-94CD-981B18576ACB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CEF879D2-32C7-4598-94CD-981B18576ACB}.Debug|x64.Build.0 = Debug|Any CPU
+		{CEF879D2-32C7-4598-94CD-981B18576ACB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CEF879D2-32C7-4598-94CD-981B18576ACB}.Debug|x86.Build.0 = Debug|Any CPU
+		{CEF879D2-32C7-4598-94CD-981B18576ACB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEF879D2-32C7-4598-94CD-981B18576ACB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEF879D2-32C7-4598-94CD-981B18576ACB}.Release|x64.ActiveCfg = Release|Any CPU
+		{CEF879D2-32C7-4598-94CD-981B18576ACB}.Release|x64.Build.0 = Release|Any CPU
+		{CEF879D2-32C7-4598-94CD-981B18576ACB}.Release|x86.ActiveCfg = Release|Any CPU
+		{CEF879D2-32C7-4598-94CD-981B18576ACB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

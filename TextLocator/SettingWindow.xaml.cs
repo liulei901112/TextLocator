@@ -2,7 +2,6 @@
 using System;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Controls;
 using TextLocator.Core;
 using TextLocator.Message;
 using TextLocator.Util;

@@ -933,7 +933,8 @@ namespace TextLocator
         /// <param name="e"></param>
         private void RegularToolButton_Click(object sender, RoutedEventArgs e)
         {
-            var win = new RegularTool.MainWindow();
+            MessageCore.ShowInfo("功能暂未开放");
+            /*var win = new RegularTool.MainWindow();
             if (!win.IsVisible)
             {
                 win.Topmost = true;
@@ -945,7 +946,7 @@ namespace TextLocator
             else
             {
                 win.Activate();
-            }
+            }*/
         }
 
         /// <summary>

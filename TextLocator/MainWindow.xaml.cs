@@ -98,7 +98,7 @@ namespace TextLocator
         {
             base.OnContentRendered(e);
             // 注册热键
-            InitHotKey();
+            _ = InitHotKey();
         }
 
         /// <summary>
@@ -319,7 +319,7 @@ namespace TextLocator
         /// <exception cref="NotImplementedException"></exception>
         private bool Instance_RegisterGlobalHotKeyEvent(System.Collections.ObjectModel.ObservableCollection<HotKeyModel> hotKeyModelList)
         {
-            InitHotKey(hotKeyModelList);
+            _ = InitHotKey(hotKeyModelList);
             return true;
         }
 

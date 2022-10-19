@@ -208,6 +208,13 @@ namespace TextLocator.Util
                     }
 
                     Paragraph paragraph = new Paragraph();
+                    // 摘要匹配位置序号                    
+                    Run pageRun = new Run(string.Format("\n『{0}』\n", page));
+                    pageRun.Background = new SolidColorBrush(Colors.DarkRed);
+                    pageRun.Foreground = new SolidColorBrush(Colors.White);
+                    paragraph.Inlines.Add(pageRun);
+                    document.Blocks.Add(paragraph);
+
                     paragraph.FontSize = 13;
                     paragraph.FontFamily = new System.Windows.Media.FontFamily("微软雅黑");
 
@@ -231,10 +238,10 @@ namespace TextLocator.Util
                     Run afterRun = new Run(after);
                     paragraph.Inlines.Add(afterRun);
 
-                    // 分割线                    
+                    /*// 分割线                    
                     Run pageRun = new Run(string.Format("\n------------------------------------------------------------------------------ {0}\n", page));
                     paragraph.Inlines.Add(pageRun);
-                    document.Blocks.Add(paragraph);
+                    document.Blocks.Add(paragraph);*/
 
                     page++;
                 }

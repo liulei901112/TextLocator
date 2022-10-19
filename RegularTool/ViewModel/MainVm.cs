@@ -38,7 +38,7 @@ namespace RegularTool.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show("grammar.json文件不存在或内容格式有误！");
+                MessageBox.Show("grammar.json文件不存在或内容格式有误！" + ex.Message);
                 GrammarModels.Add(new GrammarModel()
                 {
                     IsGrouping = true,

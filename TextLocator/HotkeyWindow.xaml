@@ -8,7 +8,7 @@
         x:Name="hotkey"
         Title="热键设置" Height="380" Width="520" WindowStartupLocation="CenterOwner" WindowStyle="ToolWindow" ResizeMode="CanMinimize" Icon="/Resource/App.ico" Loaded="Window_Loaded" Closed="Window_Closed" >
     <Grid>
-        <Grid Margin="0,0,0,50">
+        <Grid Margin="0,0,0,50" Grid.ColumnSpan="2">
             <GroupBox Style="{StaticResource ColorHeaderGroupBox}" Width="Auto" Height="Auto" Margin="0 0 0 0" Header="热键绑定" >
                 <ItemsControl Margin="10" ItemsSource="{Binding HotKeyList, ElementName=hotkey}">
                     <ItemsControl.ItemTemplate>
@@ -21,7 +21,7 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                
+
                                 <CheckBox Grid.Column="0" Content="{Binding Name}" 
                                           IsChecked="{Binding IsUsable}" 
                                           Width="100" VerticalAlignment="Center" Margin="50,0,0,0"/>
@@ -44,6 +44,6 @@
             </GroupBox>
         </Grid>
         <!-- 功能按钮 -->
-        <Button x:Name="SaveClose" Content="保存并关闭" Background="Green" VerticalAlignment="Bottom" Margin="10,0,10,10" Width="100" Click="SaveClose_Click"/>
+        <Button x:Name="SaveClose" Content="保存" Background="Green" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="210,0,20,10" Width="60" Click="SaveClose_Click"/>
     </Grid>
 </Window>

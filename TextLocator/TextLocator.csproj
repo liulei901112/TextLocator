@@ -504,5 +504,11 @@
     <Resource Include="Resource\donate\weixin.png" />
     <Resource Include="Resource\donate\zhifubao.png" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RegularTool\RegularTool.csproj">
+      <Project>{cef879d2-32c7-4598-94cd-981b18576acb}</Project>
+      <Name>RegularTool</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

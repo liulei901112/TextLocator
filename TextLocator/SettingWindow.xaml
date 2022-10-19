@@ -94,6 +94,6 @@
             </ScrollViewer>
         </Grid>
         <!-- 功能按钮 -->
-        <Button x:Name="SaveClose" Content="保存并关闭" Background="Green" VerticalAlignment="Bottom" Margin="10,0,10,10" Width="100" Click="SaveClose_Click"/>
+        <Button x:Name="SaveClose" Content="保存" Background="Green" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,20,10" Width="60" Click="SaveClose_Click"/>
     </Grid>
 </Window>

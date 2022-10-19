@@ -96,9 +96,13 @@
                                     </Grid>
                                 </StackPanel>
                             </StackPanel>
-                            <StackPanel Margin="0,0,0,10" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                            <StackPanel Margin="0,0,0,10" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left">
+                                <!-- 正则按钮 -->
+                                <Button x:Name="RegularToolButton" Content="正则" ToolTip="打开正则工具" Margin="0,0,10,0" Width="80" Height="25" Background="Gray" Click="RegularToolButton_Click" Cursor="Hand"/>
                                 <!-- 设置按钮 -->
                                 <Button x:Name="SettingButton" Content="设置" ToolTip="打开参数设置界面" Margin="0,0,10,0" Width="80" Height="25" Background="Gray" Click="SettingButton_Click" Cursor="Hand"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,0,10" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
                                 <!-- 搜索按钮 -->
                                 <Button x:Name="IndexUpdateButton" Content="更新" ToolTip="增量更新索引" Margin="0,0,10,0" Width="80" Height="25" Background="Green" Click="IndexUpdateButton_Click"/>
                                 <!-- 清空按钮 -->

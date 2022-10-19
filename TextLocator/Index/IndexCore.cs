@@ -663,7 +663,9 @@ namespace TextLocator.Index
                     {
                         keywordType = "正则";
 
-                        string reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
+						// string reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
+						// 修正关键词中出现“re：”的问题，所以只删除文本头
+                        string reg = keyword.Substring(AppConst.REGEX_SEARCH_PREFIX.Length);
                         // 文件名搜索
                         if (hasFileName)
                         {
@@ -673,8 +675,11 @@ namespace TextLocator.Index
                         // 文件内容搜索
                         if (hasContent)
                         {
-                            RegexQuery query = new RegexQuery(new Lucene.Net.Index.Term("Content", reg));
-                            boolQuery.Add(query, Lucene.Net.Search.Occur.SHOULD);
+                            /*RegexQuery queryContent = new RegexQuery(new Lucene.Net.Index.Term("Content", reg));
+                            boolQuery.Add(queryContent, Lucene.Net.Search.Occur.SHOULD);*/
+
+                            RegexQuery queryContentSource = new RegexQuery(new Lucene.Net.Index.Term("Preview", reg));
+                            boolQuery.Add(queryContentSource, Lucene.Net.Search.Occur.SHOULD);
                         }
                     }
                     // 3.2、---- 常规

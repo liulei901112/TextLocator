@@ -697,10 +697,10 @@ namespace TextLocator
             IToggleProvider toggleProvider = toggleButtonAutomationPeer.GetPattern(PatternInterface.Toggle) as IToggleProvider;
             toggleProvider.Toggle();
 
-            // 精确检索
+            // 取消精确检索
             PreciseRetrieval.IsChecked = false;
-            // 匹配全词
-            MatchWords.IsChecked = false;      
+            // 取消匹配全词
+            MatchWords.IsChecked = false;
 
             // 排序类型切换为默认
             SortOptions.SelectedIndex = 0;
@@ -927,6 +927,28 @@ namespace TextLocator
         }
 
         /// <summary>
+        /// 正则工具
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RegularToolButton_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new RegularTool.MainWindow();
+            if (!win.IsVisible)
+            {
+                win.Topmost = true;
+                win.Owner = this;
+                win.Width = this.Width;
+                win.Height = this.Height;
+                win.ShowDialog();
+            }
+            else
+            {
+                win.Activate();
+            }
+        }
+
+        /// <summary>
         /// 优化按钮
         /// </summary>
         /// <param name="sender"></param>
@@ -942,7 +964,7 @@ namespace TextLocator
 
             ShowStatus("开始更新索引，请稍等...");
 
-            Task.Factory.StartNew(() =>
+            _ = Task.Factory.StartNew(() =>
             {
                 BuildIndex(false, false);
             });
@@ -978,7 +1000,7 @@ namespace TextLocator
 
             ShowStatus("开始重建索引，请稍等...");
 
-            Task.Factory.StartNew(() =>
+            _ = Task.Factory.StartNew(() =>
             {
                 BuildIndex(true, false);
             });
@@ -1386,11 +1408,19 @@ namespace TextLocator
             {
                 try
                 {
-                    System.Diagnostics.Process.Start("explorer.exe", @"" + OpenFolder.Tag);
+                    System.Diagnostics.Process.Start("explorer.exe", @"/select," + OpenFile.Tag);
                 }
                 catch (Exception ex)
                 {
                     log.Error(ex.Message, ex);
+                    try
+                    {
+                        System.Diagnostics.Process.Start("explorer.exe", @"" + OpenFolder.Tag);
+                    }
+                    catch (Exception ex1)
+                    {
+                        log.Error(ex1.Message, ex1);
+                    }
                 }
             }
         }
@@ -1409,15 +1439,20 @@ namespace TextLocator
             // 为空直接返回null
             if (string.IsNullOrEmpty(searchText)) return keywords;
 
-            // 精确检索未选中
-            if (PreciseRetrieval.IsChecked == false)
+            // 精确检索未选中 || 非正则表达式
+            if (PreciseRetrieval.IsChecked == false || !searchText.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
             {
                 // 替换内置（AND|OR|NOT|\\&\\&|\\|\\||\"|\\~|\\:）特殊字符
                 searchText = AppConst.REGEX_BUILT_IN_SYMBOL.Replace(searchText, " ");
             }
 
+            // 精确检索 || 正则表达式
+            if (PreciseRetrieval.IsChecked == true || searchText.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
+            {
+                keywords.Add(searchText);
+            }
             // 空格分词
-            if (searchText.IndexOf(" ") != -1)
+            else if (searchText.IndexOf(" ") != -1)
             {
                 string[] texts = searchText.Split(' ');
                 foreach (string keyword in texts)
@@ -1428,17 +1463,6 @@ namespace TextLocator
                     }
                     keywords.Add(keyword);
                 }
-            }
-            // 精确检索
-            else if (PreciseRetrieval.IsChecked == true)
-            {
-                keywords.Add(searchText);
-            }
-            // 正则表达式
-            //else if (AppConst.REGEX_JUDGMENT.IsMatch(searchText))
-            else if (searchText.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
-            {
-                keywords.Add(searchText);
             }
             // 分词器自动分词
             else

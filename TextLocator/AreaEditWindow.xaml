@@ -47,9 +47,9 @@
         </StackPanel>
 
         <Grid Margin="0,10,0,0" VerticalAlignment="Bottom">
-            <Button x:Name="AddButton" Content="添加" Margin="0,0,150,0" Width="60" Click="AddButton_Click"/>
-            <Button x:Name="SaveButton" Content="保存" Margin="0,0,0,0" Width="60" Background="Green" Click="SaveButton_Click"/>
-            <Button x:Name="ExitButton" Content="退出" Margin="150,0,0,0" Width="60" Background="Red" Click="ExitButton_Click"/>
+            <Button x:Name="AddButton" Content="添加" Margin="0,0,0,0" Width="60" Click="AddButton_Click"/>
+            <Button x:Name="SaveButton" Content="保存" Margin="0,0,10,0" HorizontalAlignment="Right" Width="60" Background="Green" Click="SaveButton_Click"/>
+            <Button x:Name="ExitButton" Content="退出" Margin="150,0,0,0" Width="60" Background="Red" Click="ExitButton_Click" Visibility="Collapsed"/>
         </Grid>
     </Grid>
 </Window>

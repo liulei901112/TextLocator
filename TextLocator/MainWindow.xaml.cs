@@ -1220,7 +1220,7 @@ namespace TextLocator
                     List<string> deleteFilePaths = new List<string>();
 
                     // 2.2、-------- 获取支持的文件类型后缀（根据不同区域配置的支持文件类型查找对应的文件列表）
-                    Regex fileExtRegex = new Regex(@"^.+\.(" + FileTypeUtil.ConvertToFileTypeExts(areaInfo.AreaFileTypes, "|") + ")$");
+                    Regex fileExtRegex = RegexUtil.BuildRegex(@"^.+\.(" + FileTypeUtil.ConvertToFileTypeExts(areaInfo.AreaFileTypes, "|") + ")$"); //new Regex(@"^.+\.(" + FileTypeUtil.ConvertToFileTypeExts(areaInfo.AreaFileTypes, "|") + ")$");
 
                     var scanTaskMark = TaskTime.StartNew();
                     // 扫描需要建立索引的文件列表

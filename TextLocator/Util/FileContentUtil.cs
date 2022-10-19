@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Office2016.Excel;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -82,12 +83,12 @@ namespace TextLocator.Util
                         // 拿出Run的Text                    
                         string text = position.GetTextInRun(LogicalDirection.Forward);
                         // 关键词匹配查找
-                        string reg = keyword;
+                        string regexText = keyword;
                         if (keyword.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
                         {
-                            reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
+                            regexText = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
                         }
-                        Regex regex = new Regex(reg, RegexOptions.IgnoreCase);
+                        Regex regex = RegexUtil.BuildRegex(regexText, false);// new Regex(regexText, RegexOptions.IgnoreCase);
                         Match matches = regex.Match(text);
                         if (matches.Success)
                         {
@@ -166,13 +167,13 @@ namespace TextLocator.Util
             // 遍历关键词列表
             foreach (string keyword in keywords)
             {
-                string reg = keyword;
+                string regexText = keyword;
                 if (keyword.StartsWith(AppConst.REGEX_SEARCH_PREFIX))
                 {
-                    reg = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
+                    regexText = keyword.Replace(AppConst.REGEX_SEARCH_PREFIX, "");
                 }
                 // 定义关键词正则
-                Regex regex = new Regex(reg, RegexOptions.IgnoreCase);
+                Regex regex = RegexUtil.BuildRegex(regexText, false);// new Regex(regexText, RegexOptions.IgnoreCase);
                 // 匹配集合
                 MatchCollection collection = regex.Matches(content);
                 // 遍历命中列表

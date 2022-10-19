@@ -353,6 +353,7 @@
     <Compile Include="Util\ListUtil.cs" />
     <Compile Include="Util\MD5Util.cs" />
     <Compile Include="Util\FileContentUtil.cs" />
+    <Compile Include="Util\RegexUtil.cs" />
     <Compile Include="ViewModel\Main\MainModel.cs" />
     <Compile Include="ViewModel\Main\MainViewModel.cs" />
     <Compile Include="ViewModel\NotificationObject.cs" />

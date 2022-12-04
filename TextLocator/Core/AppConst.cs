@@ -112,7 +112,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 匹配排除关键词
         /// </summary>
-        public static readonly Regex REGEX_EXCLUDE_KEYWORD = new Regex(@"(\$RECYCLE|360REC|SYSTEM|TEMP|SYSTEM VOLUME INFOMATION|\{(.*)\})");
+        public static readonly Regex REGEX_EXCLUDE_KEYWORD = new Regex(@"(\:\\(Windows|Program|System|Documents|\$(360Section|RECYCLE(\.BIN|)|WinREAgent)|360(Rec|SANDBOX))|T(E|)MP|node_modules|\{(.*)\})", RegexOptions.IgnoreCase);
         /// <summary>
         /// 匹配开始字符
         /// </summary>

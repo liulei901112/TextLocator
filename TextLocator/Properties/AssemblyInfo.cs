@@ -52,7 +52,7 @@ using System.Windows;
 // 大版本，强制更新最小版本
 [assembly: AssemblyVersion("2.1.31.0")]
 // 小版本，选择更新版本
-[assembly: AssemblyFileVersion("2.1.31.0")]
+[assembly: AssemblyFileVersion("2.1.31.1")]
 // Version minVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 // Version version = new Version(FileVersionInfo.GetVersionInfo(System.Windows.Forms.Application.ExecutablePath).ProductVersion);
 

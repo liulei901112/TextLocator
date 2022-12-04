@@ -756,7 +756,9 @@ namespace TextLocator.Index
                 Lucene.Net.Search.Sort sort = new Lucene.Net.Search.Sort();
                 switch (param.SortType)
                 {
-                    case SortType.默认排序: break;
+                    case SortType.默认排序:
+                        sort = Lucene.Net.Search.Sort.RELEVANCE;
+                        break;
                     case SortType.从远到近:
                         sort.SetSort(new Lucene.Net.Search.SortField("UpdateTime", Lucene.Net.Search.SortField.STRING_VAL, false));
                         break;

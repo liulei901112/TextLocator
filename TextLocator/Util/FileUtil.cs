@@ -130,7 +130,7 @@ namespace TextLocator.Util
                         continue;
                     }
                     string dirPath = dir.FullName;
-                    // 系统过滤：$RECYCLE|360REC|SYSTEM|TEMP|SYSTEM VOLUME INFOMATION
+                    // 系统过滤：$RECYCLE|360REC|SYSTEM|TEMP|SYSTEM VOLUME INFOMATION|NODE_MODULES
                     // 自定义过滤：
                     if (AppConst.REGEX_EXCLUDE_KEYWORD.IsMatch(dirPath.ToUpper()))
                     {

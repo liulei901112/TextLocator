@@ -2,6 +2,7 @@
 ![封面](images/Cover.png)
 
 ## 提示：发行版zip包在[gitee](https://gitee.com/liulei901112/TextLocator)下，[github](https://github.com/liulei901112/TextLocator)只是同步了代码
+## 欢迎有兴趣和想法的开发者加入，为项目舔砖加瓦。
 
 #### 软件介绍
 基于.net实现的本地文档的全文索引定位器，根据关键词搜索定位本地文档内容。便于查找历史文档时节省时间，本地文档全文搜索神器！

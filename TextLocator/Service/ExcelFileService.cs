@@ -199,7 +199,7 @@ namespace TextLocator.Service
                             int cellCount = row.LastCellNum;
                             for (int k = 0; k < cellCount; k++)
                             {
-                                builder.Append(row.GetCell(j) + "　");
+                                builder.Append(row.GetCell(k) + "　");
                             }
                             builder.AppendLine();
                         }

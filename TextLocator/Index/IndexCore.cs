@@ -676,11 +676,11 @@ namespace TextLocator.Index
                         // 文件内容搜索
                         if (hasContent)
                         {
-                            /*RegexQuery queryContent = new RegexQuery(new Lucene.Net.Index.Term("Content", reg));
-                            boolQuery.Add(queryContent, Lucene.Net.Search.Occur.SHOULD);*/
+                            RegexQuery queryContent = new RegexQuery(new Lucene.Net.Index.Term("Content", reg));
+                            boolQuery.Add(queryContent, Lucene.Net.Search.Occur.SHOULD);
 
                             RegexQuery queryContentSource = new RegexQuery(new Lucene.Net.Index.Term("Preview", reg));
-                            boolQuery.Add(queryContentSource, Lucene.Net.Search.Occur.SHOULD);
+                            boolQuery.Add(queryContentSource, Lucene.Net.Search.Occur.SHOULD); 
                         }
                     }
                     // 3.2、---- 常规

@@ -163,6 +163,9 @@
     <Reference Include="Remotion.Linq, Version=1.13.183.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <HintPath>..\packages\Remotion.Linq.1.13.183.0\lib\net35\Remotion.Linq.dll</HintPath>
     </Reference>
+    <Reference Include="Roler.Toolkit.File.Mobi, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Roler.Toolkit.File.Mobi.1.0.4\lib\netstandard2.0\Roler.Toolkit.File.Mobi.dll</HintPath>
+    </Reference>
     <Reference Include="Rubyer, Version=1.0.16.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Rubyer.1.0.16\lib\net46\Rubyer.dll</HintPath>
     </Reference>
@@ -285,6 +288,7 @@
     <Compile Include="HelpWindow.xaml.cs">
       <DependentUpon>HelpWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Service\EBookFileService.cs" />
     <Compile Include="SingleInstance\ISingleInstanceApp.cs" />
     <Compile Include="SingleInstance\NativeMethods.cs" />
     <Compile Include="SingleInstance\SingleInstance.cs" />

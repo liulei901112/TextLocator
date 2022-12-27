@@ -144,6 +144,8 @@ namespace TextLocator
                 FileInfoServiceFactory.Register(FileType.常用压缩包, new ZipFileService());
 				// 程序员服务
                 FileInfoServiceFactory.Register(FileType.程序员代码, new CodeFileService());
+                // 常见电子书
+                FileInfoServiceFactory.Register(FileType.常见电子书, new EBookFileService());
             }
             catch (Exception ex)
             {

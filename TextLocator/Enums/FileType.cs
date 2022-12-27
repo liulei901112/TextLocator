@@ -56,6 +56,11 @@ namespace TextLocator.Enums
         /// 程序员代码
         /// </summary>
         [Description("cs,java,js,css,md,py,c,h,cpp,lua,sql,jsp,json,php,rs,rb,yml,yaml,bat,ps1,vue,md")]
-        程序员代码
+        程序员代码,
+        /// <summary>
+        /// 常见电子书
+        /// </summary>
+        [Description("epub,azw3,mobi,wps,chm,caj")]
+        常见电子书
     }
 }

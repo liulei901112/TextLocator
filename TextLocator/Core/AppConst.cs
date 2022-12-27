@@ -100,7 +100,7 @@ namespace TextLocator.Core
         /// <summary>
         /// 匹配支持的通配符
         /// </summary>
-        //public static readonly Regex REGEX_JUDGMENT = new Regex(@"\.|\\w|\\W|\\s|\\S|\\d|\\D|\\b|\\B|\\f|\\n|\\r|\\t|\\v|\^|\$|\*|\?|\+|\-|\{|\}|\[|\]|\(|\)|\\|\||\!"); 
+        public static readonly Regex REGEX_JUDGMENT = new Regex(@"\.|\\w|\\W|\\s|\\S|\\d|\\D|\\b|\\B|\\f|\\n|\\r|\\t|\\v|\^|\$|\*|\?|\+|\-|\{|\}|\[|\]|\(|\)|\\|\||\!");
         /// <summary>
         /// 匹配空白和换行
         /// </summary>

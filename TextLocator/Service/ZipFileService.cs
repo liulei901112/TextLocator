@@ -1,6 +1,7 @@
 ﻿using log4net;
 using SharpCompress.Archives;
 using SharpCompress.Common;
+using SharpCompress.Readers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,10 +45,18 @@ namespace TextLocator.Service
                     builder.Append("　大小：" + FileUtil.GetFileSizeFriendly(fileInfo.Length));
                     builder.Append("　列表：=> \r\n");
 
+
                     // 解析列表
                     using (FileStream file = File.OpenRead(filePath))
                     {
-                        using (var archive = ArchiveFactory.Open(file))
+                        //设置编码，解决解压文件时中文乱码
+                        var archiveEncoding = new ArchiveEncoding();
+                        archiveEncoding.Default = System.Text.Encoding.GetEncoding("gbk");
+                        var options = new ReaderOptions
+                        {
+                            ArchiveEncoding = archiveEncoding
+                        };
+                        using (var archive = ArchiveFactory.Open(file, options))
                         {
                             foreach (var entry in archive.Entries)
                             {

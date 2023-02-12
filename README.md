@@ -17,6 +17,9 @@
 * 运行环境基于.net freamwork 4.6.1（需要安装此环境才能运行）
 * 发布版下载解压可用（或自己下载源码编译）
 
+#### 操作演示
+![操作演示](images/video.gif)
+
 #### 软件截图
 ![主界面](images/MainWindow.png)
 ![区域管理](images/SearchAreaManagement1.png)
